@@ -1067,3 +1067,19 @@ do                                                              \
 #define CONFIG_MIN_WIZLIST_LEV  config_info.autowiz.min_wizlist_lev
 
 #endif /* _UTILS_H_ */
+
+/* 한글용 */
+
+// 새천사 한글처리
+#define ishan(ch) (((ch) & 0xE0) > 0x90)
+#define ishanasc(ch) (isascii(ch) || ishan(ch))
+#define ishanalp(ch) (isalpha(ch) || ishan(ch))
+#define isnhdigit(ch) (!ishan(ch) && isdigit(ch))
+#define isnhspace(ch) (!ishan(ch) && isspace(ch))
+
+int is_hangul(unsigned char *str);
+int is_han(unsigned char *str);
+int under_han(unsigned char *str);
+char *first_han(unsigned char *str);
+char *check_josa(char *str, int m);
+char *check_josa_p(char *str, int m);

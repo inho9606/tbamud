@@ -474,7 +474,7 @@ static int sell_price(struct obj_data *obj, int shop_nr, struct char_data *keepe
 
 static void shopping_buy(char *arg, struct char_data *ch, struct char_data *keeper, int shop_nr)
 {
-  char tempstr[MAX_INPUT_LENGTH - 10], tempbuf[MAX_INPUT_LENGTH];
+  char tempstr[MAX_INPUT_LENGTH], tempbuf[MAX_INPUT_LENGTH];
   struct obj_data *obj, *last_obj = NULL;
   int goldamt = 0, buynum, bought = 0;
 
@@ -739,7 +739,7 @@ static void sort_keeper_objs(struct char_data *keeper, int shop_nr)
 
 static void shopping_sell(char *arg, struct char_data *ch, struct char_data *keeper, int shop_nr)
 {
-  char tempstr[MAX_INPUT_LENGTH - 10], name[MAX_INPUT_LENGTH], tempbuf[MAX_INPUT_LENGTH]; // - 10 to make room for constants in format
+  char tempstr[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], tempbuf[MAX_INPUT_LENGTH];
   struct obj_data *obj;
   int sellnum, sold = 0, goldamt = 0;
 
@@ -977,19 +977,19 @@ SPECIAL(shop_keeper)
     return (TRUE);
   }
 
-  if (CMD_IS("buy")) {
+  if (CMD_IS("사")) {
     shopping_buy(argument, ch, keeper, shop_nr);
     return (TRUE);
-  } else if (CMD_IS("sell")) {
+  } else if (CMD_IS("팔아")) {
     shopping_sell(argument, ch, keeper, shop_nr);
     return (TRUE);
-  } else if (CMD_IS("value")) {
+  } else if (CMD_IS("가격")) {
     shopping_value(argument, ch, keeper, shop_nr);
     return (TRUE);
-  } else if (CMD_IS("list")) {
+  } else if (CMD_IS("품목")) {
     shopping_list(argument, ch, keeper, shop_nr);
     return (TRUE);
-  } else if (CMD_IS("identify")) {
+  } else if (CMD_IS("감정")) {
     return (shopping_identify(argument, ch, keeper, shop_nr));
   }
   return (FALSE);

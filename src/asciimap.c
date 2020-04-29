@@ -501,22 +501,22 @@ static void perform_map( struct char_data *ch, char *argument, bool worldmap )
   map[centre][centre] = SECT_HERE;
 
   /* Feel free to put your own MUD name or header in here */
-  send_to_char(ch, " \tY-\tytbaMUD Map System\tY-\tn\r\n"
+  send_to_char(ch, " \tY-\tytba머드 지도 시스템\tY-\tn\r\n"
                    "\tD  .-.__--.,--.__.-.\tn\r\n" );
 
-  count += sprintf(buf + count, "\tn\tn\tn%s Up\\\\", door_info[NUM_DOOR_TYPES + DOOR_UP].disp);
-  count += sprintf(buf + count, "\tn\tn\tn%s Down\\\\", door_info[NUM_DOOR_TYPES + DOOR_DOWN].disp);
-  count += sprintf(buf + count, "\tn%s You\\\\", map_info[SECT_HERE].disp);
-  count += sprintf(buf + count, "\tn%s Inside\\\\", map_info[SECT_INSIDE].disp);
-  count += sprintf(buf + count, "\tn%s City\\\\", map_info[SECT_CITY].disp);
-  count += sprintf(buf + count, "\tn%s Field\\\\", map_info[SECT_FIELD].disp);
-  count += sprintf(buf + count, "\tn%s Forest\\\\", map_info[SECT_FOREST].disp);
-  count += sprintf(buf + count, "\tn%s Hills\\\\", map_info[SECT_HILLS].disp);
-  count += sprintf(buf + count, "\tn%s Mountain\\\\", map_info[SECT_MOUNTAIN].disp);
-  count += sprintf(buf + count, "\tn%s Swim\\\\", map_info[SECT_WATER_SWIM].disp);
-  count += sprintf(buf + count, "\tn%s Boat\\\\", map_info[SECT_WATER_NOSWIM].disp);
-  count += sprintf(buf + count, "\tn%s Flying\\\\", map_info[SECT_FLYING].disp);
-  sprintf(buf + count, "\tn%s Underwater\\\\", map_info[SECT_UNDERWATER].disp);
+  count += sprintf(buf + count, "\tn\tn\tn%s 위\\\\", door_info[NUM_DOOR_TYPES + DOOR_UP].disp);
+  count += sprintf(buf + count, "\tn\tn\tn%s 아래wn\\\\", door_info[NUM_DOOR_TYPES + DOOR_DOWN].disp);
+  count += sprintf(buf + count, "\tn%s 당신\\\\", map_info[SECT_HERE].disp);
+  count += sprintf(buf + count, "\tn%s 실내\\\\", map_info[SECT_INSIDE].disp);
+  count += sprintf(buf + count, "\tn%s 도시\\\\", map_info[SECT_CITY].disp);
+  count += sprintf(buf + count, "\tn%s 야외\\\\", map_info[SECT_FIELD].disp);
+  count += sprintf(buf + count, "\tn%s 숲\\\\", map_info[SECT_FOREST].disp);
+  count += sprintf(buf + count, "\tn%s 언덕\\\\", map_info[SECT_HILLS].disp);
+  count += sprintf(buf + count, "\tn%s 산\\\\", map_info[SECT_MOUNTAIN].disp);
+  count += sprintf(buf + count, "\tn%s 물(수영)\\\\", map_info[SECT_WATER_SWIM].disp);
+  count += sprintf(buf + count, "\tn%s 물(배)\\\\", map_info[SECT_WATER_NOSWIM].disp);
+  count += sprintf(buf + count, "\tn%s 비행\\\\", map_info[SECT_FLYING].disp);
+  sprintf(buf + count, "\tn%s 수중\\\\", map_info[SECT_UNDERWATER].disp);
 
   strcpy(buf, strfrmt(buf, LEGEND_WIDTH, CANVAS_HEIGHT + 2, FALSE, TRUE, TRUE));
 

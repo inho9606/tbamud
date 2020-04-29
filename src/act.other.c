@@ -41,20 +41,20 @@ ACMD(do_quit)
     return;
 
   if (subcmd != SCMD_QUIT && GET_LEVEL(ch) < LVL_IMMORT)
-    send_to_char(ch, "You have to type quit--no less, to quit!\r\n");
+    send_to_char(ch, "확실하게 종료라고 입력해주세요!\r\n");
   else if (GET_POS(ch) == POS_FIGHTING)
-    send_to_char(ch, "No way!  You're fighting for your life!\r\n");
+    send_to_char(ch, "전투중에는 종료할 수 없습니다!\r\n");
   else if (GET_POS(ch) < POS_STUNNED) {
-    send_to_char(ch, "You die before your time...\r\n");
+    send_to_char(ch, "당신은 죽었습니다.\r\n");
     die(ch, NULL);
   } else {
-    act("$n has left the game.", TRUE, ch, 0, 0, TO_ROOM);
-    mudlog(NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE, "%s has quit the game.", GET_NAME(ch));
+ act("$n님이 게임을 종료합니다.", TRUE, ch, 0, 0, TO_ROOM);
+    mudlog(NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE, "%s님이 게임에서 나갔습니다.", GET_NAME(ch));
 
     if (GET_QUEST_TIME(ch) != -1)
       quest_timeout(ch);
 
-    send_to_char(ch, "Goodbye, friend.. Come back soon!\r\n");
+     send_to_char(ch, "안녕히 가십시오. 다음 방문을 기다리겠습니다!\r\n");
 
     /* We used to check here for duping attempts, but we may as well do it right
      * in extract_char(), since there is no check if a player rents out and it
@@ -67,7 +67,7 @@ ACMD(do_quit)
 
     /* Stop snooping so you can't see passwords during deletion or change. */
     if (ch->desc->snoop_by) {
-      write_to_output(ch->desc->snoop_by, "Your victim is no longer among us.\r\n");
+       write_to_output(ch->desc->snoop_by, "감시 대상이 게임을 종료 했습니다.\r\n");
       ch->desc->snoop_by->snooping = NULL;
       ch->desc->snoop_by = NULL;
     }
@@ -81,7 +81,7 @@ ACMD(do_save)
   if (IS_NPC(ch) || !ch->desc)
     return;
 
-  send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
+  send_to_char(ch, "%s님의 데이터를 저장 합니다. \r\n", GET_NAME(ch) );
   save_char(ch);
   Crash_crashsave(ch);
   if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE_CRASH))
@@ -93,7 +93,7 @@ ACMD(do_save)
  * procedures - i.e., shop commands, mail commands, etc. */
 ACMD(do_not_here)
 {
-  send_to_char(ch, "Sorry, but you cannot do that here!\r\n");
+   send_to_char(ch, "여기서 사용할 수 없는 명령입니다!\r\n");
 }
 
 ACMD(do_sneak)
@@ -102,10 +102,10 @@ ACMD(do_sneak)
   byte percent;
 
   if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_SNEAK)) {
-    send_to_char(ch, "You have no idea how to do that.\r\n");
+    send_to_char(ch, "그런 기술을 모릅니다.\r\n");
     return;
   }
-  send_to_char(ch, "Okay, you'll try to move silently for a while.\r\n");
+   send_to_char(ch, "당신은 이제부터 조용히 움직입니다.\r\n");
   if (AFF_FLAGGED(ch, AFF_SNEAK))
     affect_from_char(ch, SKILL_SNEAK);
 
@@ -126,11 +126,11 @@ ACMD(do_hide)
   byte percent;
 
   if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_HIDE)) {
-    send_to_char(ch, "You have no idea how to do that.\r\n");
+     send_to_char(ch, "그런 기술을 모릅니다.\r\n");
     return;
   }
 
-  send_to_char(ch, "You attempt to hide yourself.\r\n");
+  send_to_char(ch, "당신은 어둠속으로 몸을 숨깁니다.\r\n");
 
   if (AFF_FLAGGED(ch, AFF_HIDE))
     REMOVE_BIT_AR(AFF_FLAGS(ch), AFF_HIDE);
@@ -151,21 +151,21 @@ ACMD(do_steal)
   int percent, gold, eq_pos, pcsteal = 0, ohoh = 0;
 
   if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_STEAL)) {
-    send_to_char(ch, "You have no idea how to do that.\r\n");
+    send_to_char(ch, "그런 기술을 모릅니다.\r\n");
     return;
   }
   if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL)) {
-    send_to_char(ch, "This room just has such a peaceful, easy feeling...\r\n");
+    send_to_char(ch, "이곳에서는 분란이될 행동을 할수 없습니다.\r\n");
     return;
   }
 
   two_arguments(argument, obj_name, vict_name);
 
   if (!(vict = get_char_vis(ch, vict_name, NULL, FIND_CHAR_ROOM))) {
-    send_to_char(ch, "Steal what from who?\r\n");
+    send_to_char(ch, "누구에게 무엇을 훔칠까요?\r\n");
     return;
   } else if (vict == ch) {
-    send_to_char(ch, "Come on now, that's rather stupid!\r\n");
+    send_to_char(ch, "자기 자신에게 사용할 수 없습니다.\r\n");
     return;
   }
 
@@ -185,7 +185,7 @@ ACMD(do_steal)
   if (GET_LEVEL(vict) >= LVL_IMMORT || pcsteal || GET_MOB_SPEC(vict) == shop_keeper)
     percent = 101;		/* Failure */
 
-  if (str_cmp(obj_name, "coins") && str_cmp(obj_name, "gold")) {
+  if (str_cmp(obj_name, "동전") && str_cmp(obj_name, "금화")) {
 
     if (!(obj = get_obj_in_list_vis(ch, obj_name, NULL, vict->carrying))) {
 
@@ -197,20 +197,20 @@ ACMD(do_steal)
 	  break;
 	}
       if (!obj) {
-	act("$E hasn't got that item.", FALSE, ch, 0, vict, TO_CHAR);
+	act("$E$V 그 물건을 가지고 있지 않습니다.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
       } else {			/* It is equipment */
 	if ((GET_POS(vict) > POS_STUNNED)) {
-	  send_to_char(ch, "Steal the equipment now?  Impossible!\r\n");
+	  send_to_char(ch, "입고 있는 장비를 훔칠 수 없습니다!\r\n");
 	  return;
 	} else {
           if (!give_otrigger(obj, vict, ch) ||
               !receive_mtrigger(ch, vict, obj) ) {
-            send_to_char(ch, "Impossible!\r\n");
+            send_to_char(ch, "불가능 합니다!\r\n");
             return;
           }
-	  act("You unequip $p and steal it.", FALSE, ch, obj, 0, TO_CHAR);
-	  act("$n steals $p from $N.", FALSE, ch, obj, vict, TO_NOTVICT);
+	  act("당신은 $p$L 훔쳤습니다.", FALSE, ch, obj, 0, TO_CHAR);
+	  act("$n$j $p$L $N에게서 훔쳤습니다.", FALSE, ch, obj, vict, TO_NOTVICT);
 	  obj_to_char(unequip_char(vict, eq_pos), ch);
 	}
       }
@@ -220,31 +220,31 @@ ACMD(do_steal)
 
       if (percent > GET_SKILL(ch, SKILL_STEAL)) {
 	ohoh = TRUE;
-	send_to_char(ch, "Oops..\r\n");
-	act("$n tried to steal something from you!", FALSE, ch, 0, vict, TO_VICT);
-	act("$n tries to steal something from $N.", TRUE, ch, 0, vict, TO_NOTVICT);
+	send_to_char(ch, "당신이 뭔가를 훔쳤습니다.\r\n");
+	act("$n$j 뭔가를 훔쳤습니다!", FALSE, ch, 0, vict, TO_VICT);
+	act("$n$j $N$d 뭔가를 훔쳤습니다!", TRUE, ch, 0, vict, TO_NOTVICT);
       } else {			/* Steal the item */
 	if (IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch)) {
           if (!give_otrigger(obj, vict, ch) ||
               !receive_mtrigger(ch, vict, obj) ) {
-            send_to_char(ch, "Impossible!\r\n");
+            send_to_char(ch, "불가능 합니다!\r\n");
             return;
           }
 	  if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) < CAN_CARRY_W(ch)) {
 	    obj_from_char(obj);
 	    obj_to_char(obj, ch);
-	    send_to_char(ch, "Got it!\r\n");
+	    send_to_char(ch, "물건을 훔치는데 성공했습니다!\r\n");
 	  }
 	} else
-	  send_to_char(ch, "You cannot carry that much.\r\n");
+	  send_to_char(ch, "가진것이 너무 많습니다.\r\n");
       }
     }
   } else {			/* Steal some coins */
     if (AWAKE(vict) && (percent > GET_SKILL(ch, SKILL_STEAL))) {
       ohoh = TRUE;
-      send_to_char(ch, "Oops..\r\n");
-      act("You discover that $n has $s hands in your wallet.", FALSE, ch, 0, vict, TO_VICT);
-      act("$n tries to steal gold from $N.", TRUE, ch, 0, vict, TO_NOTVICT);
+      send_to_char(ch, "당신은 돈을 훔쳤습니다.\r\n");
+      act("당신의 지갑에서 $s을 훔쳐가는 $n$J 발견했습니다.", FALSE, ch, 0, vict, TO_VICT);
+      act("$n$j $N$D 돈을 훔쳤습니다.", TRUE, ch, 0, vict, TO_NOTVICT);
     } else {
       /* Steal some gold coins */
       gold = (GET_GOLD(vict) * rand_number(1, 10)) / 100;
@@ -253,11 +253,11 @@ ACMD(do_steal)
 		increase_gold(ch, gold);
 		decrease_gold(vict, gold);
         if (gold > 1)
-	  send_to_char(ch, "Bingo!  You got %d gold coins.\r\n", gold);
-	else
-	  send_to_char(ch, "You manage to swipe a solitary gold coin.\r\n");
-      } else {
-	send_to_char(ch, "You couldn't get any gold...\r\n");
+			send_to_char(ch, "당신은 %d원을 훔치는데 성공했습니다!\r\n", gold);
+		else
+			send_to_char(ch, "겨우 동전 하나를 훔쳤습니다.\r\n");
+	  } else {
+		send_to_char(ch, "아무것도 훔치지 못했습니다.\r\n");
       }
     }
   }
@@ -276,7 +276,7 @@ ACMD(do_practice)
   one_argument(argument, arg);
 
   if (*arg)
-    send_to_char(ch, "You can only practice skills in your guild.\r\n");
+    send_to_char(ch, "길드에서만 수련이 가능합니다.\r\n");
   else
     list_skills(ch);
 }
@@ -290,9 +290,9 @@ ACMD(do_visible)
 
   if AFF_FLAGGED(ch, AFF_INVISIBLE) {
     appear(ch);
-    send_to_char(ch, "You break the spell of invisibility.\r\n");
+    send_to_char(ch, "당신의 모습을 드러냅니다.\r\n");
   } else
-    send_to_char(ch, "You are already visible.\r\n");
+    send_to_char(ch, "당신은 모습을 숨기고 있습니다.\r\n");
 }
 
 ACMD(do_title)
@@ -302,16 +302,17 @@ ACMD(do_title)
   parse_at(argument);
 
   if (IS_NPC(ch))
-    send_to_char(ch, "Your title is fine... go away.\r\n");
+    send_to_char(ch, "맙은 사용할 수 없는 명령입니다..\r\n");
   else if (PLR_FLAGGED(ch, PLR_NOTITLE))
-    send_to_char(ch, "You can't title yourself -- you shouldn't have abused it!\r\n");
+    send_to_char(ch, "당신은 칭호를 변경할 수 없습니다 -- 먼저 설정을 변경해주세요!\r\n");
   else if (strstr(argument, "(") || strstr(argument, ")"))
-    send_to_char(ch, "Titles can't contain the ( or ) characters.\r\n");
+    send_to_char(ch, "칭호에 ( 또는 ) 문자를 포함할 수 없습니다.\r\n");
   else if (strlen(argument) > MAX_TITLE_LENGTH)
-    send_to_char(ch, "Sorry, titles can't be longer than %d characters.\r\n", MAX_TITLE_LENGTH);
+    send_to_char(ch, "%d글자 이상 넣을 수 없습니다.\r\n", MAX_TITLE_LENGTH / 2);
   else {
     set_title(ch, argument);
-    send_to_char(ch, "Okay, you're now %s%s%s.\r\n", GET_NAME(ch), *GET_TITLE(ch) ? " " : "", GET_TITLE(ch));
+    send_to_char(ch, "이제 당신은 %s%s%s 입니다.\r\n",
+		GET_NAME(ch), *GET_TITLE(ch) ? " " : "", GET_TITLE(ch));
   }
 }
 
@@ -561,7 +562,7 @@ ACMD(do_use)
 
   half_chop(argument, arg, buf);
   if (!*arg) {
-    send_to_char(ch, "What do you want to %s?\r\n", CMD_NAME);
+    send_to_char(ch, "무엇을 %s 할까요?\r\n", CMD_NAME);
     return;
   }
   mag_item = GET_EQ(ch, WEAR_HOLD);
@@ -571,12 +572,12 @@ ACMD(do_use)
     case SCMD_RECITE:
     case SCMD_QUAFF:
       if (!(mag_item = get_obj_in_list_vis(ch, arg, NULL, ch->carrying))) {
-	send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+	send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 4));
 	return;
       }
       break;
     case SCMD_USE:
-      send_to_char(ch, "You don't seem to be holding %s %s.\r\n", AN(arg), arg);
+       send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 4));
       return;
     default:
       log("SYSERR: Unknown subcmd %d passed to do_use.", subcmd);
@@ -588,20 +589,20 @@ ACMD(do_use)
   switch (subcmd) {
   case SCMD_QUAFF:
     if (GET_OBJ_TYPE(mag_item) != ITEM_POTION) {
-      send_to_char(ch, "You can only quaff potions.\r\n");
+      send_to_char(ch, "물약만 마실 수 있습니다.\r\n");
       return;
     }
     break;
   case SCMD_RECITE:
     if (GET_OBJ_TYPE(mag_item) != ITEM_SCROLL) {
-      send_to_char(ch, "You can only recite scrolls.\r\n");
+      send_to_char(ch, "주문서만 배울 수 있습니다.\r\n");
       return;
     }
     break;
   case SCMD_USE:
     if ((GET_OBJ_TYPE(mag_item) != ITEM_WAND) &&
 	(GET_OBJ_TYPE(mag_item) != ITEM_STAFF)) {
-      send_to_char(ch, "You can't seem to figure out how to use it.\r\n");
+      send_to_char(ch, "사용할 수 있는 종류가 아닙니다.\r\n");
       return;
     }
     break;
@@ -615,27 +616,27 @@ ACMD(do_display)
   size_t i;
 
   if (IS_NPC(ch)) {
-    send_to_char(ch, "Monsters don't need displays.  Go away.\r\n");
+    send_to_char(ch, "몹은 사용할 수 없는 명령입니다..\r\n");
     return;
   }
   skip_spaces(&argument);
 
   if (!*argument) {
-    send_to_char(ch, "Usage: prompt { { H | M | V } | all | auto | none }\r\n");
+    send_to_char(ch, "사용법: { {체력|마력|이동력} | 모두 | 자동 | 없음 } 표시\r\n");
     return;
   }
 
-  if (!str_cmp(argument, "auto")) {
+  if (!str_cmp(argument, "모두")) {
     TOGGLE_BIT_AR(PRF_FLAGS(ch), PRF_DISPAUTO);
-    send_to_char(ch, "Auto prompt %sabled.\r\n", PRF_FLAGGED(ch, PRF_DISPAUTO) ? "en" : "dis");
+    send_to_char(ch, "모두 표시 %s합니다.\r\n", PRF_FLAGGED(ch, PRF_DISPAUTO) ? "" : "안");
     return;
   }
 
-  if (!str_cmp(argument, "on") || !str_cmp(argument, "all")) {
+  if (!str_cmp(argument, "모두")) {
     SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPHP);
     SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPMANA);
     SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPMOVE);
-  } else if (!str_cmp(argument, "off") || !str_cmp(argument, "none")) {
+  } else if (!str_cmp(argument, "없음")) {
     REMOVE_BIT_AR(PRF_FLAGS(ch), PRF_DISPHP);
     REMOVE_BIT_AR(PRF_FLAGS(ch), PRF_DISPMANA);
     REMOVE_BIT_AR(PRF_FLAGS(ch), PRF_DISPMOVE);
@@ -645,19 +646,15 @@ ACMD(do_display)
     REMOVE_BIT_AR(PRF_FLAGS(ch), PRF_DISPMOVE);
 
     for (i = 0; i < strlen(argument); i++) {
-      switch (LOWER(argument[i])) {
-      case 'h':
-        SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPHP);
-	break;
-      case 'm':
-        SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPMANA);
-	break;
-      case 'v':
-        SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPMOVE);
-	break;
-      default:
-	send_to_char(ch, "Usage: prompt { { H | M | V } | all | auto | none }\r\n");
-	return;
+		if(!is_abbrev(argument, "체력")) {
+			SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPHP);
+		} else if(!is_abbrev(argument, "마력")) {
+			SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPMANA);
+		} if(!is_abbrev(argument, "이동력")) {
+			SET_BIT_AR(PRF_FLAGS(ch), PRF_DISPMOVE);
+		} else {
+			send_to_char(ch, "사용법: { {체력|마력|이동력} | 모두 | 자동 | 없음 } 표시\r\n");
+			return;
       }
     }
   }
@@ -674,64 +671,64 @@ ACMD(do_gen_tog)
   char arg[MAX_INPUT_LENGTH];
 
   const char *tog_messages[][2] = {
-    {"You are now safe from summoning by other players.\r\n",
-    "You may now be summoned by other players.\r\n"},
+	{"이제부터 다른 사용자의 소환을 거부합니다.\r\n",
+    "다른 사용자의 소환을 허용합니다.\r\n"},
     {"Nohassle disabled.\r\n",
     "Nohassle enabled.\r\n"},
-    {"Brief mode off.\r\n",
-    "Brief mode on.\r\n"},
-    {"Compact mode off.\r\n",
-    "Compact mode on.\r\n"},
-    {"You can now hear tells.\r\n",
-    "You are now deaf to tells.\r\n"},
-    {"You can now hear auctions.\r\n",
-    "You are now deaf to auctions.\r\n"},
-    {"You can now hear shouts.\r\n",
-    "You are now deaf to shouts.\r\n"},
-    {"You can now hear gossip.\r\n",
-    "You are now deaf to gossip.\r\n"},
-    {"You can now hear the congratulation messages.\r\n",
-    "You are now deaf to the congratulation messages.\r\n"},
-    {"You can now hear the Wiz-channel.\r\n",
-    "You are now deaf to the Wiz-channel.\r\n"},
-    {"You are no longer part of the Quest.\r\n",
-    "Okay, you are part of the Quest!\r\n"},
-    {"You will no longer see the room flags.\r\n",
-    "You will now see the room flags.\r\n"},
-    {"You will now have your communication repeated.\r\n",
-    "You will no longer have your communication repeated.\r\n"},
-    {"HolyLight mode off.\r\n",
-    "HolyLight mode on.\r\n"},
+    {"간략모드 꺼짐.\r\n",
+    "간략모드 켜짐.\r\n"},
+    {"공백제거 모드 켜짐.\r\n",
+    "공백제거 모드 꺼짐.\r\n"},
+    {"다른 사람과의 이야기를 허용합니다.\r\n",
+    "다른 사람과의 이야기를 거부합니다.\r\n"},
+    {"경매 채널을 켭니다.\r\n",
+    "경매 채널을 듣지 않습니다.\r\n"},
+    {"외침 채널을 켭니다.\r\n",
+    "외침 채널을 듣지 않습니다.\r\n"},
+    {"잡담 채널을 켭니다.\r\n",
+    "잡담 채널을 듣지 않습니다.\r\n"},
+    {"축하 채널을 켭니다.\r\n",
+    "축하 채널을 듣지 않습니다.\r\n"},
+    {"신채널을 듣습니다.\r\n",
+    "신채널을 듣지 않습니다.\r\n"},
+    {"당신은 이제 임무중이 아닙니다.\r\n",
+    "당신은 이제 임무를 시작합니다.\r\n"},
+    {"방속성을 더이상 보지 않습니다.\r\n",
+    "이제 방속성을 봅니다.\r\n"},
+    {"당신이 하는 말들을 봅니다.\r\n",
+    "당신이 하는 말들을 보지 않습니다.\r\n"},
+    {"암흑보기가 꺼집니다.\r\n",
+    "암흑보기가 켜집니다.\r\n"},
     {"Nameserver_is_slow changed to NO; IP addresses will now be resolved.\r\n",
     "Nameserver_is_slow changed to YES; sitenames will no longer be resolved.\r\n"},
-    {"Autoexits disabled.\r\n",
-    "Autoexits enabled.\r\n"},
-    {"Will no longer track through doors.\r\n",
-    "Will now track through doors.\r\n"},
-    {"Will no longer clear screen in OLC.\r\n",
-    "Will now clear screen in OLC.\r\n"},
-    {"Buildwalk Off.\r\n",
-    "Buildwalk On.\r\n"},
-    {"AFK flag is now off.\r\n",
-    "AFK flag is now on.\r\n"},
-    {"Autoloot disabled.\r\n",
-    "Autoloot enabled.\r\n"},
-    {"Autogold disabled.\r\n",
-    "Autogold enabled.\r\n"},
-    {"Autosplit disabled.\r\n",
-    "Autosplit enabled.\r\n"},
-    {"Autosacrifice disabled.\r\n",
-    "Autosacrifice enabled.\r\n"},
-    {"Autoassist disabled.\r\n",
-    "Autoassist enabled.\r\n"},
-    {"Automap disabled.\r\n",
-    "Automap enabled.\r\n"},
-    {"Autokey disabled.\r\n",
-    "Autokey enabled.\r\n"},
-    {"Autodoor disabled.\r\n",
-    "Autodoor enabled.\r\n"},
-    {"ZoneResets disabled.\r\n",
-    "ZoneResets enabled.\r\n"}
+    {"자동출구를 사용하지 않습니다.\r\n",
+    "자동출구를 사용합니다.\r\n"},
+    {"이제 사용자들이 문을 통과해서 추적하지 못합니다.\r\n",
+    "이제 사용자들이 문을 통과해서 추적을 합니다.\r\n"},
+    {"편집화면을 일반모드로 봅니다.\r\n",
+    "편집화면을 메뉴모드로 봅니다.\r\n"},
+    {"존제작 모드를 사용하지 않습니다.\r\n",
+    "존제작 모드를 사용합니다.\r\n"},
+    {"접속유지를 해제합니다.\r\n",
+    "접속유지로 들어갑니다.\r\n"},
+    {"자동줍기를 사용하지 않습니다.\r\n",
+    "자동줍기를 사용합니다.\r\n"},
+    {"돈줍기를 사용하지 않습니다.\r\n",
+    "돈줍기를 사용합니다.\r\n"},
+    {"자동분배를 사용하지 않습니다.\r\n",
+    "자동분배를 사용합니다.\r\n"},
+    {"자동제물을 사용하지 않습니다.\r\n",
+    "자동제물을 사용합니다.\r\n"},
+    {"자동돕기를 사용하지 않습니다.\r\n",
+    "자동돕기를 사용합니다.\r\n"},
+    {"자동지도를 사용하지 않습니다.\r\n",
+    "이제 조그만 지도를 방설명에 보여줍니다.\r\n"},
+    {"이제 문을 수동으로 엽니다.\r\n",
+    "열쇠가 있을때 문을 자동으로 엽니다.\r\n"},
+    {"당신은 이제 문을 열고 닫거나 잠글때 방향을 따로 지정해야 합니다.\r\n",
+    "당신은 이제 자동으로 문의 방향을 찾습니다.\r\n"},
+    {"존의 리셋정보를 보지 않습니다.\r\n",
+    "존의 리셋정보를 봅니다.\r\n"}
   };
 
   if (IS_NPC(ch))
@@ -788,7 +785,7 @@ ACMD(do_gen_tog)
     break;    
   case SCMD_BUILDWALK:
     if (GET_LEVEL(ch) < LVL_BUILDER) {
-      send_to_char(ch, "Builders only, sorry.\r\n");
+      send_to_char(ch, "존제작자만 사용 가능합니다.\r\n");
       return;
     }
     result = PRF_TOG_CHK(ch, PRF_BUILDWALK);
@@ -811,11 +808,11 @@ ACMD(do_gen_tog)
   case SCMD_AFK:
     result = PRF_TOG_CHK(ch, PRF_AFK);
     if (PRF_FLAGGED(ch, PRF_AFK))
-      act("$n has gone AFK.", TRUE, ch, 0, 0, TO_ROOM);
+      act("$n$j 접속 유지상태로 $s 들어갑니다.", TRUE, ch, 0, 0, TO_ROOM);
     else {
-      act("$n has come back from AFK.", TRUE, ch, 0, 0, TO_ROOM);
+      act("$n$j 접속유지 상태에서 다시 게임으로 $s 돌아옵니다.", TRUE, ch, 0, 0, TO_ROOM);
       if (has_mail(GET_IDNUM(ch)))
-        send_to_char(ch, "You have mail waiting.\r\n");
+        send_to_char(ch, "편지가 와있습니다.\r\n");
     }
     break;
   case SCMD_AUTOLOOT:

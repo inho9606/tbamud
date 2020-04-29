@@ -52,32 +52,31 @@ static void wear_message(struct char_data *ch, struct obj_data *obj, int where);
 
 static void perform_put(struct char_data *ch, struct obj_data *obj, struct obj_data *cont)
 {
-  long object_id = obj_script_id(obj);
 
   if (!drop_otrigger(obj, ch))
     return;
 
-  if (!has_obj_by_uid_in_lookup_table(object_id)) /* object might be extracted by drop_otrigger */
+  if (!obj) /* object might be extracted by drop_otrigger */
     return;
 
   if ((GET_OBJ_VAL(cont, 0) > 0) &&
       (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)))
-    act("$p won't fit in $P.", FALSE, ch, obj, cont, TO_CHAR);
+    act("$p안에 $P$L 넣을순 없습니다.", FALSE, ch, obj, cont, TO_CHAR);
   else if (OBJ_FLAGGED(obj, ITEM_NODROP) && IN_ROOM(cont) != NOWHERE)
-    act("You can't get $p out of your hand.", FALSE, ch, obj, NULL, TO_CHAR);
+    act("당신은 $p$L 손에서 놓을수가 없습니다.", FALSE, ch, obj, NULL, TO_CHAR);
   else {
     obj_from_char(obj);
     obj_to_obj(obj, cont);
 
-    act("$n puts $p in $P.", TRUE, ch, obj, cont, TO_ROOM);
+   act("$n$j $p$L $P안에 넣었습니다.", TRUE, ch, obj, cont, TO_ROOM);
 
     /* Yes, I realize this is strange until we have auto-equip on rent. -gg */
     if (OBJ_FLAGGED(obj, ITEM_NODROP) && !OBJ_FLAGGED(cont, ITEM_NODROP)) {
       SET_BIT_AR(GET_OBJ_EXTRA(cont), ITEM_NODROP);
-      act("You get a strange feeling as you put $p in $P.", FALSE,
-                ch, obj, cont, TO_CHAR);
+	  act("당신은 $p$L $P안에 집어넣고나서 이상한 기분이 들었습니다.",
+		  FALSE, ch, obj, cont, TO_CHAR);
     } else
-      act("You put $p in $P.", FALSE, ch, obj, cont, TO_CHAR);
+      act("당신은 $p$L $P안에 넣습니다.", FALSE, ch, obj, cont, TO_CHAR);
   }
 }
 
@@ -111,25 +110,25 @@ ACMD(do_put)
   cont_dotmode = find_all_dots(thecont);
 
   if (!*theobj)
-    send_to_char(ch, "Put what in what?\r\n");
+    send_to_char(ch, "무엇을 어디에 넣을까요?\r\n");
   else if (cont_dotmode != FIND_INDIV)
-    send_to_char(ch, "You can only put things into one container at a time.\r\n");
+    send_to_char(ch, "한번에 한가지만 가능합니다.\r\n");
   else if (!*thecont) {
-    send_to_char(ch, "What do you want to put %s in?\r\n", obj_dotmode == FIND_INDIV ? "it" : "them");
+    send_to_char(ch, "무엇에 넣고 싶으세요?\r\n");
   } else {
     generic_find(thecont, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &tmp_char, &cont);
     if (!cont)
-      send_to_char(ch, "You don't see %s %s here.\r\n", AN(thecont), thecont);
+      send_to_char(ch, "%s%s 찾을수 없습니다.\r\n", thecont, check_josa(thecont, 1));
     else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
-      act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
+		act("$p$k 물건을 담을만한게 아닙니다.", FALSE, ch, cont, 0, TO_CHAR);
     else if (OBJVAL_FLAGGED(cont, CONT_CLOSED) && (GET_LEVEL(ch) < LVL_IMMORT || !PRF_FLAGGED(ch, PRF_NOHASSLE)))
-      send_to_char(ch, "You'd better open it first!\r\n");
+      send_to_char(ch, "먼저 그것을 열어야 합니다!\r\n");
     else {
-      if (obj_dotmode == FIND_INDIV) {	/* put <obj> <container> */
+      if (obj_dotmode == FIND_INDIV) {	/* <물건> <넣을곳> 넣어 */
 	if (!(obj = get_obj_in_list_vis(ch, theobj, NULL, ch->carrying)))
-	  send_to_char(ch, "You aren't carrying %s %s.\r\n", AN(theobj), theobj);
+	  send_to_char(ch, "당신은 %s%s 가지고 있지 않습니다.\r\n", theobj, check_josa(theobj, 1));
 	else if (obj == cont && howmany == 1)
-	  send_to_char(ch, "You attempt to fold it into itself, but fail.\r\n");
+	  send_to_char(ch, "억지로 밀어넣어 보지만 실패했습니다.\r\n");
 	else {
 	  while (obj && howmany) {
 	    next_obj = obj->next_content;
@@ -151,9 +150,9 @@ ACMD(do_put)
 	}
 	if (!found) {
 	  if (obj_dotmode == FIND_ALL)
-	    send_to_char(ch, "You don't seem to have anything to put in it.\r\n");
+	    send_to_char(ch, "그것을 넣을만한 것을 가지고 있지 않습니다.\r\n");
 	  else
-	    send_to_char(ch, "You don't seem to have any %ss.\r\n", theobj);
+	    send_to_char(ch, "당신은 %s%s 가지고 있지 않습니다.\r\n", theobj, check_josa(theobj, 1));
 	}
       }
     }
@@ -163,22 +162,22 @@ ACMD(do_put)
 static int can_take_obj(struct char_data *ch, struct obj_data *obj)
 {
 if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE))) {
-  act("$p: you can't take that!", FALSE, ch, obj, 0, TO_CHAR);
+    act("$p: 가질수 없는 물건입니다!", FALSE, ch, obj, 0, TO_CHAR);
   return (0);
   }
 
 if (!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
   if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
-    act("$p: you can't carry that many items.", FALSE, ch, obj, 0, TO_CHAR);
+    act("$p: 너무 많이 들고 있어서 가질 수 없습니다.", FALSE, ch, obj, 0, TO_CHAR);
     return (0);
   } else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
-    act("$p: you can't carry that much weight.", FALSE, ch, obj, 0, TO_CHAR);
+    act("$p: 너무 무거워서 가질 수 없습니다.", FALSE, ch, obj, 0, TO_CHAR);
     return (0);
   }
 }
   
   if (OBJ_SAT_IN_BY(obj)){
-    act("It appears someone is sitting on $p..", FALSE, ch, obj, 0, TO_CHAR);
+	act("$p: 누군가 위에 앉아있습니다.", FALSE, ch, obj, 0, TO_CHAR);
     return (0);
   }
   
@@ -197,9 +196,9 @@ static void get_check_money(struct char_data *ch, struct obj_data *obj)
   increase_gold(ch, value);
 
   if (value == 1)
-    send_to_char(ch, "There was 1 coin.\r\n");
+    send_to_char(ch, "하나의 동전입니다.\r\n");
   else
-    send_to_char(ch, "There were %d coins.\r\n", value);
+    send_to_char(ch, "%d원 입니다.\r\n", value);
 }
 
 static void perform_get_from_container(struct char_data *ch, struct obj_data *obj,
@@ -207,12 +206,12 @@ static void perform_get_from_container(struct char_data *ch, struct obj_data *ob
 {
   if (mode == FIND_OBJ_INV || can_take_obj(ch, obj)) {
     if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-      act("$p: you can't hold any more items.", FALSE, ch, obj, 0, TO_CHAR);
+      act("$p: 당신은 더 많은 물건을 가질 수 없습니다.", FALSE, ch, obj, 0, TO_CHAR);
     else if (get_otrigger(obj, ch)) {
       obj_from_obj(obj);
       obj_to_char(obj, ch);
-      act("You get $p from $P.", FALSE, ch, obj, cont, TO_CHAR);
-      act("$n gets $p from $P.", TRUE, ch, obj, cont, TO_ROOM);
+      act("당신이 $P에서 $p$L 꺼냅니다.", FALSE, ch, obj, cont, TO_CHAR);
+      act("$n$j $P에서 $p$L 꺼냅니다.", TRUE, ch, obj, cont, TO_ROOM);
       get_check_money(ch, obj);
     }
   }
@@ -232,7 +231,7 @@ void get_from_container(struct char_data *ch, struct obj_data *cont,
     if (!(obj = get_obj_in_list_vis(ch, arg, NULL, cont->contains))) {
       char buf[MAX_STRING_LENGTH];
 
-      snprintf(buf, sizeof(buf), "There doesn't seem to be %s %s in $p.", AN(arg), arg);
+      snprintf(buf, sizeof(buf), "$p 안에 %s%s 찾을 수 없습니다.", arg, check_josa(arg, 1));
       act(buf, FALSE, ch, cont, 0, TO_CHAR);
     } else {
       struct obj_data *obj_next;
@@ -244,7 +243,7 @@ void get_from_container(struct char_data *ch, struct obj_data *cont,
     }
   } else {
     if (obj_dotmode == FIND_ALLDOT && !*arg) {
-      send_to_char(ch, "Get all of what?\r\n");
+     send_to_char(ch, "무엇을 모두 꺼낼까요?\r\n");
       return;
     }
     for (obj = cont->contains; obj; obj = next_obj) {
@@ -257,11 +256,11 @@ void get_from_container(struct char_data *ch, struct obj_data *cont,
     }
     if (!found) {
       if (obj_dotmode == FIND_ALL)
-	act("$p seems to be empty.", FALSE, ch, cont, 0, TO_CHAR);
+	act("$p$k 비어 있습니다.", FALSE, ch, cont, 0, TO_CHAR);
       else {
         char buf[MAX_STRING_LENGTH];
 
-	snprintf(buf, sizeof(buf), "You can't seem to find any %ss in $p.", arg);
+	snprintf(buf, sizeof(buf), "$p 안에서 %s%s 찾을 수 없습니다.", arg, check_josa(arg, 1));
 	act(buf, FALSE, ch, cont, 0, TO_CHAR);
       }
     }
@@ -273,8 +272,8 @@ static int perform_get_from_room(struct char_data *ch, struct obj_data *obj)
   if (can_take_obj(ch, obj) && get_otrigger(obj, ch)) {
     obj_from_room(obj);
     obj_to_char(obj, ch);
-    act("You get $p.", FALSE, ch, obj, 0, TO_CHAR);
-    act("$n gets $p.", TRUE, ch, obj, 0, TO_ROOM);
+    act("당신이 $p$L 집었습니다.", FALSE, ch, obj, 0, TO_CHAR);
+    act("$n$j $p$L 집습니다.", TRUE, ch, obj, 0, TO_ROOM);
     get_check_money(ch, obj);
     return (1);
   }
@@ -292,10 +291,10 @@ static void get_from_room(struct char_data *ch, char *arg, int howmany)
     if (!(obj = get_obj_in_list_vis(ch, arg, NULL, world[IN_ROOM(ch)].contents))) {
         /* Are they trying to take something in a room extra description? */
         if (find_exdesc(arg, world[IN_ROOM(ch)].ex_description) != NULL) {
-            send_to_char(ch, "You can't take %s %s.\r\n", AN(arg), arg);
+           send_to_char(ch, "%s%s 가질 수 없습니다.\r\n", arg, check_josa(arg, 1));
             return;
         }
-      send_to_char(ch, "You don't see %s %s here.\r\n", AN(arg), arg);
+      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
     } else {
       struct obj_data *obj_next;
       while(obj && howmany--) {
@@ -306,7 +305,7 @@ static void get_from_room(struct char_data *ch, char *arg, int howmany)
     }
   } else {
     if (dotmode == FIND_ALLDOT && !*arg) {
-      send_to_char(ch, "Get all of what?\r\n");
+      send_to_char(ch, "무엇을 모두 주을까요?\r\n");
       return;
     }
     for (obj = world[IN_ROOM(ch)].contents; obj; obj = next_obj) {
@@ -319,9 +318,9 @@ static void get_from_room(struct char_data *ch, char *arg, int howmany)
     }
     if (!found) {
       if (dotmode == FIND_ALL)
-	send_to_char(ch, "There doesn't seem to be anything here.\r\n");
+	send_to_char(ch, "그런 물건이 없습니다.\r\n");
       else
-	send_to_char(ch, "You don't see any %ss here.\r\n", arg);
+	send_to_char(ch, "이곳에 %s%s 없습니다.\r\n", arg, check_josa(arg, 4));
     }
   }
 }
@@ -336,18 +335,18 @@ ACMD(do_get)
   struct obj_data *cont;
   struct char_data *tmp_char;
 
-  one_argument(two_arguments(argument, arg1, arg2), arg3);	/* three_arguments */
+   one_argument(two_arguments(argument, arg2, arg1), arg3);	/* three_arguments */
 
-  if (!*arg1)
-    send_to_char(ch, "Get what?\r\n");
-  else if (!*arg2)
-    get_from_room(ch, arg1, 1);
-  else if (is_number(arg1) && !*arg3)
+ if (!*arg2)
+    send_to_char(ch, "무엇을 가질까요?\r\n");
+  else if (!*arg1)
+    get_from_room(ch, arg2, 1);
+  else if (is_number(arg2))
     get_from_room(ch, arg2, atoi(arg1));
   else {
     int amount = 1;
-    if (is_number(arg1)) {
-      amount = atoi(arg1);
+    if (is_number(arg2)) {
+      amount = atoi(arg2);
       strcpy(arg1, arg2); /* strcpy: OK (sizeof: arg1 == arg2) */
       strcpy(arg2, arg3); /* strcpy: OK (sizeof: arg2 == arg3) */
     }
@@ -355,14 +354,14 @@ ACMD(do_get)
     if (cont_dotmode == FIND_INDIV) {
       mode = generic_find(arg2, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &tmp_char, &cont);
       if (!cont)
-	send_to_char(ch, "You don't have %s %s.\r\n", AN(arg2), arg2);
+		send_to_char(ch, "당신은 %s%s 가지고 있지 않습니다.\r\n", arg2, check_josa(arg2, 1));
       else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
-	act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
+		act("$p$k 물건을 담을만한게 아닙니다.", FALSE, ch, cont, 0, TO_CHAR);
       else
-	get_from_container(ch, cont, arg1, mode, amount);
+		get_from_container(ch, cont, arg1, mode, amount);
     } else {
       if (cont_dotmode == FIND_ALLDOT && !*arg2) {
-	send_to_char(ch, "Get from all of what?\r\n");
+	send_to_char(ch, "어디서 모두 가질까요?\r\n");
 	return;
       }
       for (cont = ch->carrying; cont; cont = cont->next_content)
@@ -373,7 +372,7 @@ ACMD(do_get)
 	    get_from_container(ch, cont, arg1, FIND_OBJ_INV, amount);
 	  } else if (cont_dotmode == FIND_ALLDOT) {
 	    found = 1;
-	    act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
+	    act("$p$k 물건을 담을만한게 아닙니다.", FALSE, ch, cont, 0, TO_CHAR);
 	  }
 	}
       for (cont = world[IN_ROOM(ch)].contents; cont; cont = cont->next_content)
@@ -383,15 +382,15 @@ ACMD(do_get)
 	    get_from_container(ch, cont, arg1, FIND_OBJ_ROOM, amount);
 	    found = 1;
 	  } else if (cont_dotmode == FIND_ALLDOT) {
-	    act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
+	    act("$p$k 물건을 담을만한게 아닙니다.", FALSE, ch, cont, 0, TO_CHAR);
 	    found = 1;
 	  }
 	}
       if (!found) {
 	if (cont_dotmode == FIND_ALL)
-	  send_to_char(ch, "You can't seem to find any containers.\r\n");
+	  send_to_char(ch, "당신은 물건을 담을만한걸 가지고 있지 않습니다.\r\n");
 	else
-	  send_to_char(ch, "You can't seem to find any %ss here.\r\n", arg2);
+	  send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg2, check_josa(arg2, 1));
       }
     }
   }
@@ -402,79 +401,71 @@ static void perform_drop_gold(struct char_data *ch, int amount, byte mode, room_
   struct obj_data *obj;
 
   if (amount <= 0)
-    send_to_char(ch, "Heh heh heh.. we are jolly funny today, eh?\r\n");
+    send_to_char(ch, "한푼이라도 버리세요.\r\n");
   else if (GET_GOLD(ch) < amount)
-    send_to_char(ch, "You don't have that many coins!\r\n");
+    send_to_char(ch, "당신은 그렇게 많은 돈이 없습니다!\r\n");
   else {
     if (mode != SCMD_JUNK) {
       WAIT_STATE(ch, PULSE_VIOLENCE); /* to prevent coin-bombing */
       obj = create_money(amount);
       if (mode == SCMD_DONATE) {
-	      send_to_char(ch, "You throw some gold into the air where it disappears in a puff of smoke!\r\n");
-	      act("$n throws some gold into the air where it disappears in a puff of smoke!",
-	          FALSE, ch, 0, 0, TO_ROOM);
-	      obj_to_room(obj, RDR);
-	      act("$p suddenly appears in a puff of orange smoke!", 0, 0, obj, 0, TO_ROOM);
+	send_to_char(ch, "당신이 돈을 버리자 자욱한 연기와 함께 사라집니다!\r\n");
+	act("$n$j 돈을 버리자 자욱한 연기와 함께 사라집니다!",
+	    FALSE, ch, 0, 0, TO_ROOM);
+	obj_to_room(obj, RDR);
+	act("$p$l 갑자기 자욱한 연기와 함께 나타납니다!", 0, 0, obj, 0, TO_ROOM);
       } else {
         char buf[MAX_STRING_LENGTH];
-        long object_id = obj_script_id(obj);
 
         if (!drop_wtrigger(obj, ch)) {
-          if (has_obj_by_uid_in_lookup_table(object_id))
-            extract_obj(obj);
-
+          extract_obj(obj);
           return;
         }
 
-	      snprintf(buf, sizeof(buf), "$n drops %s.", money_desc(amount));
-	      act(buf, TRUE, ch, 0, 0, TO_ROOM);
 
-	      send_to_char(ch, "You drop some gold.\r\n");
-	      obj_to_room(obj, IN_ROOM(ch));
+	snprintf(buf, sizeof(buf), "$n$j %s%s 버립니다.", money_desc(amount), check_josa(money_desc(amount), 1));
+	act(buf, TRUE, ch, 0, 0, TO_ROOM);
+
+	send_to_char(ch, "당신은 약간의 돈을 버립니다.\r\n");
+	obj_to_room(obj, IN_ROOM(ch));
       }
     } else {
       char buf[MAX_STRING_LENGTH];
 
-      snprintf(buf, sizeof(buf), "$n drops %s which disappears in a puff of smoke!", money_desc(amount));
+      snprintf(buf, sizeof(buf), "$n$j %s%s 버리자 자욱한 연기와 함께 사라집니다!",
+		  money_desc(amount), check_josa(money_desc(amount), 1));
       act(buf, FALSE, ch, 0, 0, TO_ROOM);
 
-      send_to_char(ch, "You drop some gold which disappears in a puff of smoke!\r\n");
+      send_to_char(ch, "당신이 돈을 버리자 자욱한 연기와 함께 사라집니다!\r\n");
     }
     decrease_gold(ch, amount);
   }
 }
 
 #define VANISH(mode) ((mode == SCMD_DONATE || mode == SCMD_JUNK) ? \
-		      "  It vanishes in a puff of smoke!" : "")
+		      " 그것은 연기와 함께 사라집니다!" : "")
 static int perform_drop(struct char_data *ch, struct obj_data *obj,
 		     byte mode, const char *sname, room_rnum RDR)
 {
   char buf[MAX_STRING_LENGTH];
   int value;
-  long object_id = obj_script_id(obj);
 
   if (!drop_otrigger(obj, ch))
     return 0;
 
-  if (!has_obj_by_uid_in_lookup_table(object_id))
-    return 0; // item was extracted by script
-
   if ((mode == SCMD_DROP) && !drop_wtrigger(obj, ch))
     return 0;
 
-  if (!has_obj_by_uid_in_lookup_table(object_id))
-    return 0; // item was extracted by script
-
   if (OBJ_FLAGGED(obj, ITEM_NODROP) && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-    snprintf(buf, sizeof(buf), "You can't %s $p, it must be CURSED!", sname);
+    snprintf(buf, sizeof(buf), "당신은 $p$L %s니다만 실패합니다!", sname);
     act(buf, FALSE, ch, obj, 0, TO_CHAR);
     return (0);
   }
 
-  snprintf(buf, sizeof(buf), "You %s $p.%s", sname, VANISH(mode));
+  snprintf(buf, sizeof(buf), "당신은 $p$L %s니다.%s", sname, VANISH(mode));
   act(buf, FALSE, ch, obj, 0, TO_CHAR);
 
-  snprintf(buf, sizeof(buf), "$n %ss $p.%s", sname, VANISH(mode));
+  snprintf(buf, sizeof(buf), "$n$j $p$L %s니다.%s", sname, VANISH(mode));
   act(buf, TRUE, ch, obj, 0, TO_ROOM);
 
   obj_from_char(obj);
@@ -488,7 +479,7 @@ static int perform_drop(struct char_data *ch, struct obj_data *obj,
     return (0);
   case SCMD_DONATE:
     obj_to_room(obj, RDR);
-    act("$p suddenly appears in a puff a smoke!", FALSE, 0, obj, 0, TO_ROOM);
+    act("$p$l 갑자기 자욱한 연기와 함께 나타납니다!", FALSE, 0, obj, 0, TO_ROOM);
     return (0);
   case SCMD_JUNK:
     value = MAX(1, MIN(200, GET_OBJ_COST(obj) / 16));
@@ -514,12 +505,12 @@ ACMD(do_drop)
   const char *sname;
 
   switch (subcmd) {
-  case SCMD_JUNK:
-    sname = "junk";
+ case SCMD_JUNK:
+    sname = "소각합";
     mode = SCMD_JUNK;
     break;
   case SCMD_DONATE:
-    sname = "donate";
+    sname = "기부합";
     mode = SCMD_DONATE;
     /* fail + double chance for room 1   */
     num_don_rooms = (CONFIG_DON_ROOM_1 != NOWHERE) * 2 +
@@ -538,31 +529,31 @@ ACMD(do_drop)
 
     }
     if (RDR == NOWHERE) {
-      send_to_char(ch, "Sorry, you can't donate anything right now.\r\n");
+      send_to_char(ch, "당신은 지금 어떤것도 기부할 수 없습니다.\r\n");
       return;
     }
     break;
   default:
-    sname = "drop";
+    sname = "버립";
     break;
   }
 
   argument = one_argument(argument, arg);
 
   if (!*arg) {
-    send_to_char(ch, "What do you want to %s?\r\n", sname);
+   send_to_char(ch, "무엇을 %s니까?\r\n", sname);
     return;
   } else if (is_number(arg)) {
     multi = atoi(arg);
     one_argument(argument, arg);
-    if (!str_cmp("coins", arg) || !str_cmp("coin", arg))
+    if (!str_cmp("돈", arg))
       perform_drop_gold(ch, multi, mode, RDR);
     else if (multi <= 0)
-      send_to_char(ch, "Yeah, that makes sense.\r\n");
+      send_to_char(ch, "한푼이라도 입력하세요.\r\n");
     else if (!*arg)
-      send_to_char(ch, "What do you want to %s %d of?\r\n", sname, multi);
+      send_to_char(ch, "무엇을 %d만큼 %s니까?\r\n", multi, sname);
     else if (!(obj = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))
-      send_to_char(ch, "You don't seem to have any %ss.\r\n", arg);
+      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
     else {
       do {
         next_obj = get_obj_in_list_vis(ch, arg, NULL, obj->next_content);
@@ -576,14 +567,14 @@ ACMD(do_drop)
     /* Can't junk or donate all */
     if ((dotmode == FIND_ALL) && (subcmd == SCMD_JUNK || subcmd == SCMD_DONATE)) {
       if (subcmd == SCMD_JUNK)
-	send_to_char(ch, "Go to the dump if you want to junk EVERYTHING!\r\n");
+	send_to_char(ch, "전부 소각하고 싶으시면 소각장에 모두 버리세요!\r\n");
       else
-	send_to_char(ch, "Go do the donation room if you want to donate EVERYTHING!\r\n");
+	send_to_char(ch, "전부 기부하고 싶다면 기부실에 모두 버리세요!\r\n");
       return;
     }
     if (dotmode == FIND_ALL) {
       if (!ch->carrying)
-	send_to_char(ch, "You don't seem to be carrying anything.\r\n");
+		send_to_char(ch, "당신은 가지고 있는게 없습니다.\r\n");
       else
 	for (obj = ch->carrying; obj; obj = next_obj) {
 	  next_obj = obj->next_content;
@@ -591,11 +582,11 @@ ACMD(do_drop)
 	}
     } else if (dotmode == FIND_ALLDOT) {
       if (!*arg) {
-	send_to_char(ch, "What do you want to %s all of?\r\n", sname);
+	send_to_char(ch, "무엇을 모두 %s니까?\r\n", sname);
 	return;
       }
       if (!(obj = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))
-	send_to_char(ch, "You don't seem to have any %ss.\r\n", arg);
+	send_to_char(ch, "%s%s 가지고 있지 않습니다.\r\n", arg, check_josa(arg, 1));
 
       while (obj) {
 	next_obj = get_obj_in_list_vis(ch, arg, NULL, obj->next_content);
@@ -604,15 +595,15 @@ ACMD(do_drop)
       }
     } else {
       if (!(obj = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))
-	send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+	send_to_char(ch, "%s%s 가지고 있지 않습니다.\r\n", arg, check_josa(arg, 1));
       else
 	amount += perform_drop(ch, obj, mode, sname, RDR);
     }
   }
 
   if (amount && (subcmd == SCMD_JUNK)) {
-    send_to_char(ch, "You have been rewarded by the gods!\r\n");
-    act("$n has been rewarded by the gods!", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "신에게 약간의 보상을 받습니다!\r\n");
+    act("$n$j 약간의 보상을 받습니다!", TRUE, ch, 0, 0, TO_ROOM);
     GET_GOLD(ch) += amount;
   }
 }
@@ -626,22 +617,22 @@ static void perform_give(struct char_data *ch, struct char_data *vict,
     return;
 
   if (OBJ_FLAGGED(obj, ITEM_NODROP) && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-    act("You can't let go of $p!!  Yeech!", FALSE, ch, obj, 0, TO_CHAR);
+	  act("$p: 손에서 떨어지지 않습니다.", FALSE, ch, obj, 0, TO_CHAR);
     return;
   }
   if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict) && GET_LEVEL(ch) < LVL_IMMORT && GET_LEVEL(vict) < LVL_IMMORT) {
-    act("$N seems to have $S hands full.", FALSE, ch, 0, vict, TO_CHAR);
+    act("$N$C 더이상 가질수 없습니다.", FALSE, ch, 0, vict, TO_CHAR);
     return;
   }
   if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict) && GET_LEVEL(ch) < LVL_IMMORT && GET_LEVEL(vict) < LVL_IMMORT) {
-    act("$E can't carry that much weight.", FALSE, ch, 0, vict, TO_CHAR);
+	  act("$N$C 더이상 가질수 없습니다.", FALSE, ch, 0, vict, TO_CHAR);
     return;
   }
   obj_from_char(obj);
   obj_to_char(obj, vict);
-  act("You give $p to $N.", FALSE, ch, obj, vict, TO_CHAR);
-  act("$n gives you $p.", FALSE, ch, obj, vict, TO_VICT);
-  act("$n gives $p to $N.", TRUE, ch, obj, vict, TO_NOTVICT);
+  act("당신은 $p$L $N$D 줍니다.", FALSE, ch, obj, vict, TO_CHAR);
+  act("$n$j 당신에게 $p$L 줍니다.", FALSE, ch, obj, vict, TO_VICT);
+  act("$n$j $p$L $N$D 줍니다.", TRUE, ch, obj, vict, TO_NOTVICT);
 
   autoquest_trigger_check( ch, vict, obj, AQ_OBJ_RETURN);
 }
@@ -653,11 +644,11 @@ static struct char_data *give_find_vict(struct char_data *ch, char *arg)
 
   skip_spaces(&arg);
   if (!*arg)
-    send_to_char(ch, "To who?\r\n");
+    send_to_char(ch, "누구에게 줄까요?\r\n");
   else if (!(vict = get_char_vis(ch, arg, NULL, FIND_CHAR_ROOM)))
     send_to_char(ch, "%s", CONFIG_NOPERSON);
   else if (vict == ch)
-    send_to_char(ch, "What's the point of that?\r\n");
+    send_to_char(ch, "자기 자신에게 줄 수 없습니다.\r\n");
   else
     return (vict);
 
@@ -670,19 +661,20 @@ static void perform_give_gold(struct char_data *ch, struct char_data *vict,
   char buf[MAX_STRING_LENGTH];
 
   if (amount <= 0) {
-    send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
+    send_to_char(ch, "한푼이라도 입력하세요.\r\n");
     return;
   }
   if ((GET_GOLD(ch) < amount) && (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))) {
-    send_to_char(ch, "You don't have that many coins!\r\n");
+    send_to_char(ch, "당신은 그렇게 많은 돈이 없습니다!\r\n");
     return;
   }
   send_to_char(ch, "%s", CONFIG_OK);
 
-  snprintf(buf, sizeof(buf), "$n gives you %d gold coin%s.", amount, amount == 1 ? "" : "s");
+  snprintf(buf, sizeof(buf), "$n$j 당신에게 %d원을 줍니다.", amount);
   act(buf, FALSE, ch, 0, vict, TO_VICT);
 
-  snprintf(buf, sizeof(buf), "$n gives %s to $N.", money_desc(amount));
+  snprintf(buf, sizeof(buf), "$n$j $N$D %s%s 줍니다.",
+	  money_desc(amount), check_josa(money_desc(amount), 1));
   act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
 
   if (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))
@@ -702,7 +694,7 @@ ACMD(do_give)
   argument = one_argument(argument, arg);
 
   if (!*arg)
-    send_to_char(ch, "Give what to who?\r\n");
+    send_to_char(ch, "누구에게 무엇을 줄까요?\r\n");
   else if (is_number(arg)) {
     amount = atoi(arg);
     argument = one_argument(argument, arg);
@@ -712,11 +704,11 @@ ACMD(do_give)
 	perform_give_gold(ch, vict, amount);
       return;
     } else if (!*arg) /* Give multiple code. */
-      send_to_char(ch, "What do you want to give %d of?\r\n", amount);
+      send_to_char(ch, "누구에게 %d원을 주시려구요?\r\n", amount);
     else if (!(vict = give_find_vict(ch, argument)))
       return;
     else if (!(obj = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))
-      send_to_char(ch, "You don't seem to have any %ss.\r\n", arg);
+      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
     else {
       while (obj && amount--) {
 	next_obj = get_obj_in_list_vis(ch, arg, NULL, obj->next_content);
@@ -733,16 +725,16 @@ ACMD(do_give)
     dotmode = find_all_dots(arg);
     if (dotmode == FIND_INDIV) {
       if (!(obj = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))
-	send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+		send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
       else
 	perform_give(ch, vict, obj);
     } else {
       if (dotmode == FIND_ALLDOT && !*arg) {
-	send_to_char(ch, "All of what?\r\n");
+		send_to_char(ch, "무엇을 모두 줍니까?\r\n");
 	return;
       }
       if (!ch->carrying)
-	send_to_char(ch, "You don't seem to be holding anything.\r\n");
+	send_to_char(ch, "쥘만한것을 가지고 있지 않습니다.\r\n");
       else
 	for (obj = ch->carrying; obj; obj = next_obj) {
 	  next_obj = obj->next_content;
@@ -781,7 +773,7 @@ void name_from_drinkcon(struct obj_data *obj)
 {
   char *new_name, *cur_name, *next;
   const char *liqname;
-  int liqlen, cpylen, maxlen;
+  int liqlen, cpylen;
 
   if (!obj || (GET_OBJ_TYPE(obj) != ITEM_DRINKCON && GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN))
     return;
@@ -796,8 +788,7 @@ void name_from_drinkcon(struct obj_data *obj)
   }
 
   liqlen = strlen(liqname);
-  maxlen = strlen(obj->name) - strlen(liqname); /* +1 for NUL, -1 for space */
-  CREATE(new_name, char, maxlen);
+  CREATE(new_name, char, strlen(obj->name) - strlen(liqname)); /* +1 for NUL, -1 for space */
 
   for (cur_name = obj->name; cur_name; cur_name = next) {
     if (*cur_name == ' ')
@@ -811,13 +802,9 @@ void name_from_drinkcon(struct obj_data *obj)
     if (!strn_cmp(cur_name, liqname, liqlen))
       continue;
 
-    if (*new_name) {
+    if (*new_name)
       strcat(new_name, " "); /* strcat: OK (size precalculated) */
-      maxlen--;
-    }
-
-    strncat(new_name, cur_name, maxlen); /* strncat: OK (size precalculated) */
-    maxlen -= cpylen;
+    strncat(new_name, cur_name, cpylen); /* strncat: OK (size precalculated) */
   }
 
   if (GET_OBJ_RNUM(obj) == NOTHING || obj->name != obj_proto[GET_OBJ_RNUM(obj)].name)
@@ -861,48 +848,48 @@ ACMD(do_drink)
       case SECT_WATER_NOSWIM:
       case SECT_UNDERWATER:
         if ((GET_COND(ch, HUNGER) > 20) && (GET_COND(ch, THIRST) > 0)) {
-          send_to_char(ch, "Your stomach can't contain anymore!\r\n");
+          send_to_char(ch, "배가 너무 불러서 더이상 들어갈 곳이 없습니다!\r\n");
         }
-        snprintf(buf, sizeof(buf), "$n takes a refreshing drink.");
+        snprintf(buf, sizeof(buf), "$n$j 깨끗한 물을 마십니다.");
         act(buf, TRUE, ch, 0, 0, TO_ROOM);
-        send_to_char(ch, "You take a refreshing drink.\r\n");
+        send_to_char(ch, "당신은 깨끗한 물을 마십니다.\r\n");
         gain_condition(ch, THIRST, 1);
         if (GET_COND(ch, THIRST) > 20)
-          send_to_char(ch, "You don't feel thirsty any more.\r\n");
+          send_to_char(ch, "더이상 갈증을 느끼지 않습니다.\r\n");
         return;
       default:
-    send_to_char(ch, "Drink from what?\r\n");
+    send_to_char(ch, "무엇을 마실까요?\r\n");
     return;
     }
   }
   if (!(temp = get_obj_in_list_vis(ch, arg, NULL, ch->carrying))) {
     if (!(temp = get_obj_in_list_vis(ch, arg, NULL, world[IN_ROOM(ch)].contents))) {
-      send_to_char(ch, "You can't find it!\r\n");
+send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
       return;
     } else
       on_ground = 1;
   }
   if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) &&
       (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)) {
-    send_to_char(ch, "You can't drink from that!\r\n");
+    send_to_char(ch, "마실수 있는 종류가 아닙니다!\r\n");
     return;
   }
   if (on_ground && (GET_OBJ_TYPE(temp) == ITEM_DRINKCON)) {
-    send_to_char(ch, "You have to be holding that to drink from it.\r\n");
+    send_to_char(ch, "당신은 마실만한것을 가지고 있지 않습니다.\r\n");
     return;
   }
   if ((GET_COND(ch, DRUNK) > 10) && (GET_COND(ch, THIRST) > 0)) {
     /* The pig is drunk */
-    send_to_char(ch, "You can't seem to get close enough to your mouth.\r\n");
-    act("$n tries to drink but misses $s mouth!", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신은 물을 마시지 못하고 쏟아버립니다..\r\n");
+    act("$n$j 물을 마시지 못하고 쏟아버립니다!", TRUE, ch, 0, 0, TO_ROOM);
     return;
   }
   if ((GET_COND(ch, HUNGER) > 20) && (GET_COND(ch, THIRST) > 0)) {
-    send_to_char(ch, "Your stomach can't contain anymore!\r\n");
+    send_to_char(ch, "배가 너무 불러서 더이상 들어갈 곳이 없습니다!\r\n");
     return;
   }
-  if (GET_OBJ_VAL(temp, 1) < 1) {
-    send_to_char(ch, "It is empty.\r\n");
+  if ((GET_OBJ_VAL(temp, 1) == 0) || (!GET_OBJ_VAL(temp, 0) == 1)) {
+    send_to_char(ch, "이미 비어있습니다.\r\n");
     return;
   }
 
@@ -912,10 +899,12 @@ ACMD(do_drink)
   if (subcmd == SCMD_DRINK) {
     char buf[MAX_STRING_LENGTH];
 
-    snprintf(buf, sizeof(buf), "$n drinks %s from $p.", drinks[GET_OBJ_VAL(temp, 2)]);
+   snprintf(buf, sizeof(buf), "$n$j $p에서 %s%s 마십니다.",
+		drinks[GET_OBJ_VAL(temp, 2)], check_josa(drinks[GET_OBJ_VAL(temp, 2)], 1));
     act(buf, TRUE, ch, temp, 0, TO_ROOM);
 
-    send_to_char(ch, "You drink the %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
+    send_to_char(ch, "당신은 %s%s 마십니다.\r\n",
+		drinks[GET_OBJ_VAL(temp, 2)], check_josa(drinks[GET_OBJ_VAL(temp, 2)], 1));
 
     if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
       amount = (25 - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
@@ -923,8 +912,8 @@ ACMD(do_drink)
       amount = rand_number(3, 10);
 
   } else {
-    act("$n sips from $p.", TRUE, ch, temp, 0, TO_ROOM);
-    send_to_char(ch, "It tastes like %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
+    act("$n$j $p$L 맛봅니다.", TRUE, ch, temp, 0, TO_ROOM);
+    send_to_char(ch, "%s 맛이 납니다.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
     amount = 1;
   }
 
@@ -940,18 +929,18 @@ ACMD(do_drink)
   gain_condition(ch, HUNGER,   drink_aff[GET_OBJ_VAL(temp, 2)][HUNGER]   * amount / 4);
   gain_condition(ch, THIRST, drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4);
 
-  if (GET_COND(ch, DRUNK) > 10)
-    send_to_char(ch, "You feel drunk.\r\n");
+if (GET_COND(ch, DRUNK) > 10)
+    send_to_char(ch, "이미 많이 취했습니다.\r\n");
 
   if (GET_COND(ch, THIRST) > 20)
-    send_to_char(ch, "You don't feel thirsty any more.\r\n");
+    send_to_char(ch, "더이상 갈증을 느끼지 않습니다.\r\n");
 
   if (GET_COND(ch, HUNGER) > 20)
-    send_to_char(ch, "You are full.\r\n");
+    send_to_char(ch, "이미 배가 부릅니다.\r\n");
 
-  if (GET_OBJ_VAL(temp, 3) && GET_LEVEL(ch) < LVL_IMMORT) { /* The crap was poisoned ! */
-    send_to_char(ch, "Oops, it tasted rather strange!\r\n");
-    act("$n chokes and utters some strange sounds.", TRUE, ch, 0, 0, TO_ROOM);
+  if (GET_OBJ_VAL(temp, 3)) { /* The crap was poisoned ! */
+    send_to_char(ch, "이상한 맛이 납니다!\r\n");
+    act("$n$j 고통스러운 신음을 냅니다.", TRUE, ch, 0, 0, TO_ROOM);
 
     new_affect(&af);
     af.spell = SPELL_POISON;
@@ -984,11 +973,11 @@ ACMD(do_eat)
     return;
 
   if (!*arg) {
-    send_to_char(ch, "Eat what?\r\n");
+    send_to_char(ch, "무엇을 먹을까요?\r\n");
     return;
   }
   if (!(food = get_obj_in_list_vis(ch, arg, NULL, ch->carrying))) {
-    send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+	send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
     return;
   }
   if (subcmd == SCMD_TASTE && ((GET_OBJ_TYPE(food) == ITEM_DRINKCON) ||
@@ -997,11 +986,11 @@ ACMD(do_eat)
     return;
   }
   if ((GET_OBJ_TYPE(food) != ITEM_FOOD) && (GET_LEVEL(ch) < LVL_IMMORT)) {
-    send_to_char(ch, "You can't eat THAT!\r\n");
+    send_to_char(ch, "먹을수 있는 종류가 아닙니다!\r\n");
     return;
   }
   if (GET_COND(ch, HUNGER) > 20) { /* Stomach full */
-    send_to_char(ch, "You are too full to eat more!\r\n");
+    send_to_char(ch, "이미 배가 부릅니다!\r\n");
     return;
   }
 
@@ -1009,11 +998,11 @@ ACMD(do_eat)
     return;
 
   if (subcmd == SCMD_EAT) {
-    act("You eat $p.", FALSE, ch, food, 0, TO_CHAR);
-    act("$n eats $p.", TRUE, ch, food, 0, TO_ROOM);
+    act("당신은 $p$L 먹습니다.", FALSE, ch, food, 0, TO_CHAR);
+    act("$n$j $p$L 먹습니다.", TRUE, ch, food, 0, TO_ROOM);
   } else {
-    act("You nibble a little bit of $p.", FALSE, ch, food, 0, TO_CHAR);
-    act("$n tastes a little bit of $p.", TRUE, ch, food, 0, TO_ROOM);
+    act("당신은 $p$L 조금 먹습니다.", FALSE, ch, food, 0, TO_CHAR);
+    act("$n$j $p$L 조금 먹습니다.", TRUE, ch, food, 0, TO_ROOM);
   }
 
   amount = (subcmd == SCMD_EAT ? GET_OBJ_VAL(food, 0) : 1);
@@ -1021,12 +1010,12 @@ ACMD(do_eat)
   gain_condition(ch, HUNGER, amount);
 
   if (GET_COND(ch, HUNGER) > 20)
-    send_to_char(ch, "You are full.\r\n");
+    send_to_char(ch, "당신은 배가 부릅니다.\r\n");
 
   if (GET_OBJ_VAL(food, 3) && (GET_LEVEL(ch) < LVL_IMMORT)) {
     /* The crap was poisoned ! */
-    send_to_char(ch, "Oops, that tasted rather strange!\r\n");
-    act("$n coughs and utters some strange sounds.", FALSE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "이상한 맛이 납니다!\r\n");
+    act("$n$j 고통스러운 신음을 냅니다.", TRUE, ch, 0, 0, TO_ROOM);
 
     new_affect(&af);
     af.spell = SPELL_POISON;
@@ -1038,7 +1027,7 @@ ACMD(do_eat)
     extract_obj(food);
   else {
     if (!(--GET_OBJ_VAL(food, 0))) {
-      send_to_char(ch, "There's nothing left now.\r\n");
+      send_to_char(ch, "남은것이 없이 다 먹었습니다.\r\n");
       extract_obj(food);
     }
   }
@@ -1054,57 +1043,57 @@ ACMD(do_pour)
 
   if (subcmd == SCMD_POUR) {
     if (!*arg1) { /* No arguments */
-      send_to_char(ch, "From what do you want to pour?\r\n");
+      send_to_char(ch, "무엇을 어디에 부을까요?\r\n");
       return;
     }
     if (!(from_obj = get_obj_in_list_vis(ch, arg1, NULL, ch->carrying))) {
-      send_to_char(ch, "You can't find it!\r\n");
+      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg1, check_josa(arg1, 1));
       return;
     }
     if (GET_OBJ_TYPE(from_obj) != ITEM_DRINKCON) {
-      send_to_char(ch, "You can't pour from that!\r\n");
+      send_to_char(ch, "부을수 있는 물건이 아닙니다!\r\n");
       return;
     }
   }
   if (subcmd == SCMD_FILL) {
     if (!*arg1) { /* no arguments */
-      send_to_char(ch, "What do you want to fill?  And what are you filling it from?\r\n");
+      send_to_char(ch, "어디에서 어디로 무엇을 채울까요?\r\n");
       return;
     }
     if (!(to_obj = get_obj_in_list_vis(ch, arg1, NULL, ch->carrying))) {
-      send_to_char(ch, "You can't find it!\r\n");
+      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg1, check_josa(arg1, 1));
       return;
     }
     if (GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) {
-      act("You can't fill $p!", FALSE, ch, to_obj, 0, TO_CHAR);
+      act("$p$k 채울 수 있는 물건이 아닙니다!", FALSE, ch, to_obj, 0, TO_CHAR);
       return;
     }
     if (!*arg2) { /* no 2nd argument */
-      act("What do you want to fill $p from?", FALSE, ch, to_obj, 0, TO_CHAR);
+      act("$p$L 무엇으로 채울까요?", FALSE, ch, to_obj, 0, TO_CHAR);
       return;
     }
     if (!(from_obj = get_obj_in_list_vis(ch, arg2, NULL, world[IN_ROOM(ch)].contents))) {
-      send_to_char(ch, "There doesn't seem to be %s %s here.\r\n", AN(arg2), arg2);
+		send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg2, check_josa(arg2, 1));
       return;
     }
     if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN) {
-      act("You can't fill something from $p.", FALSE, ch, from_obj, 0, TO_CHAR);
+      act("$p$k 뭔가로 이미 채워져 있습니다.", FALSE, ch, from_obj, 0, TO_CHAR);
       return;
     }
   }
   if (GET_OBJ_VAL(from_obj, 1) == 0) {
-    act("The $p is empty.", FALSE, ch, from_obj, 0, TO_CHAR);
+    act("$p$k 비어 있습니다.", FALSE, ch, from_obj, 0, TO_CHAR);
     return;
   }
   if (subcmd == SCMD_POUR) { /* pour */
     if (!*arg2) {
-      send_to_char(ch, "Where do you want it?  Out or in what?\r\n");
+      send_to_char(ch, "무엇을 어디에 부을까요??\r\n");
       return;
     }
-    if (!str_cmp(arg2, "out")) {
+    if (!str_cmp(arg2, "밖에")) {
       if (GET_OBJ_VAL(from_obj, 0) > 0) {
-        act("$n empties $p.", TRUE, ch, from_obj, 0, TO_ROOM);
-        act("You empty $p.", FALSE, ch, from_obj, 0, TO_CHAR);
+        act("$n$j $p$L 비웁니다.", TRUE, ch, from_obj, 0, TO_ROOM);
+        act("당신이 $p$L 비웁니다.", FALSE, ch, from_obj, 0, TO_CHAR);
 
         weight_change_object(from_obj, -GET_OBJ_VAL(from_obj, 1)); /* Empty */
 
@@ -1114,39 +1103,40 @@ ACMD(do_pour)
         GET_OBJ_VAL(from_obj, 3) = 0;
       }
       else
-        send_to_char(ch, "You can't possibly pour that container out!\r\n");
+        send_to_char(ch, "그것을 비울 수 없습니다.\r\n");
 
       return;
     }
     if (!(to_obj = get_obj_in_list_vis(ch, arg2, NULL, ch->carrying))) {
-      send_to_char(ch, "You can't find it!\r\n");
+      send_to_char(ch, "그것을 찾을 수 없습니다!\r\n");
       return;
     }
     if ((GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) &&
 	(GET_OBJ_TYPE(to_obj) != ITEM_FOUNTAIN)) {
-      send_to_char(ch, "You can't pour anything into that.\r\n");
+      send_to_char(ch, "그것은 채울 수 있는 물건이 아닙니다.\r\n");
       return;
     }
   }
   if (to_obj == from_obj) {
-    send_to_char(ch, "A most unproductive effort.\r\n");
+    send_to_char(ch, "같은곳에 할 수 없습니다.\r\n");
     return;
   }
   if ((GET_OBJ_VAL(to_obj, 0) < 0) ||
       (!(GET_OBJ_VAL(to_obj, 1) < GET_OBJ_VAL(to_obj, 0)))) {
-    send_to_char(ch, "There is already another liquid in it!\r\n");
+    send_to_char(ch, "이미 뭔가로 가득차 있습니다.\r\n");
     return;
   }
   if (!(GET_OBJ_VAL(to_obj, 1) < GET_OBJ_VAL(to_obj, 0))) {
-    send_to_char(ch, "There is no room for more.\r\n");
+    send_to_char(ch, "이미 가득 차 있습니다.\r\n");
     return;
   }
   if (subcmd == SCMD_POUR)
-    send_to_char(ch, "You pour the %s into the %s.", drinks[GET_OBJ_VAL(from_obj, 2)], arg2);
+    send_to_char(ch, "당신은 %s%s %s에 붓습니다.", drinks[GET_OBJ_VAL(from_obj, 2)],
+		check_josa(drinks[GET_OBJ_VAL(from_obj, 2)], 1), arg2);
 
   if (subcmd == SCMD_FILL) {
-    act("You gently fill $p from $P.", FALSE, ch, to_obj, from_obj, TO_CHAR);
-    act("$n gently fills $p from $P.", TRUE, ch, to_obj, from_obj, TO_ROOM);
+    act("당신은 $p$L $P의 물로 가득 채웁니다.", FALSE, ch, to_obj, from_obj, TO_CHAR);
+    act("$n$j $p$L $P의 물로 가득 채웁니다.", TRUE, ch, to_obj, from_obj, TO_ROOM);
   }
   /* New alias */
   if (GET_OBJ_VAL(to_obj, 1) == 0)
@@ -1188,59 +1178,59 @@ ACMD(do_pour)
 static void wear_message(struct char_data *ch, struct obj_data *obj, int where)
 {
   const char *wear_messages[][2] = {
-    {"$n lights $p and holds it.",
-    "You light $p and hold it."},
+     {"$n$j $p$L 쥐고 불을 밝힙니다.",
+    "당신은 $p$L 쥐고 불을 밝힙니다."},
 
-    {"$n slides $p on to $s right ring finger.",
-    "You slide $p on to your right ring finger."},
+    {"$n$j $p$L 오른쪽 손가락에 끼웁니다.",
+    "당신은 $p$L 오른쪽 손가락에 끼웁니다."},
 
-    {"$n slides $p on to $s left ring finger.",
-    "You slide $p on to your left ring finger."},
+    {"$n$j $p$L 왼쪽 손가락에 끼웁니다.",
+    "당신은 $p$L 왼쪽 손가락에 끼웁니다."},
 
-    {"$n wears $p around $s neck.",
-    "You wear $p around your neck."},
+    {"$n$j $p$L 목에 두릅니다.",
+    "당신은 $p$L 목에 두릅니다."},
 
-    {"$n wears $p around $s neck.",
-    "You wear $p around your neck."},
+    {"$n$j $p$L 목에 두릅니다.",
+    "당신은 $p$L 목에 두릅니다."},
 
-    {"$n wears $p on $s body.",
-    "You wear $p on your body."},
+    {"$n$j $p$L 몸에 착용합니다.",
+    "당신은 $p$L 몸에 착용합니다."},
 
-    {"$n wears $p on $s head.",
-    "You wear $p on your head."},
+    {"$n$j $p$L 머리에 씁니다.",
+    "당신은 $p$L 머리에 씁니다"},
 
-    {"$n puts $p on $s legs.",
-    "You put $p on your legs."},
+    {"$n$j $p$L 다리에 착용합니다.",
+    "당신은 $p$L 다리에 착용합니다."},
 
-    {"$n wears $p on $s feet.",
-    "You wear $p on your feet."},
+    {"$n$j $p$L 발에 신습니다.",
+    "당신은 $p$L 발에 신습니다."},
 
-    {"$n puts $p on $s hands.",
-    "You put $p on your hands."},
+    {"$n$j $p$L 손에 낍니다.",
+    "당신은 $p$L 손에 낍니다."},
 
-    {"$n wears $p on $s arms.",
-    "You wear $p on your arms."},
+    {"$n$j $p$L 팔에 착용합니다.",
+    "당신은 $p$L 팔에 착용합니다."},
 
-    {"$n straps $p around $s arm as a shield.",
-    "You start to use $p as a shield."},
+    {"$n$j $p$L 방패를 착용합니다 .",
+    "당신은 $p$L 방패를 착용합니다."},
 
-    {"$n wears $p about $s body.",
-    "You wear $p around your body."},
+    {"$n$j $p$L 몸주변에 지닙니다.",
+    "당신은 $p$L 몸주변에 지닙니다."},
 
-    {"$n wears $p around $s waist.",
-    "You wear $p around your waist."},
+    {"$n$j $p$L 허리에 두릅니다.",
+    "당신은 $p$L 허리에 두릅니다."},
 
-    {"$n puts $p on around $s right wrist.",
-    "You put $p on around your right wrist."},
+    {"$n$j $p$L 오른쪽 손목에 착용합니다.",
+    "당신은 $p$L 오른쪽 손목에 착용합니다."},
 
-    {"$n puts $p on around $s left wrist.",
-    "You put $p on around your left wrist."},
+    {"$n$j $p$L 왼쪽 손목에 착용합니다.",
+    "당신은 $p$L 왼쪽 손목에 착용합니다."},
 
-    {"$n wields $p.",
-    "You wield $p."},
+    {"$n$j $p$L 무장합니다.",
+    "당신은 $p$L."},
 
-    {"$n grabs $p.",
-    "You grab $p."}
+    {"$n$j $p$L 쥡니다.",
+    "당신은 $p$L 쥡니다."}
   };
 
   act(wear_messages[where][0], TRUE, ch, obj, 0, TO_ROOM);
@@ -1264,29 +1254,29 @@ static void perform_wear(struct char_data *ch, struct obj_data *obj, int where)
   };
 
   const char *already_wearing[] = {
-    "You're already using a light.\r\n",
-    "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-    "You're already wearing something on both of your ring fingers.\r\n",
-    "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-    "You can't wear anything else around your neck.\r\n",
-    "You're already wearing something on your body.\r\n",
-    "You're already wearing something on your head.\r\n",
-    "You're already wearing something on your legs.\r\n",
-    "You're already wearing something on your feet.\r\n",
-    "You're already wearing something on your hands.\r\n",
-    "You're already wearing something on your arms.\r\n",
-    "You're already using a shield.\r\n",
-    "You're already wearing something about your body.\r\n",
-    "You already have something around your waist.\r\n",
-    "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-    "You're already wearing something around both of your wrists.\r\n",
-    "You're already wielding a weapon.\r\n",
-    "You're already holding something.\r\n"
+    "당신은 이미 광원을 사용중입니다.\r\n",
+    "당신은 이 메시지를 볼 수 없습니다. 운영자에게 알려주세요.\r\n",
+    "당신은 이미 양쪽 손가락에 뭔가를 끼고 있습니다.\r\n",
+    "당신은 이 메시지를 볼 수 없습니다. 운영자에게 알려주세요.\r\n",
+    "당신은 이미 목주위에 뭔가를 두르고 있습니다.\r\n",
+    "당신은 이미 몸에 뭔가를 입고 있습니다.\r\n",
+    "당신은 이미 머리에 뭔가를 쓰고 있습니다.\r\n",
+    "당신은 이미 다리에 뭔가를 착용하고 있습니다.\r\n",
+    "당신은 이미 발에 뭔가를 신고 있습니다.\r\n",
+    "당신은 이미 손에 뭔가를 끼고 있습니다.\r\n",
+    "당신은 이미 팔에 뭔가를 착용하고 있습니다.\r\n",
+    "당신은 이미 방패를 착용하고 있습니다.\r\n",
+    "당신은 이미 몸주변에 뭔가를 지니고 있습니다.\r\n",
+    "당신은 이미 허리에 뭔가를 두르고 있습니다.\r\n",
+    "당신은 이 화면을 볼 수 없습니다. 운영자에게 알려주세요.\r\n",
+    "당신은 이미 양쪽 손목에 뭔가를 착용하고 있습니다.\r\n",
+    "당신은 이미 무기를 무장하고 있습니다.\r\n",
+    "당신은 이미 뭔가를 쥐고 있습니다.\r\n"
   };
 
   /* first, make sure that the wear position is valid. */
   if (!CAN_WEAR(obj, wear_bitvectors[where])) {
-    act("You can't wear $p there.", FALSE, ch, obj, 0, TO_CHAR);
+    act("$p$L 그곳에 입을수 없습니다.", FALSE, ch, obj, 0, TO_CHAR);
     return;
   }
   /* for neck, finger, and wrist, try pos 2 if pos 1 is already full */
@@ -1314,20 +1304,20 @@ int find_eq_pos(struct char_data *ch, struct obj_data *obj, char *arg)
 
   const char *keywords[] = {
     "!RESERVED!",
-    "finger",
+    "손가락",
     "!RESERVED!",
-    "neck",
+    "목",
     "!RESERVED!",
-    "body",
-    "head",
-    "legs",
-    "feet",
-    "hands",
-    "arms",
-    "shield",
-    "about",
-    "waist",
-    "wrist",
+    "몸",
+    "머리",
+    "다리",
+    "발",
+    "손",
+    "팔",
+    "방패",
+    "몸주변",
+    "허리",
+    "손목",
     "!RESERVED!",
     "!RESERVED!",
     "!RESERVED!",
@@ -1348,7 +1338,7 @@ int find_eq_pos(struct char_data *ch, struct obj_data *obj, char *arg)
     if (CAN_WEAR(obj, ITEM_WEAR_WAIST))       where = WEAR_WAIST;
     if (CAN_WEAR(obj, ITEM_WEAR_WRIST))       where = WEAR_WRIST_R;
   } else if ((where = search_block(arg, keywords, FALSE)) < 0)
-    send_to_char(ch, "'%s'?  What part of your body is THAT?\r\n", arg);
+    send_to_char(ch, "'%s'?  어느 부위 입니까?\r\n", arg);
 
   return (where);
 }
@@ -1362,14 +1352,14 @@ ACMD(do_wear)
 
   two_arguments(argument, arg1, arg2);
 
-  if (!*arg1) {
-    send_to_char(ch, "Wear what?\r\n");
+ if (!*arg1) {
+    send_to_char(ch, "무엇을 입을까요?\r\n");
     return;
   }
   dotmode = find_all_dots(arg1);
 
   if (*arg2 && (dotmode != FIND_INDIV)) {
-    send_to_char(ch, "You can't specify the same body location for more than one item!\r\n");
+    send_to_char(ch, "한번에 하나만 가능합니다!\r\n");
     return;
   }
   if (dotmode == FIND_ALL) {
@@ -1377,7 +1367,7 @@ ACMD(do_wear)
       next_obj = obj->next_content;
       if (CAN_SEE_OBJ(ch, obj) && (where = find_eq_pos(ch, obj, 0)) >= 0) {
         if (GET_LEVEL(ch) < GET_OBJ_LEVEL(obj))
-          send_to_char(ch, "You are not experienced enough to use that.\r\n");
+          send_to_char(ch, "당신의 레벨로 입을 수 없습니다.\r\n");
         else {
           items_worn++;
 	  perform_wear(ch, obj, where);
@@ -1385,35 +1375,35 @@ ACMD(do_wear)
       }
     }
     if (!items_worn)
-      send_to_char(ch, "You don't seem to have anything wearable.\r\n");
+      send_to_char(ch, "입을만한 것을 가지고 있지 않습니다..\r\n");
   } else if (dotmode == FIND_ALLDOT) {
     if (!*arg1) {
-      send_to_char(ch, "Wear all of what?\r\n");
+      send_to_char(ch, "무엇을 모두 입을까요?\r\n");
       return;
     }
     if (!(obj = get_obj_in_list_vis(ch, arg1, NULL, ch->carrying)))
-      send_to_char(ch, "You don't seem to have any %ss.\r\n", arg1);
+      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg1, check_josa(arg1, 1));
     else if (GET_LEVEL(ch) < GET_OBJ_LEVEL(obj))
-      send_to_char(ch, "You are not experienced enough to use that.\r\n");
+      send_to_char(ch, "당신의 레벨로 입을수 없습니다.\r\n");
     else
       while (obj) {
 	next_obj = get_obj_in_list_vis(ch, arg1, NULL, obj->next_content);
 	if ((where = find_eq_pos(ch, obj, 0)) >= 0)
 	  perform_wear(ch, obj, where);
 	else
-	  act("You can't wear $p.", FALSE, ch, obj, 0, TO_CHAR);
+	  act("당신은 $p$L 입을 수 없습니다.", FALSE, ch, obj, 0, TO_CHAR);
 	obj = next_obj;
       }
   } else {
     if (!(obj = get_obj_in_list_vis(ch, arg1, NULL, ch->carrying)))
-      send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg1), arg1);
+      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg1, check_josa(arg1, 1));
     else if (GET_LEVEL(ch) < GET_OBJ_LEVEL(obj))
-      send_to_char(ch, "You are not experienced enough to use that.\r\n");
+      send_to_char(ch, "당신의 레벨로 입을수 없습니다.\r\n");
     else {
       if ((where = find_eq_pos(ch, obj, arg2)) >= 0)
 	perform_wear(ch, obj, where);
       else if (!*arg2)
-	act("You can't wear $p.", FALSE, ch, obj, 0, TO_CHAR);
+	act("당신은 $p$L 입을 수 없습니다.", FALSE, ch, obj, 0, TO_CHAR);
     }
   }
 }
@@ -1426,16 +1416,16 @@ ACMD(do_wield)
   one_argument(argument, arg);
 
   if (!*arg)
-    send_to_char(ch, "Wield what?\r\n");
+    send_to_char(ch, "무엇을 무장할까요?\r\n");
   else if (!(obj = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))
-    send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+    send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
   else {
     if (!CAN_WEAR(obj, ITEM_WEAR_WIELD))
-      send_to_char(ch, "You can't wield that.\r\n");
+      send_to_char(ch, "무장할 수 없는 것입니다.\r\n");
     else if (GET_OBJ_WEIGHT(obj) > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
-      send_to_char(ch, "It's too heavy for you to use.\r\n");
+      send_to_char(ch, "당신이 무장하기에 너무 무겁습니다..\r\n");
     else if (GET_LEVEL(ch) < GET_OBJ_LEVEL(obj))
-      send_to_char(ch, "You are not experienced enough to use that.\r\n");
+      send_to_char(ch, "당신의 레벨로 무장할 수 없습니다.\r\n");
     else
       perform_wear(ch, obj, WEAR_WIELD);
   }
@@ -1449,11 +1439,11 @@ ACMD(do_grab)
   one_argument(argument, arg);
 
   if (!*arg)
-    send_to_char(ch, "Hold what?\r\n");
+   send_to_char(ch, "무엇을 쥘까요?\r\n");
   else if (!(obj = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))
-    send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+    send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
   else if (GET_LEVEL(ch) < GET_OBJ_LEVEL(obj))
-    send_to_char(ch, "You are not experienced enough to use that.\r\n");
+    send_to_char(ch, "당신의 레벨로 쥘 수 없습니다.\r\n");
   else {
     if (GET_OBJ_TYPE(obj) == ITEM_LIGHT)
       perform_wear(ch, obj, WEAR_LIGHT);
@@ -1461,7 +1451,7 @@ ACMD(do_grab)
       if (!CAN_WEAR(obj, ITEM_WEAR_HOLD) && GET_OBJ_TYPE(obj) != ITEM_WAND &&
       GET_OBJ_TYPE(obj) != ITEM_STAFF && GET_OBJ_TYPE(obj) != ITEM_SCROLL &&
 	  GET_OBJ_TYPE(obj) != ITEM_POTION)
-	send_to_char(ch, "You can't hold that.\r\n");
+	send_to_char(ch, "쥘수 없는 것입니다.\r\n");
       else
 	perform_wear(ch, obj, WEAR_HOLD);
     }
@@ -1477,16 +1467,16 @@ static void perform_remove(struct char_data *ch, int pos)
     /*  This error occurs when perform_remove() is passed a bad 'pos'
      *  (location) to remove an object from. */
   else if (OBJ_FLAGGED(obj, ITEM_NODROP) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
-    act("You can't remove $p, it must be CURSED!", FALSE, ch, obj, 0, TO_CHAR);
+   act("$p$L 벗지 못했습니다. 저주받은 물건입니다!", FALSE, ch, obj, 0, TO_CHAR);
   else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)&& !PRF_FLAGGED(ch, PRF_NOHASSLE))
-    act("$p: you can't carry that many items!", FALSE, ch, obj, 0, TO_CHAR);
+    act("$p: 너무 많은 물건을 가지고 있어서 들 수 없습니다.", FALSE, ch, obj, 0, TO_CHAR);
   else {
     if (!remove_otrigger(obj, ch))
       return;
 
     obj_to_char(unequip_char(ch, pos), ch);
-    act("You stop using $p.", FALSE, ch, obj, 0, TO_CHAR);
-    act("$n stops using $p.", TRUE, ch, obj, 0, TO_ROOM);
+    act("당신은 $p$L 벗습니다.", FALSE, ch, obj, 0, TO_CHAR);
+    act("$n$j $p$L 벗습니다.", TRUE, ch, obj, 0, TO_ROOM);
   }
 }
 
@@ -1498,7 +1488,7 @@ ACMD(do_remove)
   one_argument(argument, arg);
 
   if (!*arg) {
-    send_to_char(ch, "Remove what?\r\n");
+    send_to_char(ch, "무엇을 벗을까요?\r\n");
     return;
   }
   dotmode = find_all_dots(arg);
@@ -1511,10 +1501,10 @@ ACMD(do_remove)
 	found = 1;
       }
     if (!found)
-      send_to_char(ch, "You're not using anything.\r\n");
+      send_to_char(ch, "착용한 장비가 아무것도 없습니다.\r\n");
   } else if (dotmode == FIND_ALLDOT) {
     if (!*arg)
-      send_to_char(ch, "Remove all of what?\r\n");
+      send_to_char(ch, "무엇을 모두 벗을까요?\r\n");
     else {
       found = 0;
       for (i = 0; i < NUM_WEARS; i++)
@@ -1524,11 +1514,11 @@ ACMD(do_remove)
 	  found = 1;
 	}
       if (!found)
-	send_to_char(ch, "You don't seem to be using any %ss.\r\n", arg);
+		send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
     }
   } else {
     if ((i = get_obj_pos_in_equip_vis(ch, arg, NULL, ch->equipment)) < 0)
-      send_to_char(ch, "You don't seem to be using %s %s.\r\n", AN(arg), arg);
+      send_to_char(ch, "%s%s 착용하고 있지 않습니다.\r\n", arg, check_josa(arg, 1));
     else
       perform_remove(ch, i);
   }
@@ -1542,49 +1532,56 @@ ACMD(do_sac)
   one_argument(argument, arg);
 
   if (!*arg) {
-    send_to_char(ch, "Sacrifice what?\n\r");
-    return;
-  }
-    
+       send_to_char(ch, "무엇을 제물로 바칠까요?\n\r");
+       return;
+     }
+
   if (!(j = get_obj_in_list_vis(ch, arg, NULL, world[IN_ROOM(ch)].contents)) && (!(j = get_obj_in_list_vis(ch, arg, NULL, ch->carrying)))) {
-    send_to_char(ch, "It doesn't seem to be here.\n\r");
-    return;
-  }
+       send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
+       return;
+     }
 
   if (!CAN_WEAR(j, ITEM_WEAR_TAKE)) {
-    send_to_char(ch, "You can't sacrifice that!\n\r");
-    return;
-  }
+       send_to_char(ch, "제물로 바칠수 없는 종류입니다!\n\r");
+       return;
+     }
 
-   act("$n sacrifices $p.", FALSE, ch, j, 0, TO_ROOM);
+   act("$n$j $p$L 제물로 바칩니다.", FALSE, ch, j, 0, TO_ROOM);
 
   switch (rand_number(0, 5)) {
-    case 0:
-      send_to_char(ch, "You sacrifice %s to the Gods.\r\nYou receive one gold coin for your humility.\r\n", GET_OBJ_SHORT(j));
-      increase_gold(ch, 1);
-    break;
-    case 1:
-      send_to_char(ch, "You sacrifice %s to the Gods.\r\nThe Gods ignore your sacrifice.\r\n", GET_OBJ_SHORT(j));
-    break;
-    case 2:
-      send_to_char(ch, "You sacrifice %s to the Gods.\r\nThe gods give you %d experience points.\r\n", GET_OBJ_SHORT(j), 1+2*GET_OBJ_LEVEL(j));
-      GET_EXP(ch) += (1+2*GET_OBJ_LEVEL(j));
-    break;
-    case 3:
-      send_to_char(ch, "You sacrifice %s to the Gods.\r\nYou receive %d experience points.\r\n", GET_OBJ_SHORT(j), 1+GET_OBJ_LEVEL(j));
-      GET_EXP(ch) += (1+GET_OBJ_LEVEL(j));
-    break;
-    case 4:
-      send_to_char(ch, "Your sacrifice to the Gods is rewarded with %d gold coins.\r\n", 1+GET_OBJ_LEVEL(j));
-      increase_gold(ch, (1+GET_OBJ_LEVEL(j)));
-    break;
-    case 5:
-      send_to_char(ch, "Your sacrifice to the Gods is rewarded with %d gold coins\r\n", (1+2*GET_OBJ_LEVEL(j)));
-      increase_gold(ch, (1+2*GET_OBJ_LEVEL(j)));
-    break;
+      case 0:
+        send_to_char(ch, "당신은 %s%s 제물로 바치고 1원을 보상으로 받습니다.\r\n",
+			GET_OBJ_SHORT(j), check_josa(GET_OBJ_SHORT(j),1));
+        GET_GOLD(ch) += 1;
+      break;
+      case 1:
+        send_to_char(ch, "당신은 %s%s 제물로 바쳤지만 보상받지 못했습니다.\r\n",
+			GET_OBJ_SHORT(j), check_josa(GET_OBJ_SHORT(j),1));
+      break;
+      case 2:
+        send_to_char(ch, "당신은 %s%s 제물로 바치고 %d만큼의 경험치를 보상받았습니다.\r\n",
+			GET_OBJ_SHORT(j), check_josa(GET_OBJ_SHORT(j),1), (2*GET_OBJ_COST(j)));
+        GET_EXP(ch) += (2*GET_OBJ_COST(j));
+      break;
+      case 3:
+        send_to_char(ch, "당신은 %s%s 제물로 바치고 %d만큼의 경험치를 보상받았습니다.\r\n",
+			GET_OBJ_SHORT(j), check_josa(GET_OBJ_SHORT(j),1), GET_OBJ_COST(j));
+        GET_EXP(ch) += GET_OBJ_COST(j);
+      break;
+      case 4:
+        send_to_char(ch, "당신은 %s%s 제물로 바치고 %d원을 보상으로 받습니다.\r\n",
+			GET_OBJ_SHORT(j), check_josa(GET_OBJ_SHORT(j),1), GET_OBJ_COST(j));
+        GET_GOLD(ch) += GET_OBJ_COST(j);
+      break;
+      case 5:
+        send_to_char(ch, "당신은 %s%s 제물로 바치고 %d원을 보상으로 받습니다.\r\n",
+			GET_OBJ_SHORT(j), check_josa(GET_OBJ_SHORT(j),1), (2*GET_OBJ_COST(j)));
+        GET_GOLD(ch) += (2*GET_OBJ_COST(j));
+      break;
     default:
-      send_to_char(ch, "You sacrifice %s to the Gods.\r\nYou receive one gold coin for your humility.\r\n",GET_OBJ_SHORT(j));
-      increase_gold(ch, 1);
+        send_to_char(ch, "당신은 %s%s 제물로 바치고 1원을 보상으로 받습니다.\r\n",
+			GET_OBJ_SHORT(j), check_josa(GET_OBJ_SHORT(j), 1));
+        GET_GOLD(ch) += 1;
     break;
   }
   for (jj = j->contains; jj; jj = next_thing2) {

@@ -1968,7 +1968,7 @@ static void makeuid_var(void *go, struct script_data *sc, trig_data *trig,
 {
   char junk[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
   char arg[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH];
-  char uid[MAX_INPUT_LENGTH + 1]; // to make room for UID_CHAR
+  char uid[MAX_INPUT_LENGTH];
 
   *uid = '\0';
   half_chop(cmd, junk, cmd);    /* makeuid */
@@ -2994,23 +2994,12 @@ void init_lookup_table(void)
   }
 }
 
-static inline struct lookup_table_t *get_bucket_head(long uid)
-{
-  int bucket = (int) (uid & (BUCKET_COUNT - 1));
-  return &lookup_table[bucket];
-}
-
-static inline struct lookup_table_t *find_element_by_uid_in_lookup_table(long uid)
-{
-  struct lookup_table_t *lt = get_bucket_head(uid);
-
-  for (;lt && lt->uid != uid ; lt = lt->next) ;
-  return lt;
-}
-
 static struct char_data *find_char_by_uid_in_lookup_table(long uid)
 {
-  struct lookup_table_t *lt = find_element_by_uid_in_lookup_table(uid);
+  int bucket = (int) (uid & (BUCKET_COUNT - 1));
+  struct lookup_table_t *lt = &lookup_table[bucket];
+
+  for (;lt && lt->uid != uid ; lt = lt->next) ;
 
   if (lt)
     return (struct char_data *)(lt->c);
@@ -3021,7 +3010,10 @@ static struct char_data *find_char_by_uid_in_lookup_table(long uid)
 
 static struct obj_data *find_obj_by_uid_in_lookup_table(long uid)
 {
-  struct lookup_table_t *lt = find_element_by_uid_in_lookup_table(uid);
+  int bucket = (int) (uid & (BUCKET_COUNT - 1));
+  struct lookup_table_t *lt = &lookup_table[bucket];
+
+  for (;lt && lt->uid != uid ; lt = lt->next) ;
 
   if (lt)
     return (struct obj_data *)(lt->c);
@@ -3030,16 +3022,10 @@ static struct obj_data *find_obj_by_uid_in_lookup_table(long uid)
   return NULL;
 }
 
-int has_obj_by_uid_in_lookup_table(long uid)
-{
-  struct lookup_table_t *lt = find_element_by_uid_in_lookup_table(uid);
-
-  return lt != NULL;
-}
-
 void add_to_lookup_table(long uid, void *c)
 {
-  struct lookup_table_t *lt = get_bucket_head(uid);
+  int bucket = (int) (uid & (BUCKET_COUNT - 1));
+  struct lookup_table_t *lt = &lookup_table[bucket];
 
   if (lt && lt->uid == uid) {
    log("add_to_lookup updating existing value for uid=%ld (%p -> %p)", uid, lt->c, c);
@@ -3050,7 +3036,6 @@ void add_to_lookup_table(long uid, void *c)
   for (;lt && lt->next; lt = lt->next)
     if (lt->next->uid == uid) {
       log("add_to_lookup updating existing value for uid=%ld (%p -> %p)", uid, lt->next->c, c);
-      lt->next->c = c;
       return;
     }
 
@@ -3069,7 +3054,9 @@ void remove_from_lookup_table(long uid)
   if (uid == 0)
     return;
 
-  flt = find_element_by_uid_in_lookup_table(uid);
+  for (;lt;lt = lt->next)
+    if (lt->uid == uid)
+      flt = lt;
 
   if (flt) {
     for (lt = &lookup_table[bucket];lt->next != flt;lt = lt->next)

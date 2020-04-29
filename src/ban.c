@@ -245,14 +245,14 @@ int valid_name(char *newname)
         return (IS_PLAYING(dt));
 
   /* count vowels */
-  for (i = 0; newname[i]; i++) {
+/*  for (i = 0; newname[i]; i++) {
     if (strchr("aeiouyAEIOUY", newname[i]))
       vowels++;
-  }
+  } */
 
   /* return invalid if no vowels */
-  if (!vowels)
-    return (0);
+ /* if (!vowels)
+    return (0); */
 
   /* check spaces */
   if (strchr(newname, ' '))

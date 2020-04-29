@@ -42,7 +42,7 @@ ACMD(do_say)
   skip_spaces(&argument);
 
   if (!*argument)
-    send_to_char(ch, "Yes, but WHAT do you want to say?\r\n");
+    send_to_char(ch, "무슨 말을 하고 싶으세요?\r\n");
   else {
     char buf[MAX_INPUT_LENGTH + 14], *msg;
     struct char_data *vict;
@@ -50,7 +50,7 @@ ACMD(do_say)
     if (CONFIG_SPECIAL_IN_COMM && legal_communication(argument))
       parse_at(argument);
 
-    snprintf(buf, sizeof(buf), "$n\tn says, '%s'", argument);
+    snprintf(buf, sizeof(buf), "[말] $n > %s", argument);
     msg = act(buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG);
 
     for (vict = world[IN_ROOM(ch)].people; vict; vict = vict->next_in_room)
@@ -60,7 +60,7 @@ ACMD(do_say)
     if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
       send_to_char(ch, "%s", CONFIG_OK);
     else {
-      sprintf(buf, "You say, '%s'", argument);
+      sprintf(buf, "[말] %s", argument);
       msg = act(buf, FALSE, ch, 0, 0, TO_CHAR | DG_NO_TRIG);
       add_history(ch, msg, HIST_SAY);
     }
@@ -76,22 +76,22 @@ ACMD(do_gsay)
   skip_spaces(&argument);
   
   if (!GROUP(ch)) {
-    send_to_char(ch, "But you are not a member of a group!\r\n");
+    send_to_char(ch, "당신은 그룹에 속해 있지 않습니다!\r\n");
     return;
   }
   if (!*argument)
-    send_to_char(ch, "Yes, but WHAT do you want to group-say?\r\n");
+    send_to_char(ch, "그룹원에게 물슨 말을 하고 싶은가요?\r\n");
   else {
 		
     if (CONFIG_SPECIAL_IN_COMM && legal_communication(argument))
       parse_at(argument);		
 		
-    send_to_group(ch, ch->group, "%s%s%s says, '%s'%s\r\n", CCGRN(ch, C_NRM), CCGRN(ch, C_NRM), GET_NAME(ch), argument, CCNRM(ch, C_NRM));
+    send_to_group(ch, ch->group, "%s%s%s님이 그룹원에게 말합니다. '%s'%s\r\n", CCGRN(ch, C_NRM), CCGRN(ch, C_NRM), GET_NAME(ch), argument, CCNRM(ch, C_NRM));
 	
     if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
       send_to_char(ch, "%s", CONFIG_OK);
     else
-      send_to_char(ch, "%sYou group-say, '%s'%s\r\n", CCGRN(ch, C_NRM), argument, CCNRM(ch, C_NRM));
+      send_to_char(ch, "%s당신이 그룹원에게 말합니다. '%s'%s\r\n", CCGRN(ch, C_NRM), argument, CCNRM(ch, C_NRM));
 	}
 }
 
@@ -99,14 +99,14 @@ static void perform_tell(struct char_data *ch, struct char_data *vict, char *arg
 {
   char buf[MAX_STRING_LENGTH], *msg;
 
-  snprintf(buf, sizeof(buf), "%s$n tells you, '%s'%s", CCRED(vict, C_NRM), arg, CCNRM(vict, C_NRM));
+  snprintf(buf, sizeof(buf), "%s$n님이 귓말을 합니다. '%s'%s", CCRED(vict, C_NRM), arg, CCNRM(vict, C_NRM));
   msg = act(buf, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
   add_history(vict, msg, HIST_TELL);
 
   if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
     send_to_char(ch, "%s", CONFIG_OK);
   else {
-    snprintf(buf, sizeof(buf), "%sYou tell $N, '%s'%s", CCRED(ch, C_NRM), arg, CCNRM(ch, C_NRM));
+    snprintf(buf, sizeof(buf), "%s당신은 $N님에게 귓말을 합니다. '%s'%s", CCRED(ch, C_NRM), arg, CCNRM(ch, C_NRM));
     msg = act(buf, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);     
     add_history(ch, msg, HIST_TELL);
   }
@@ -122,17 +122,17 @@ static int is_tell_ok(struct char_data *ch, struct char_data *vict)
   else if (!vict)
     send_to_char(ch, "%s", CONFIG_NOPERSON);
   else if (ch == vict)
-    send_to_char(ch, "You try to tell yourself something.\r\n");
+    send_to_char(ch, "당신은 자신에게 귓말을 시도 합니다...\r\n");
   else if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOTELL))
-    send_to_char(ch, "You can't tell other people while you have notell on.\r\n");
+    send_to_char(ch, "당신은 귓말 거부중 입니다.\r\n");
   else if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF) && (GET_LEVEL(ch) < LVL_GOD))
-    send_to_char(ch, "The walls seem to absorb your words.\r\n");
+    send_to_char(ch, "벽에 막혀 당신의 귓말이 전달이 되지 않습니다.\r\n");
   else if (!IS_NPC(vict) && !vict->desc)        /* linkless */
-    act("$E's linkless at the moment.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+    act("$E님의 접속이 끊어졌습니다.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
   else if (PLR_FLAGGED(vict, PLR_WRITING))
-    act("$E's writing a message right now; try again later.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+    act("$E님은 현재 글 쓰기중입니다.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
   else if ((!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOTELL)) || (ROOM_FLAGGED(IN_ROOM(vict), ROOM_SOUNDPROOF) && (GET_LEVEL(ch) < LVL_GOD)))
-    act("$E can't hear you.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+    act("$E님은 현재 귓말 거부중 입니다.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
   else
     return (TRUE);
 
@@ -144,12 +144,12 @@ static int is_tell_ok(struct char_data *ch, struct char_data *vict)
 ACMD(do_tell)
 {
   struct char_data *vict = NULL;
-  char buf[MAX_INPUT_LENGTH + 25], buf2[MAX_INPUT_LENGTH];  // +25 to make room for constants
+  char buf[MAX_INPUT_LENGTH], buf2[MAX_INPUT_LENGTH];
 
   half_chop(argument, buf, buf2);
 
   if (!*buf || !*buf2)
-    send_to_char(ch, "Who do you wish to tell what??\r\n");
+    send_to_char(ch, "누구에게 무슨 말을 하시려구요???\r\n");
   else if (!strcmp(buf, "m-w")) {
 #ifdef CIRCLE_WINDOWS
    /* getpid() is not portable */
@@ -159,10 +159,10 @@ ACMD(do_tell)
 
     if (last_webster_teller != -1L) {
       if (GET_IDNUM(ch) == last_webster_teller) {
-        send_to_char(ch, "You are still waiting for a response.\r\n");
+        send_to_char(ch, "당신은 아직 대답을 기다리고 있습니다.\r\n");
         return;
       } else {
-        send_to_char(ch, "Hold on, m-w is busy. Try again in a couple of seconds.\r\n");
+        send_to_char(ch, "상대방이 바쁜가봅니다. 잠시 후 다시 시도 해주세요.\r\n");
         return;
       }
     }
@@ -203,9 +203,9 @@ ACMD(do_reply)
   skip_spaces(&argument);
 
   if (GET_LAST_TELL(ch) == NOBODY)
-    send_to_char(ch, "You have nobody to reply to!\r\n");
+   send_to_char(ch, "대답할 상대가 없습니다!\r\n");
   else if (!*argument)
-    send_to_char(ch, "What is your reply?\r\n");
+   send_to_char(ch, "뭐라고 대답 할까요?\r\n");
   else {
     /* Make sure the person you're replying to is still playing by searching
      * for them.  Note, now last tell is stored as player IDnum instead of
@@ -217,7 +217,7 @@ ACMD(do_reply)
       tch = tch->next;
 
     if (!tch)
-      send_to_char(ch, "That player is no longer here.\r\n");
+      send_to_char(ch, "대답할 상대가 접속중이 아닙니다.\r\n");
     else if (is_tell_ok(ch, tch)) {
       if (CONFIG_SPECIAL_IN_COMM && legal_communication(argument))
         parse_at(argument);
@@ -234,15 +234,15 @@ ACMD(do_spec_comm)
 
   switch (subcmd) {
   case SCMD_WHISPER:
-    action_sing = "whisper to";
-    action_plur = "whispers to";
-    action_others = "$n whispers something to $N.";
+     action_sing = "속삭입니다.";
+    action_plur = "속삭입니다.";
+    action_others = "$n$j $N님에게 무언가를 속삭입니다.";
     break;
 
   case SCMD_ASK:
-    action_sing = "ask";
-    action_plur = "asks";
-    action_others = "$n asks $N a question.";
+    action_sing = "질문 합니다.";
+    action_plur = "질문 합니다.";
+    action_others = "$n$j $N님에게 무엇인가를 질문 합니다.";
     break;
 
   default:
@@ -255,25 +255,26 @@ ACMD(do_spec_comm)
   half_chop(argument, buf, buf2);
 
   if (!*buf || !*buf2)
-    send_to_char(ch, "Whom do you want to %s.. and what??\r\n", action_sing);
+    send_to_char(ch, "누구에게 %s 할까요?\r\n", action_sing);
   else if (!(vict = get_char_vis(ch, buf, NULL, FIND_CHAR_ROOM)))
     send_to_char(ch, "%s", CONFIG_NOPERSON);
   else if (vict == ch)
-    send_to_char(ch, "You can't get your mouth close enough to your ear...\r\n");
+    send_to_char(ch, "당신은 혼잣말을 합니다.\r\n");
   else {
     char buf1[MAX_STRING_LENGTH];
 
     if (CONFIG_SPECIAL_IN_COMM && legal_communication(argument))
       parse_at(buf2);
 
-    snprintf(buf1, sizeof(buf1), "$n %s you, '%s'", action_plur, buf2);
-    act(buf1, FALSE, ch, 0, vict, TO_VICT);
 
+    snprintf(buf1, sizeof(buf1), "$n$j 당신에게 '%s'%s %s", buf2, check_josa(buf2, 3), action_plur);
+    act(buf1, FALSE, ch, 0, vict, TO_VICT);
+	
     if ((!IS_NPC(ch)) && (PRF_FLAGGED(ch, PRF_NOREPEAT))) 
       send_to_char(ch, "%s", CONFIG_OK);
     else
-      send_to_char(ch, "You %s %s, '%s'\r\n", action_sing, GET_NAME(vict), buf2);
-    act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
+  send_to_char(ch, "당신은 %s님에게 '%s'%s %s\r\n", 	GET_NAME(vict), buf2, check_josa(buf2, 3), action_sing);
+	act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
   }
 }
 
@@ -293,39 +294,39 @@ ACMD(do_write)
 
   if (!*papername) {
     /* Nothing was delivered. */
-    send_to_char(ch, "Write?  With what?  ON what?  What are you trying to do?!?\r\n");
+     send_to_char(ch, "어디에 무엇을 쓰실겁니까?\r\n");
     return;
   }
   if (*penname) {
     /* Nothing was delivered. */
     if (!(paper = get_obj_in_list_vis(ch, papername, NULL, ch->carrying))) {
-      send_to_char(ch, "You have no %s.\r\n", papername);
+     send_to_char(ch, "당신은 %s%s 없습니다.\r\n", papername, check_josa(papername, 0));
       return;
     }
     if (!(pen = get_obj_in_list_vis(ch, penname, NULL, ch->carrying))) {
-      send_to_char(ch, "You have no %s.\r\n", penname);
+     send_to_char(ch, "당신은 %s%s 없습니다.\r\n", penname, check_josa(penname, 0));
       return;
     }
   } else { /* There was one arg.. let's see what we can find. */
     if (!(paper = get_obj_in_list_vis(ch, papername, NULL, ch->carrying))) {
-      send_to_char(ch, "There is no %s in your inventory.\r\n", papername);
+      send_to_char(ch, "당신의 소지품에 %s%s 없습니다.\r\n", papername, check_josa(papername, 4));
       return;
     }
     if (GET_OBJ_TYPE(paper) == ITEM_PEN) { /* Oops, a pen. */
       pen = paper;
       paper = NULL;
     } else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
-      send_to_char(ch, "That thing has nothing to do with writing.\r\n");
+      send_to_char(ch, "글을 쓸수 있는 물건이 아닙니다.\r\n");
       return;
     }
 
     /* One object was found.. now for the other one. */
     if (!GET_EQ(ch, WEAR_HOLD)) {
-      send_to_char(ch, "You can't write with %s %s alone.\r\n", AN(papername), papername);
+      send_to_char(ch, "%s만 가지고 글을 쓸 수 없습니다.\r\n", papername);
       return;
     }
     if (!CAN_SEE_OBJ(ch, GET_EQ(ch, WEAR_HOLD))) {
-      send_to_char(ch, "The stuff in your hand is invisible!  Yeech!!\r\n");
+     send_to_char(ch, "손에 든 그 물건이 눈에 보이지 않습니다! 으악!!\r\n");
       return;
     }
     if (pen)
@@ -336,21 +337,21 @@ ACMD(do_write)
 
   /* Now let's see what kind of stuff we've found. */
   if (GET_OBJ_TYPE(pen) != ITEM_PEN)
-    act("$p is no good for writing with.", FALSE, ch, pen, 0, TO_CHAR);
+    act("$p$k 글을 작성할 물건이 아닙니다.", FALSE, ch, pen, 0, TO_CHAR);
   else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
-    act("You can't write on $p.", FALSE, ch, paper, 0, TO_CHAR);
+   act("당신은 $p에 글을 쓸 수 없습니다.", FALSE, ch, paper, 0, TO_CHAR);
   else {
     char *backstr = NULL;
 
     /* Something on it, display it as that's in input buffer. */
     if (paper->action_description) {
       backstr = strdup(paper->action_description);
-      send_to_char(ch, "There's something written on it already:\r\n");
+      send_to_char(ch, "이미 뭔가가 적혀 있습니다:\r\n");
       send_to_char(ch, "%s", paper->action_description);
     }
 
     /* We can write. */
-    act("$n begins to jot down a note.", TRUE, ch, 0, 0, TO_ROOM);
+    act("$n님이 메모하기 시작합니다.", TRUE, ch, 0, 0, TO_ROOM);
     send_editor_help(ch->desc);
     string_write(ch->desc, &paper->action_description, MAX_NOTE_LENGTH, 0, backstr);
   }
@@ -365,20 +366,20 @@ ACMD(do_page)
   half_chop(argument, arg, buf2);
 
   if (IS_NPC(ch))
-    send_to_char(ch, "Monsters can't page.. go away.\r\n");
+    send_to_char(ch, "맙은 사용할 수 없는 명령입니다..\r\n");
   else if (!*arg)
-    send_to_char(ch, "Whom do you wish to page?\r\n");
+    send_to_char(ch, "누구에게 연락하기 원하세요?\r\n");
   else {
     char buf[MAX_STRING_LENGTH];
 
     snprintf(buf, sizeof(buf), "\007\007*$n* %s", buf2);
-    if (!str_cmp(arg, "all")) {
+    if (!str_cmp(arg, "모두")) {
       if (GET_LEVEL(ch) > LVL_GOD) {
 	for (d = descriptor_list; d; d = d->next)
 	  if (STATE(d) == CON_PLAYING && d->character)
 	    act(buf, FALSE, ch, 0, d->character, TO_VICT);
       } else
-	send_to_char(ch, "You will never be godly enough to do that!\r\n");
+	send_to_char(ch, "권한이 없습니다!\r\n");
       return;
     }
     if ((vict = get_char_vis(ch, arg, NULL, FIND_CHAR_WORLD))) {
@@ -388,7 +389,7 @@ ACMD(do_page)
       else
 	act(buf, FALSE, ch, 0, vict, TO_CHAR);
     } else
-      send_to_char(ch, "There is no such person in the game!\r\n");
+      send_to_char(ch, "그런 사람이 없습니다!\r\n");
   }
 }
 
@@ -397,7 +398,7 @@ ACMD(do_gen_comm)
 {
   struct descriptor_data *i;
   char color_on[24];
-  char buf1[MAX_INPUT_LENGTH], buf2[MAX_INPUT_LENGTH + 50], *msg;   // + 50 to make room for color codes
+  char buf1[MAX_INPUT_LENGTH], buf2[MAX_INPUT_LENGTH], *msg;
   bool emoting = FALSE;
 
   /* Array of flags which must _not_ be set in order for comm to be heard. */
@@ -424,29 +425,29 @@ ACMD(do_gen_comm)
    *           [2] message if you're not on the channel
    *           [3] a color string. */
   const char *com_msgs[][4] = {
-    {"You cannot holler!!\r\n",
-      "holler",
+ {"당신은 불평을 할수 없습니다!!\r\n",
+      "불평",
       "",
       KYEL},
 
-    {"You cannot shout!!\r\n",
-      "shout",
-      "Turn off your noshout flag first!\r\n",
+    {"당신은 외칠수 없습니다!!\r\n",
+      "외침",
+      "먼저 외침채널을 켜주세요!\r\n",
       KYEL},
 
-    {"You cannot gossip!!\r\n",
-      "gossip",
-      "You aren't even on the channel!\r\n",
+    {"당신은 잡담을 할수 없습니다!!\r\n",
+      "잡담",
+      "먼저 잡담채널을 켜주세요!\r\n",
       KYEL},
 
-    {"You cannot auction!!\r\n",
-      "auction",
-      "You aren't even on the channel!\r\n",
+    {"당신은 경매를 할수 없습니다!!\r\n",
+      "경매",
+      "먼저 경매채널을 켜주세요!\r\n",
       KMAG},
 
-    {"You cannot congratulate!\r\n",
-      "congrat",
-      "You aren't even on the channel!\r\n",
+    {"당신은 축하를 할수 없습니다!\r\n",
+      "축하",
+      "먼저 축하채널을 켜주세요!\r\n",
       KGRN},
 
     {"You cannot gossip your emotions!\r\n",
@@ -460,7 +461,7 @@ ACMD(do_gen_comm)
     return;
   }
   if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF) && (GET_LEVEL(ch) < LVL_GOD)) {
-    send_to_char(ch, "The walls seem to absorb your words.\r\n");
+    send_to_char(ch, "벽들이 당신의 소리를 막습니다.\r\n");
     return;
   }
 
@@ -475,7 +476,7 @@ ACMD(do_gen_comm)
 
   /* Level_can_shout defined in config.c. */
   if (GET_LEVEL(ch) < CONFIG_LEVEL_CAN_SHOUT) {
-    send_to_char(ch, "You must be at least level %d before you can %s.\r\n", CONFIG_LEVEL_CAN_SHOUT, com_msgs[subcmd][1]);
+    send_to_char(ch, "%d레벨 이상만 %s할 수 있습니다.\r\n", CONFIG_LEVEL_CAN_SHOUT, com_msgs[subcmd][1]);
     return;
   }
   /* Make sure the char is on the channel. */
@@ -489,12 +490,12 @@ ACMD(do_gen_comm)
 
   /* Make sure that there is something there to say! */
   if (!*argument) {
-    send_to_char(ch, "Yes, %s, fine, %s we must, but WHAT???\r\n", com_msgs[subcmd][1], com_msgs[subcmd][1]);
+    send_to_char(ch, "무슨 %s%s 할까요?\r\n", com_msgs[subcmd][1], check_josa(argument, 1));
     return;
   }
   if (subcmd == SCMD_HOLLER) {
     if (GET_MOVE(ch) < CONFIG_HOLLER_MOVE_COST) {
-      send_to_char(ch, "You're too exhausted to holler.\r\n");
+      send_to_char(ch, "당신이 너무 지쳐있습니다.\r\n");
       return;
     } else
       GET_MOVE(ch) -= CONFIG_HOLLER_MOVE_COST;
@@ -509,8 +510,9 @@ ACMD(do_gen_comm)
 		if (CONFIG_SPECIAL_IN_COMM && legal_communication(argument))
       parse_at(argument);
       
-    snprintf(buf1, sizeof(buf1), "%sYou %s, '%s%s'%s", COLOR_LEV(ch) >= C_CMP ? color_on : "",
-        com_msgs[subcmd][1], argument, COLOR_LEV(ch) >= C_CMP ? color_on : "", CCNRM(ch, C_CMP));
+    snprintf(buf1, sizeof(buf1), "%s당신의 %s : '%s'%s%s", 
+		  COLOR_LEV(ch) >= C_CMP ? color_on : "", com_msgs[subcmd][1], argument,
+		  COLOR_LEV(ch) >= C_CMP ? color_on : "", CCNRM(ch, C_CMP));
     
     msg = act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
     add_history(ch, msg, hist_type[subcmd]);
@@ -541,13 +543,13 @@ ACMD(do_gen_comm)
 ACMD(do_qcomm)
 {
   if (!PRF_FLAGGED(ch, PRF_QUEST)) {
-    send_to_char(ch, "You aren't even part of the quest!\r\n");
+    send_to_char(ch, "임무중이 아닙니다!\r\n");
     return;
   }
   skip_spaces(&argument);
 
   if (!*argument)
-    send_to_char(ch, "%c%s?  Yes, fine, %s we must, but WHAT??\r\n", UPPER(*CMD_NAME), CMD_NAME + 1, CMD_NAME);
+    send_to_char(ch, "뭐라고 임무말을 할까요??\r\n");
   else {
     char buf[MAX_STRING_LENGTH];
     struct descriptor_data *i;
@@ -558,13 +560,13 @@ ACMD(do_qcomm)
     if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
       send_to_char(ch, "%s", CONFIG_OK);
     else if (subcmd == SCMD_QSAY) {
-      snprintf(buf, sizeof(buf), "You quest-say, '%s'", argument);
+      snprintf(buf, sizeof(buf), "당신은 '%s'%s 임무말을 합니다.",argument, check_josa(argument, 3));
       act(buf, FALSE, ch, 0, argument, TO_CHAR);
     } else
       act(argument, FALSE, ch, 0, argument, TO_CHAR);
 
     if (subcmd == SCMD_QSAY)
-      snprintf(buf, sizeof(buf), "$n quest-says, '%s'", argument);
+      snprintf(buf, sizeof(buf), "$n님이 '%s'%s 임무말을 합니다.",argument, check_josa(argument, 3));
     else {
       strlcpy(buf, argument, sizeof(buf));
       mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE, "(GC) %s qechoed: %s", GET_NAME(ch), argument);

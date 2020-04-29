@@ -723,7 +723,8 @@ int get_filename(char *filename, size_t fbufsize, int mode, const char *orig_nam
     break;
   }
 
-  snprintf(filename, fbufsize, "%s%s"SLASH"%s.%s", prefix, middle, name, suffix);
+  // snprintf(filename, fbufsize, "%s%s"SLASH"%s.%s", prefix, middle, name, suffix);
+  snprintf(filename, fbufsize, "%s%s"SLASH"%s.%s", prefix, first_han(name), name, suffix);
   return (1);
 }
 
@@ -976,6 +977,11 @@ void column_list(struct char_data *ch, int num_cols, const char **list, int list
 
    /* Ensure that the number of columns is in the range 1-10 */
    num_cols = MIN(MAX(num_cols,1), 10);
+
+   /* Work out the longest list item */
+   for (i=0; i<list_length; i++)
+     if (max_len < strlen(list[i]))
+       max_len = strlen(list[i]);
 
    /* Calculate the width of each column */
    if (IS_NPC(ch))   col_width = 80 / num_cols;

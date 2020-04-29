@@ -65,11 +65,11 @@ ACMD(do_oasis_oedit)
 
   /* If there aren't any arguments they can't modify anything. */
   if (!*buf1) {
-    send_to_char(ch, "Specify an object VNUM to edit.\r\n");
+    send_to_char(ch, "편집할 물건 번호를 입력해 주세요.\r\n");
     return;
   } else if (!isdigit(*buf1)) {
     if (str_cmp("save", buf1) != 0) {
-      send_to_char(ch, "Yikes!  Stop that, someone will get hurt!\r\n");
+      send_to_char(ch, "앗!  누군가 다칠 일을 그만 두세요!\r\n");
       return;
     }
 
@@ -87,7 +87,7 @@ ACMD(do_oasis_oedit)
     }
 
     if (number == NOWHERE) {
-      send_to_char(ch, "Save which zone?\r\n");
+      send_to_char(ch, "어떤 존 물건을 저장하시겠습니까?\r\n");
       return;
     }
   }
@@ -97,7 +97,7 @@ ACMD(do_oasis_oedit)
     number = atoi(buf1);
 
   if (number < IDXTYPE_MIN || number > IDXTYPE_MAX) {
-    send_to_char(ch, "That object VNUM can't exist.\r\n");
+    send_to_char(ch, "존재하지 않는 물건 번호입니다.\r\n");
     return;
   }
 
@@ -105,7 +105,7 @@ ACMD(do_oasis_oedit)
   for (d = descriptor_list; d; d = d->next) {
     if (STATE(d) == CON_OEDIT) {
       if (d->olc && OLC_NUM(d) == number) {
-        send_to_char(ch, "That object is currently being edited by %s.\r\n",
+        send_to_char(ch, "그 물건은 현재 %s님이 편집중입니다.\r\n",
           PERS(d->character, ch));
         return;
       }
@@ -127,7 +127,7 @@ ACMD(do_oasis_oedit)
   /* Find the zone. */
   OLC_ZNUM(d) = save ? real_zone(number) : real_zone_by_thing(number);
   if (OLC_ZNUM(d) == NOWHERE) {
-    send_to_char(ch, "Sorry, there is no zone for that number!\r\n");
+    send_to_char(ch, "그 번호에 해당하는 존이 없습니다!\r\n");
 
     /* Free the descriptor's OLC structure. */
     free(d->olc);
@@ -146,7 +146,7 @@ ACMD(do_oasis_oedit)
 
   /* If we need to save, save the objects. */
   if (save) {
-    send_to_char(ch, "Saving all objects in zone %d.\r\n",
+    send_to_char(ch, "%d 존의 모든 물건 정보를 저장합니다.\r\n",
       zone_table[OLC_ZNUM(d)].number);
     mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE,
       "OLC: %s saves object info for zone %d.", GET_NAME(ch),
@@ -173,7 +173,7 @@ ACMD(do_oasis_oedit)
   STATE(d) = CON_OEDIT;
 
   /* Send the OLC message to the players in the same room as the builder. */
-  act("$n starts using OLC.", TRUE, d->character, 0, 0, TO_ROOM);
+  act("$n님이 물건 편집을 시작합니다.", TRUE, d->character, 0, 0, TO_ROOM);
   SET_BIT_AR(PLR_FLAGS(ch), PLR_WRITING);
 
   /* Log the OLC message. */
@@ -298,12 +298,12 @@ static void oedit_disp_container_flags_menu(struct descriptor_data *d)
 
   sprintbit(GET_OBJ_VAL(OLC_OBJ(d), 1), container_bits, bits, sizeof(bits));
   write_to_output(d,
-	  "%s1%s) CLOSEABLE\r\n"
-	  "%s2%s) PICKPROOF\r\n"
-	  "%s3%s) CLOSED\r\n"
-	  "%s4%s) LOCKED\r\n"
-	  "Container flags: %s%s%s\r\n"
-	  "Enter flag, 0 to quit : ",
+	  "%s1%s) 개폐식\r\n"
+	  "%s2%s) 방습\r\n"
+	  "%s3%s) 닫힘\r\n"
+	  "%s4%s) 잠김\r\n"
+	  "보관함 속성: %s%s%s\r\n"
+	  "속성을 입력하세요, 0 ~ quit : ",
 	  grn, nrm, grn, nrm, grn, nrm, grn, nrm, cyn, bits, nrm);
 }
 
@@ -315,12 +315,12 @@ static void oedit_disp_extradesc_menu(struct descriptor_data *d)
   get_char_colors(d->character);
   clear_screen(d);
   write_to_output(d,
-	  "Extra desc menu\r\n"
-	  "%s1%s) Keywords: %s%s\r\n"
-	  "%s2%s) Description:\r\n%s%s\r\n"
-	  "%s3%s) Goto next description: %s\r\n"
-	  "%s0%s) Quit\r\n"
-	  "Enter choice : ",
+	  "기타 묘사 메뉴\r\n"
+	  "%s1%s) 키워드: %s%s\r\n"
+	  "%s2%s) 묘사:\r\n%s%s\r\n"
+	  "%s3%s) 다음 묘사로: %s\r\n"
+	  "%s0%s) 종료\r\n"
+	  "선택하세요 : ",
 
      	  grn, nrm, yel, (extra_desc->keyword && *extra_desc->keyword) ? extra_desc->keyword : "<NONE>",
 	  grn, nrm, yel, (extra_desc->description && *extra_desc->description) ? extra_desc->description : "<NONE>",
@@ -346,7 +346,7 @@ static void oedit_disp_prompt_apply_menu(struct descriptor_data *d)
       write_to_output(d, " %s%d%s) None.\r\n", grn, counter + 1, nrm);
     }
   }
-  write_to_output(d, "\r\nEnter affection to modify (0 to quit) : ");
+  write_to_output(d, "\r\n변경할 효과를 입력하세요 (0 ~ quit) : ");
   OLC_MODE(d) = OEDIT_PROMPT_APPLY;
 }
 
@@ -356,7 +356,7 @@ static void oedit_liquid_type(struct descriptor_data *d)
   get_char_colors(d->character);
   clear_screen(d);
   column_list(d->character, 0, drinks, NUM_LIQ_TYPES, TRUE);
-  write_to_output(d, "\r\n%sEnter drink type : ", nrm);
+  write_to_output(d, "\r\n%s음료 타입을 입력하세요 : ", nrm);
   OLC_MODE(d) = OEDIT_VALUE_3;
 }
 
@@ -366,7 +366,7 @@ static void oedit_disp_apply_menu(struct descriptor_data *d)
   get_char_colors(d->character);
   clear_screen(d);
   column_list(d->character, 0, apply_types, NUM_APPLIES, TRUE);
-  write_to_output(d, "\r\nEnter apply type (0 is no apply) : ");
+  write_to_output(d, "\r\n적용 타입을 입력하세요 (0은 적용 안 함) : ");
   OLC_MODE(d) = OEDIT_APPLY;
 }
 
@@ -383,7 +383,7 @@ static void oedit_disp_weapon_menu(struct descriptor_data *d)
 		attack_hit_text[counter].singular,
 		!(++columns % 2) ? "\r\n" : "");
   }
-  write_to_output(d, "\r\nEnter weapon type : ");
+  write_to_output(d, "\r\n무기 타입을 입력하세요 : ");
 }
 
 /* Spell type. */
@@ -398,7 +398,7 @@ static void oedit_disp_spells_menu(struct descriptor_data *d)
     write_to_output(d, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
 		spell_info[counter].name, !(++columns % 3) ? "\r\n" : "");
   }
-  write_to_output(d, "\r\n%sEnter spell choice (-1 for none) : ", nrm);
+  write_to_output(d, "\r\n%s마법을 선택하세요 (-1은 없음) : ", nrm);
 }
 
 /* Object value #1 */
@@ -414,30 +414,30 @@ static void oedit_disp_val1_menu(struct descriptor_data *d)
   case ITEM_WAND:
   case ITEM_STAFF:
   case ITEM_POTION:
-    write_to_output(d, "Spell level : ");
+    write_to_output(d, "마법 레벨 : ");
     break;
   case ITEM_WEAPON:
     /* This doesn't seem to be used if I remember right. */
-    write_to_output(d, "Modifier to Hitroll : ");
+    write_to_output(d, "공격력 : ");
     break;
   case ITEM_ARMOR:
-    write_to_output(d, "Apply to AC : ");
+    write_to_output(d, "방어력 수치 : ");
     break;
   case ITEM_CONTAINER:
-    write_to_output(d, "Max weight to contain (-1 for unlimited) : ");
+    write_to_output(d, "보관 가능 최대 무게 (-1은 제한없음) : ");
     break;
   case ITEM_DRINKCON:
   case ITEM_FOUNTAIN:
-    write_to_output(d, "Max drink units (-1 for unlimited) : ");
+    write_to_output(d, "최대 음료 단위 (-1은 제한없음) : ");
     break;
   case ITEM_FOOD:
-    write_to_output(d, "Hours to fill stomach : ");
+    write_to_output(d, "포만감 유지 시간 : ");
     break;
   case ITEM_MONEY:
-    write_to_output(d, "Number of gold coins : ");
+    write_to_output(d, "금액 : ");
     break;
   case ITEM_FURNITURE:
-    write_to_output(d, "Number of people it can hold : ");
+    write_to_output(d, "수용 가능 인원 : ");
     break;
   case ITEM_NOTE:  // These object types have no 'values' so go back to menu
   case ITEM_OTHER:
@@ -468,10 +468,10 @@ static void oedit_disp_val2_menu(struct descriptor_data *d)
     break;
   case ITEM_WAND:
   case ITEM_STAFF:
-    write_to_output(d, "Max number of charges : ");
+    write_to_output(d, "최대 충전 가능 횟수 : ");
     break;
   case ITEM_WEAPON:
-    write_to_output(d, "Number of damage dice : ");
+    write_to_output(d, "보너스 타격치(Damage Dice) : ");
     break;
   case ITEM_FOOD:
     /* Values 2 and 3 are unused, jump to 4...Odd. */
@@ -483,7 +483,7 @@ static void oedit_disp_val2_menu(struct descriptor_data *d)
     break;
   case ITEM_DRINKCON:
   case ITEM_FOUNTAIN:
-    write_to_output(d, "Initial drink units : ");
+    write_to_output(d, "초기 음료 단위 : ");
     break;
   default:
     oedit_disp_menu(d);
@@ -496,7 +496,7 @@ static void oedit_disp_val3_menu(struct descriptor_data *d)
   OLC_MODE(d) = OEDIT_VALUE_3;
   switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
   case ITEM_LIGHT:
-    write_to_output(d, "Number of hours (0 = burnt, -1 is infinite) : ");
+    write_to_output(d, "사용 가능 시간 (0은 사용불가, -1은 제한없음) : ");
     break;
   case ITEM_SCROLL:
   case ITEM_POTION:
@@ -504,13 +504,13 @@ static void oedit_disp_val3_menu(struct descriptor_data *d)
     break;
   case ITEM_WAND:
   case ITEM_STAFF:
-    write_to_output(d, "Number of charges remaining : ");
+    write_to_output(d, "남은 충전 횟수 : ");
     break;
   case ITEM_WEAPON:
-    write_to_output(d, "Size of damage dice : ");
+    write_to_output(d, "타격치 범위 크기(Size of Damage Dice) : ");
     break;
   case ITEM_CONTAINER:
-    write_to_output(d, "Vnum of key to open container (-1 for no key) : ");
+    write_to_output(d, "보관함 열쇠 번호 (-1은 열쇠 없음) : ");
     break;
   case ITEM_DRINKCON:
   case ITEM_FOUNTAIN:
@@ -538,7 +538,7 @@ static void oedit_disp_val4_menu(struct descriptor_data *d)
   case ITEM_DRINKCON:
   case ITEM_FOUNTAIN:
   case ITEM_FOOD:
-    write_to_output(d, "Poisoned (0 = not poison) : ");
+    write_to_output(d, "독성 (0은 독 없음) : ");
     break;
   default:
     oedit_disp_menu(d);
@@ -557,7 +557,7 @@ static void oedit_disp_type_menu(struct descriptor_data *d)
     write_to_output(d, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
 		item_types[counter], !(++columns % 2) ? "\r\n" : "");
   }
-  write_to_output(d, "\r\nEnter object type : ");
+  write_to_output(d, "\r\n물건 종류를 입력하세요 : ");
 }
 
 /* Object extra flags. */
@@ -574,8 +574,8 @@ static void oedit_disp_extra_menu(struct descriptor_data *d)
 		extra_bits[counter], !(++columns % 2) ? "\r\n" : "");
   }
   sprintbitarray(GET_OBJ_EXTRA(OLC_OBJ(d)), extra_bits, EF_ARRAY_MAX, bits);
-  write_to_output(d, "\r\nObject flags: %s%s%s\r\n"
-	  "Enter object extra flag (0 to quit) : ",
+  write_to_output(d, "\r\n물건 속성: %s%s%s\r\n"
+	  "Enter 물건 기타 속성 (0 ~ quit) : ",
 	  cyn, bits, nrm);
 }
 
@@ -592,8 +592,8 @@ static void oedit_disp_perm_menu(struct descriptor_data *d)
     write_to_output(d, "%s%2d%s) %-20.20s %s", grn, counter, nrm, affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
   }
   sprintbitarray(GET_OBJ_AFFECT(OLC_OBJ(d)), affected_bits, EF_ARRAY_MAX, bits);
-  write_to_output(d, "\r\nObject permanent flags: %s%s%s\r\n"
-          "Enter object perm flag (0 to quit) : ", cyn, bits, nrm);
+  write_to_output(d, "\r\n물건 영구 속성: %s%s%s\r\n"
+          "물건 영구 속성을 입력하세요 (0 ~ quit) : ", cyn, bits, nrm);
 }
 
 /* Object wear flags. */
@@ -610,8 +610,8 @@ static void oedit_disp_wear_menu(struct descriptor_data *d)
 		wear_bits[counter], !(++columns % 2) ? "\r\n" : "");
   }
   sprintbitarray(GET_OBJ_WEAR(OLC_OBJ(d)), wear_bits, TW_ARRAY_MAX, bits);
-  write_to_output(d, "\r\nWear flags: %s%s%s\r\n"
-	  "Enter wear flag, 0 to quit : ", cyn, bits, nrm);
+  write_to_output(d, "\r\n장비 속성: %s%s%s\r\n"
+	  "장비 속성을 입력하세요, 0 ~ quit : ", cyn, bits, nrm);
 }
 
 /* Display main menu. */
@@ -631,13 +631,13 @@ static void oedit_disp_menu(struct descriptor_data *d)
 
   /* Build first half of menu. */
   write_to_output(d,
-	  "-- Item number : [%s%d%s]\r\n"
-	  "%s1%s) Keywords : %s%s\r\n"
-	  "%s2%s) S-Desc   : %s%s\r\n"
-	  "%s3%s) L-Desc   :-\r\n%s%s\r\n"
-	  "%s4%s) A-Desc   :-\r\n%s%s"
-	  "%s5%s) Type        : %s%s\r\n"
-	  "%s6%s) Extra flags : %s%s\r\n",
+	  "-- 물건 번호 : [%s%d%s]\r\n"
+	  "%s1%s) 키워드 : %s%s\r\n"
+	  "%s2%s) 짧은 설명: %s%s\r\n"
+	  "%s3%s) 긴 설명   :-\r\n%s%s\r\n"
+	  "%s4%s) 착용 묘사:-\r\n%s%s"
+	  "%s5%s) 종류        : %s%s\r\n"
+	  "%s6%s) 기타 속성 : %s%s\r\n",
 
 	  cyn, OLC_NUM(d), nrm,
 	  grn, nrm, yel, (obj->name && *obj->name) ? obj->name : "undefined",
@@ -652,21 +652,21 @@ static void oedit_disp_menu(struct descriptor_data *d)
   sprintbitarray(GET_OBJ_AFFECT(OLC_OBJ(d)), affected_bits, EF_ARRAY_MAX, buf2);
 
   write_to_output(d,
-	  "%s7%s) Wear flags  : %s%s\r\n"
-	  "%s8%s) Weight      : %s%d\r\n"
-	  "%s9%s) Cost        : %s%d\r\n"
-	  "%sA%s) Cost/Day    : %s%d\r\n"
-	  "%sB%s) Timer       : %s%d\r\n"
-	  "%sC%s) Values      : %s%d %d %d %d\r\n"
-	  "%sD%s) Applies menu\r\n"
-	  "%sE%s) Extra descriptions menu: %s%s%s\r\n"
-          "%sM%s) Min Level   : %s%d\r\n"
-          "%sP%s) Perm Affects: %s%s\r\n"
-	  "%sS%s) Script      : %s%s\r\n"
-          "%sW%s) Copy object\r\n"
-          "%sX%s) Delete object\r\n"
-	  "%sQ%s) Quit\r\n"
-	  "Enter choice : ",
+	  "%s7%s) 장비 속성  : %s%s\r\n"
+	  "%s8%s) 무게     : %s%d\r\n"
+	  "%s9%s) 가격     : %s%d\r\n"
+	  "%sA%s) 하루 가격: %s%d\r\n"
+	  "%sB%s) 시간제한 : %s%d\r\n"
+	  "%sC%s) 가치      : %s%d %d %d %d\r\n"
+	  "%sD%s) 보조효과 부여 메뉴\r\n"
+	  "%sE%s) 기타 묘사 메뉴: %s%s%s\r\n"
+          "%sM%s) 최소 레벨: %s%d\r\n"
+          "%sP%s) 영구 효과: %s%s\r\n"
+	  "%sS%s) 스크립트      : %s%s\r\n"
+          "%sW%s) 물건 복사\r\n"
+          "%sX%s) 물건 삭제\r\n"
+	  "%sQ%s) 종료\r\n"
+	  "선택하세요 : ",
 
 	  grn, nrm, cyn, buf1,
 	  grn, nrm, cyn, GET_OBJ_WEIGHT(obj),
@@ -705,9 +705,9 @@ void oedit_parse(struct descriptor_data *d, char *arg)
               "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
       if (CONFIG_OLC_SAVE) {
         oedit_save_to_disk(real_zone_by_thing(OLC_NUM(d)));
-        write_to_output(d, "Object saved to disk.\r\n");
+        write_to_output(d, "물건 정보를 디스크에 저장했습니다.\r\n");
       } else
-        write_to_output(d, "Object saved to memory.\r\n");
+        write_to_output(d, "물건 정보를 메모리에 저장했습니다.\r\n");
       cleanup_olc(d, CLEANUP_ALL);
       return;
     case 'n':
@@ -722,8 +722,8 @@ void oedit_parse(struct descriptor_data *d, char *arg)
       oedit_disp_menu(d);
       return;
     default:
-      write_to_output(d, "Invalid choice!\r\n");
-      write_to_output(d, "Do you wish to save your changes? : \r\n");
+      write_to_output(d, "잘못 입력하셨습니다!\r\n");
+      write_to_output(d, "변경 내용을 저장하시겠습니까 : (y/n)\r\n");
       return;
     }
 
@@ -733,27 +733,27 @@ void oedit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) {	/* Something has been modified. */
-	write_to_output(d, "Do you wish to save your changes? : ");
+	write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
 	OLC_MODE(d) = OEDIT_CONFIRM_SAVESTRING;
       } else
 	cleanup_olc(d, CLEANUP_ALL);
       return;
     case '1':
-      write_to_output(d, "Enter keywords : ");
+      write_to_output(d, "키워드를 입력하세요 : ");
       OLC_MODE(d) = OEDIT_KEYWORD;
       break;
     case '2':
-      write_to_output(d, "Enter short desc : ");
+      write_to_output(d, "짧은 묘사를 입력하세요 : ");
       OLC_MODE(d) = OEDIT_SHORTDESC;
       break;
     case '3':
-      write_to_output(d, "Enter long desc :-\r\n| ");
+      write_to_output(d, "긴 묘사를 입력하세요 :-\r\n| ");
       OLC_MODE(d) = OEDIT_LONGDESC;
       break;
     case '4':
       OLC_MODE(d) = OEDIT_ACTDESC;
       send_editor_help(d);
-      write_to_output(d, "Enter action description:\r\n\r\n");
+      write_to_output(d, "착용 시 보이는 묘사를 입력해 주세요:\r\n\r\n");
       if (OLC_OBJ(d)->action_description) {
 	write_to_output(d, "%s", OLC_OBJ(d)->action_description);
 	oldtext = strdup(OLC_OBJ(d)->action_description);
@@ -774,21 +774,21 @@ void oedit_parse(struct descriptor_data *d, char *arg)
       OLC_MODE(d) = OEDIT_WEAR;
       break;
     case '8':
-      write_to_output(d, "Enter weight : ");
+      write_to_output(d, "무게를 입력하세요 : ");
       OLC_MODE(d) = OEDIT_WEIGHT;
       break;
     case '9':
-      write_to_output(d, "Enter cost : ");
+      write_to_output(d, "가격을 입력하세요 : ");
       OLC_MODE(d) = OEDIT_COST;
       break;
     case 'a':
     case 'A':
-      write_to_output(d, "Enter cost per day : ");
+      write_to_output(d, "하루 당 가격을 입력하세요 : ");
       OLC_MODE(d) = OEDIT_COSTPERDAY;
       break;
     case 'b':
     case 'B':
-      write_to_output(d, "Enter timer : ");
+      write_to_output(d, "시간을 입력하세요 : ");
       OLC_MODE(d) = OEDIT_TIMER;
       break;
     case 'c':
@@ -832,12 +832,12 @@ void oedit_parse(struct descriptor_data *d, char *arg)
       return;
     case 'w':
     case 'W':
-      write_to_output(d, "Copy what object? ");
+      write_to_output(d, "어떤 물건을 복사하시겠습니까?");
       OLC_MODE(d) = OEDIT_COPY;
       break;
     case 'x':
     case 'X':
-      write_to_output(d, "Are you sure you want to delete this object? ");
+      write_to_output(d, "이 물건을 정말로 삭제하시겠습니까? ");
       OLC_MODE(d) = OEDIT_DELETE;
       break;
     default:
@@ -877,7 +877,7 @@ void oedit_parse(struct descriptor_data *d, char *arg)
   case OEDIT_TYPE:
     number = atoi(arg);
     if ((number < 0) || (number >= NUM_ITEM_TYPES)) {
-      write_to_output(d, "Invalid choice, try again : ");
+      write_to_output(d, "잘못된 입력, 다시 시도 : ");
       return;
     } else
       GET_OBJ_TYPE(OLC_OBJ(d)) = number;
@@ -902,7 +902,7 @@ void oedit_parse(struct descriptor_data *d, char *arg)
   case OEDIT_WEAR:
     number = atoi(arg);
     if ((number < 0) || (number > NUM_ITEM_WEARS)) {
-      write_to_output(d, "That's not a valid choice!\r\n");
+      write_to_output(d, "잘못 입력하셨습니다!\r\n");
       oedit_disp_wear_menu(d);
       return;
     } else if (number == 0)	/* Quit. */
@@ -936,7 +936,7 @@ void oedit_parse(struct descriptor_data *d, char *arg)
   case OEDIT_PERM:
     if ((number = atoi(arg)) == 0)
       break;
-    if (number > 0 && number < NUM_AFF_FLAGS) {
+    if (number > 0 && number <= NUM_AFF_FLAGS) {
       /* Setting AFF_CHARM on objects like this is dangerous. */
       if (number != AFF_CHARM) {
         TOGGLE_BIT_AR(GET_OBJ_AFFECT(OLC_OBJ(d)), number);
@@ -1100,7 +1100,7 @@ void oedit_parse(struct descriptor_data *d, char *arg)
       if (GET_LEVEL(d->character) < LVL_IMPL) {
         for (counter = 0; counter < MAX_OBJ_AFFECT; counter++) {
           if (OLC_OBJ(d)->affected[counter].location == number) {
-            write_to_output(d, "Object already has that apply.");
+            write_to_output(d, "이 물건에는 이미 그 효과가 있습니다.");
             return;
           }
         }
@@ -1146,13 +1146,13 @@ void oedit_parse(struct descriptor_data *d, char *arg)
 
     case 1:
       OLC_MODE(d) = OEDIT_EXTRADESC_KEY;
-      write_to_output(d, "Enter keywords, separated by spaces :-\r\n| ");
+      write_to_output(d, "키워드를 입력하세요, 스페이스를 기준으로 구분됩니다 :-\r\n| ");
       return;
 
     case 2:
       OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
       send_editor_help(d);
-      write_to_output(d, "Enter the extra description:\r\n\r\n");
+      write_to_output(d, "볼 때 묘사를 입력하세요:\r\n\r\n");
       if (OLC_DESC(d)->description) {
 	write_to_output(d, "%s", OLC_DESC(d)->description);
 	oldtext = strdup(OLC_DESC(d)->description);
@@ -1185,26 +1185,26 @@ void oedit_parse(struct descriptor_data *d, char *arg)
     if ((number = real_object(atoi(arg))) != NOTHING) {
       oedit_setup_existing(d, number);
     } else
-      write_to_output(d, "That object does not exist.\r\n");
+      write_to_output(d, "그 번호의 물건은 존재하지 않습니다.\r\n");
     break;
 
   case OEDIT_DELETE:
     if (*arg == 'y' || *arg == 'Y') {
       if (delete_object(GET_OBJ_RNUM(OLC_OBJ(d))) != NOTHING)
-        write_to_output(d, "Object deleted.\r\n");
+        write_to_output(d, "물건이 삭제되었습니다.\r\n");
       else
-        write_to_output(d, "Couldn't delete the object!\r\n");
+        write_to_output(d, "삭제할 수 없는 물건입니다!\r\n");
 
       cleanup_olc(d, CLEANUP_ALL);
     } else if (*arg == 'n' || *arg == 'N') {
       oedit_disp_menu(d);
       OLC_MODE(d) = OEDIT_MAIN_MENU;
     } else
-      write_to_output(d, "Please answer 'Y' or 'N': ");
+      write_to_output(d, "'Y' 또는 'N'을 입력해 주세요: ");
     return;
   default:
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: Reached default case in oedit_parse()!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     break;
   }
 

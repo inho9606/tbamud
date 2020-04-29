@@ -501,22 +501,15 @@ static void free_extra_descriptions(struct extra_descr_data *edesc)
 void destroy_db(void)
 {
   ssize_t cnt, itr;
-  struct char_data *chtmp, *i = character_list;
+  struct char_data *chtmp;
   struct obj_data *objtmp;
 
   /* Active Mobiles & Players */
-  while (i) {
-    chtmp = i;
-    i = i->next;
-
-    if (chtmp->master)
-      stop_follower(chtmp);
-  }
-
   while (character_list) {
     chtmp = character_list;
     character_list = character_list->next;
-
+    if (chtmp->master)
+      stop_follower(chtmp);
     free_char(chtmp);
   }
 
@@ -943,7 +936,7 @@ void index_boot(int mode)
   const char *index_filename, *prefix = NULL;	/* NULL or egcs 1.1 complains */
   FILE *db_index, *db_file;
   int line_number, rec_count = 0, size[2];
-  char buf2[PATH_MAX], buf1[PATH_MAX - 100];   // - 100 to make room for prefix
+  char buf2[PATH_MAX], buf1[MAX_STRING_LENGTH];
 
   switch (mode) {
   case DB_BOOT_WLD:
@@ -1239,24 +1232,6 @@ static bitvector_t asciiflag_conv_aff(char *flag)
   return (flags);
 }
 
-/* Fix for crashes in the editor when formatting. E-descs are assumed to
-  * end with a \r\n. -Welcor */
-void ensure_newline_terminated(struct extra_descr_data* new_descr) {
-  char *with_term, *end;
-
-  if (new_descr->description == NULL) {
-    return;
-  }
-
-  end = strchr(new_descr->description, '\0');
-  if (end > new_descr->description && *(end - 1) != '\n') {
-    CREATE(with_term, char, strlen(new_descr->description) + 3);
-    sprintf(with_term, "%s\r\n", new_descr->description); /* snprintf ok : size checked above*/
-    free(new_descr->description);
-    new_descr->description = with_term;
-  }
-}
-
 /* load the rooms */
 void parse_room(FILE *fl, int virtual_nr)
 {
@@ -1326,7 +1301,7 @@ void parse_room(FILE *fl, int virtual_nr)
     world[room_nr].room_flags[2] = asciiflag_conv(flags3);
     world[room_nr].room_flags[3] = asciiflag_conv(flags4);
 
-    sprintf(flags, "room #%d", virtual_nr);	/* sprintf: OK (until 399-bit integers) */
+    sprintf(flags, "object #%d", virtual_nr);	/* sprintf: OK (until 399-bit integers) */
     for(taeller=0; taeller < AF_ARRAY_MAX; taeller++)
       check_bitvector_names(world[room_nr].room_flags[taeller], room_bits_count, flags, "room");
 
@@ -1364,8 +1339,17 @@ void parse_room(FILE *fl, int virtual_nr)
       CREATE(new_descr, struct extra_descr_data, 1);
       new_descr->keyword = fread_string(fl, buf2);
       new_descr->description = fread_string(fl, buf2);
-      ensure_newline_terminated(new_descr);
-
+      /* Fix for crashes in the editor when formatting. E-descs are assumed to
+       * end with a \r\n. -Welcor */
+      {
+      	char *end = strchr(new_descr->description, '\0');
+      	if (end > new_descr->description && *(end-1) != '\n') {
+      	  CREATE(end, char, strlen(new_descr->description)+3);
+      	  sprintf(end, "%s\r\n", new_descr->description); /* snprintf ok : size checked above*/
+      	  free(new_descr->description);
+      	  new_descr->description = end;
+      	}
+      }
       new_descr->next = world[room_nr].ex_description;
       world[room_nr].ex_description = new_descr;
       break;
@@ -3916,7 +3900,7 @@ static void load_default_config( void )
 void load_config( void )
 {
   FILE *fl;
-  char line[READ_SIZE - 2]; // to make sure there's room for readding \r\n
+  char line[MAX_STRING_LENGTH];
   char tag[MAX_INPUT_LENGTH];
   int  num;
   char buf[MAX_INPUT_LENGTH];

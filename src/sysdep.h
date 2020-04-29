@@ -21,7 +21,7 @@
  * #define NOCRYPT (by uncommenting the line below) if you'd like to explicitly
  * disable password encryption (i.e., if you have moved your MUD from an OS that
  * does not support encryption to one that does). */
-/* #define NOCRYPT */
+ #define NOCRYPT 
 
 /* If you are porting tbaMUD to a new (untested) platform and you find that 
  * POSIX-standard non-blocking I/O does *not* work, you can define the constant

@@ -24,7 +24,7 @@
  * @todo cpp_extern isn't needed here (or anywhere) as the extern reserved word
  * works correctly with C compilers (at least in my Experience)
  * Jeremy Osborne 1/28/2008 */
-cpp_extern const char *tbamud_version = "tbaMUD 2020";
+cpp_extern const char *tbamud_version = "tbaMUD 2019";
 
 /* strings corresponding to ordinals/bitvectors in structs.h */
 /* (Note: strings for class definitions in class.c instead of here) */
@@ -47,18 +47,33 @@ const char *dirs[] =
   "\n"
 };
 
+const char *han_dirs[] =
+{
+  "북",
+  "동",
+  "남",
+  "서",
+  "위",
+  "밑",
+  "북서", /* Diagonals only used if CONFIG_DIAGONAL_DIRS is set */
+  "북동",
+  "남동",
+  "남서",
+  "\n"
+};
+
 const char *autoexits[] =
 {
-  "n",
-  "e",
-  "s",
-  "w",
-  "u",
-  "d",
-  "nw",
-  "ne",
-  "se",
-  "sw",
+  "북",
+  "동",
+  "남",
+  "서",
+  "위",
+  "밑",
+  "북서", /* Diagonals only used if CONFIG_DIAGONAL_DIRS is set */
+  "북동",
+  "남동",
+  "남서",
   "\n"
 };
 
@@ -66,18 +81,18 @@ const char *autoexits[] =
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *room_bits[] = {
-  "DARK",
-  "DEATH",
-  "NO_MOB",
-  "INDOORS",
-  "PEACEFUL",
-  "SOUNDPROOF",
-  "NO_TRACK",
-  "NO_MAGIC",
-  "TUNNEL",
-  "PRIVATE",
-  "GODROOM",
-  "HOUSE",
+  "암흑",
+  "함정",
+  "맙금지",
+  "실내",
+  "평화",
+  "방음",
+  "추적금지",
+  "마법금지",
+  "터널",
+  "사유지",
+  "신",
+  "집",
   "HCRSH",
   "ATRIUM",
   "OLC",
@@ -90,24 +105,20 @@ const char *room_bits[] = {
  * @pre Must be in the same order as the defines in structs.h.
  * Must end array with a single newline. */
 const char *zone_bits[] = {
-  "CLOSED",
+  "닫힌",
   "NO_IMMORT",
-  "QUEST",
+  "임무",
   "GRID",
   "NOBUILD",
   "!ASTRAL",
-  "WORLDMAP",
   "\n"
 };
 
-/** Exit bits for doors.
- * @pre Must be in the same order as the defines.
- * Must end array with a single newline. */
 const char *exit_bits[] = {
-  "DOOR",
-  "CLOSED",
-  "LOCKED",
-  "PICKPROOF",
+  "문",
+  "닫힌",
+  "잠긴",
+  "풀린",
   "\n"
 };
 
@@ -115,16 +126,16 @@ const char *exit_bits[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *sector_types[] = {
-  "Inside",
-  "City",
-  "Field",
-  "Forest",
-  "Hills",
-  "Mountains",
-  "Water (Swim)",
-  "Water (No Swim)",
-  "In Flight",
-  "Underwater",
+  "실내",
+  "도시",
+  "평지",
+  "숲",
+  "언덕",
+  "산",
+  "물(수영)",
+  "물(보트)",
+  "하늘",
+  "물(잠수)",
   "\n"
 };
 
@@ -133,9 +144,9 @@ const char *sector_types[] = {
  * Must end array with a single newline. */
 const char *genders[] =
 {
-  "neutral",
-  "male",
-  "female",
+  "중성",
+  "남성",
+  "여성",
   "\n"
 };
 
@@ -143,15 +154,15 @@ const char *genders[] =
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *position_types[] = {
-  "Dead",
-  "Mortally wounded",
-  "Incapacitated",
-  "Stunned",
-  "Sleeping",
-  "Resting",
-  "Sitting",
-  "Fighting",
-  "Standing",
+  "죽음",
+  "죽기직전",
+  "무기력",
+  "기절",
+  "잠",
+  "휴식",
+  "앉은",
+  "싸움",
+  "서있는",
   "\n"
 };
 
@@ -159,26 +170,23 @@ const char *position_types[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *player_bits[] = {
-  "KILLER",
-  "THIEF",
-  "FROZEN",
-  "DONTSET",
-  "WRITING",
-  "MAILING",
+  "살인자",
+  "도둑",
+  "냉동",
+  "셋팅금지",
+  "글쓰기",
+  "편지쓰기",
   "CSH",
-  "SITEOK",
-  "NOSHOUT",
-  "NOTITLE",
-  "DELETED",
+  "접속허용",
+  "잡담금지",
+  "칭호금지",
+  "삭제",
   "LOADRM",
   "NO_WIZL",
-  "NO_DEL",
+  "삭제금지",
   "INVST",
   "CRYO",
   "DEAD",    /* You should never see this flag on a character in game. */
-  "IBT_BUG",
-  "IBT_IDEA",
-  "IBT_TYPO",
   "UNUSED1",
   "UNUSED2",
   "UNUSED3",
@@ -191,25 +199,24 @@ const char *player_bits[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *action_bits[] = {
-  "SPEC",
-  "SENTINEL",
-  "SCAVENGER",
+  "특수",
+  "이동안함",
+  "동물",
   "ISNPC",
   "AWARE",
   "AGGR",
   "STAY-ZONE",
-  "WIMPY",
-  "AGGR_EVIL",
-  "AGGR_GOOD",
-  "AGGR_NEUTRAL",
-  "MEMORY",
-  "HELPER",
+  "도망가능",
+  "악한",
+  "선한",
+  "중립",
+  "상대기억",
+  "돕기가능",
   "NO_CHARM",
-  "NO_SUMMN",
-  "NO_SLEEP",
-  "NO_BASH",
-  "NO_BLIND",
-  "NO_KILL",
+  "소환안됨",
+  "잠안됨",
+  "강타안됨",
+  "실명안됨",
   "DEAD",    /* You should never see this. */
   "\n"
 };
@@ -218,41 +225,40 @@ const char *action_bits[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *preference_bits[] = {
-  "BRIEF",
-  "COMPACT",
-  "NO_SHOUT",
-  "NO_TELL",
-  "D_HP",
-  "D_MANA",
-  "D_MOVE",
-  "AUTOEX",
+  "간략",
+  "공백",
+  "외침거부",
+  "이야기거부",
+  "체력표시",
+  "마력표시",
+  "이동력표시",
+  "자동출구",
   "NO_HASS",
-  "QUEST",
-  "SUMN",
-  "NO_REP",
+  "임무",
+  "소환",
+  "반복거부",
   "LIGHT",
   "C1",
   "C2",
   "NO_WIZ",
   "L1",
   "L2",
-  "NO_AUC",
-  "NO_GOS",
+  "경매거부",
+  "잡담거부",
   "NO_GTZ",
-  "RMFLG",
+  "방속성",
   "D_AUTO",
   "CLS",
   "BLDWLK",
   "AFK",
-  "AUTOLOOT",
+  "자동줍기",
   "AUTOGOLD",
-  "AUTOSPLIT",
-  "AUTOSAC",
-  "AUTOASSIST",
-  "AUTOMAP",
-  "AUTOKEY",
+  "자동분배",
+  "자동제물",
+  "자동돕기",
+  "자동지도",
+  "자동열쇠",
   "AUTODOOR",
-  "ZONERESETS",
   "\n"
 };
 
@@ -262,26 +268,26 @@ const char *preference_bits[] = {
 const char *affected_bits[] =
 {
   "\0", /* DO NOT REMOVE!! */
-  "BLIND",
-  "INVIS",
-  "DET-ALIGN",
-  "DET-INVIS",
-  "DET-MAGIC",
-  "SENSE-LIFE",
-  "WATWALK",
+  "실명",
+  "투명",
+  "선악감지",
+  "투명감지",
+  "마법감지",
+  "생명감지",
+  "물위걷기",
   "SANCT",
-  "GROUP",
+  "무리",
   "CURSE",
   "INFRA",
-  "POISON",
-  "PROT-EVIL",
-  "PROT-GOOD",
-  "SLEEP",
-  "NO_TRACK",
-  "FLY",
-  "SCUBA",
-  "SNEAK",
-  "HIDE",
+  "독",
+  "악보호",
+  "선보호",
+  "잠",
+  "추적불가",
+  "날기",
+  "잠수",
+  "은신",
+  "숨기",
   "UNUSED",
   "CHARM",
   "\n"
@@ -291,17 +297,17 @@ const char *affected_bits[] =
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *connected_types[] = {
-  "Playing",
-  "Disconnecting",
-  "Get name",
-  "Confirm name",
-  "Get password",
-  "Get new PW",
-  "Confirm new PW",
-  "Select sex",
-  "Select class",
-  "Reading MOTD",
-  "Main Menu",
+  "게임중",
+  "접속끊김",
+  "이름입력",
+  "이름등록",
+  "암호입력",
+  "암호변경",
+  "암호확인",
+  "성별선택",
+  "직업선택",
+  "공지읽기",
+  "메인메뉴",
   "Get descript.",
   "Changing PW 1",
   "Changing PW 2",
@@ -309,21 +315,17 @@ const char *connected_types[] = {
   "Self-Delete 1",
   "Self-Delete 2",
   "Disconnecting",
-  "Object edit",
-  "Room edit",
-  "Zone edit",
-  "Mobile edit",
-  "Shop edit",
-  "Text edit",
-  "Config edit",
-  "Social edit",
-  "Trigger edit",
-  "Help edit",
-  "Quest edit",
-  "Preference edit",
-  "IBT edit",
-  "Message edit",
-  "Protocol Detection",
+  "물건편집",
+  "방편집",
+  "존편집",
+  "맙편집",
+  "상점편집",
+  "텍스트편집",
+  "게임편집",
+  "감정편집",
+  "트리거편집",
+  "도움말편집",
+  "임무편집",
   "\n"
 };
 
@@ -331,48 +333,48 @@ const char *connected_types[] = {
  * @pre Must be in the same order as the defines.
  * Not used in sprinttype() so no \\n. */
 const char *wear_where[] = {
-  "<used as light>      ",
-  "<worn on finger>     ",
-  "<worn on finger>     ",
-  "<worn around neck>   ",
-  "<worn around neck>   ",
-  "<worn on body>       ",
-  "<worn on head>       ",
-  "<worn on legs>       ",
-  "<worn on feet>       ",
-  "<worn on hands>      ",
-  "<worn on arms>       ",
-  "<worn as shield>     ",
-  "<worn about body>    ",
-  "<worn about waist>   ",
-  "<worn around wrist>  ",
-  "<worn around wrist>  ",
-  "<wielded>            ",
-  "<held>               "
+  "[광  원] : ",
+  "[손가락] : ",
+  "[손가락] : ",
+  "[목주위] : ",
+  "[목주위] : ",
+  "[  몸  ] : ",
+  "[ 머리 ] : ",
+  "[ 다리 ] : ",
+  "[  발  ] : ",
+  "[  손  ] : ",
+  "[  팔  ] : ",
+  "[ 방패 ] : ",
+  "[몸주위] : ",
+  "[ 허리 ] : ",
+  "[ 손목 ] : ",
+  "[ 손목 ] : "	,
+  "[ 무기 ] : ",
+  "[쥐는것] : "
 };
 
 /* Describes where an item can be worn.
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *equipment_types[] = {
-  "Used as light",
-  "Worn on right finger",
-  "Worn on left finger",
-  "First worn around Neck",
-  "Second worn around Neck",
-  "Worn on body",
-  "Worn on head",
-  "Worn on legs",
-  "Worn on feet",
-  "Worn on hands",
-  "Worn on arms",
-  "Worn as shield",
-  "Worn about body",
-  "Worn around waist",
-  "Worn around right wrist",
-  "Worn around left wrist",
-  "Wielded",
-  "Held",
+  "광원",
+  "오른쪽 손가락",
+  "왼쪽 손가락",
+  "목주위",
+  "목주위",
+  "몸",
+  "머리",
+  "다리",
+  "발",
+  "손",
+  "팔",
+  "방패",
+  "몸주위",
+  "허리",
+  "오른쪽 손목",
+  "왼쪽 손목",
+  "무기",
+  "쥐는것",
   "\n"
 };
 
@@ -380,30 +382,30 @@ const char *equipment_types[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *item_types[] = {
-  "UNDEFINED",
-  "LIGHT",
-  "SCROLL",
-  "WAND",
-  "STAFF",
-  "WEAPON",
-  "FURNITURE",
+  "미지정",
+  "광원",
+  "주문서",
+  "지팡이",
+  "막대기",
+  "무기",
+  "가구",
   "FREE",
-  "TREASURE",
-  "ARMOR",
-  "POTION",
-  "WORN",
-  "OTHER",
-  "TRASH",
+  "보물",
+  "방어구",
+  "물약",
+  "낡은옷",
+  "기타",
+  "쓰레기",
   "FREE2",
-  "CONTAINER",
-  "NOTE",
-  "LIQ CONTAINER",
-  "KEY",
-  "FOOD",
-  "MONEY",
-  "PEN",
-  "BOAT",
-  "FOUNTAIN",
+  "보관함",
+  "노트",
+  "음료수보관",
+  "열쇠",
+  "음식",
+  "돈",
+  "펜",
+  "보트",
+  "분수대",
   "\n"
 };
 
@@ -411,21 +413,21 @@ const char *item_types[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *wear_bits[] = {
-  "TAKE",
-  "FINGER",
-  "NECK",
-  "BODY",
-  "HEAD",
-  "LEGS",
-  "FEET",
-  "HANDS",
-  "ARMS",
-  "SHIELD",
-  "ABOUT",
-  "WAIST",
-  "WRIST",
-  "WIELD",
-  "HOLD",
+  "줍기가능",
+  "손가락",
+  "목",
+  "몸",
+  "머리",
+  "다리",
+  "발",
+  "손",
+  "팔",
+  "방패",
+  "몸주변",
+  "허리",
+  "손목",
+  "무기",
+  "쥐는것",
   "\n"
 };
 
@@ -433,24 +435,24 @@ const char *wear_bits[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *extra_bits[] = {
-  "GLOW",
-  "HUM",
-  "NO_RENT",
-  "NO_DONATE",
-  "NO_INVIS",
-  "INVISIBLE",
-  "MAGIC",
-  "NO_DROP",
-  "BLESS",
-  "ANTI_GOOD",
-  "ANTI_EVIL",
-  "ANTI_NEUTRAL",
-  "ANTI_MAGE",
-  "ANTI_CLERIC",
-  "ANTI_THIEF",
-  "ANTI_WARRIOR",
-  "NO_SELL",
-  "QUEST_ITEM",
+  "광채",
+  "소리",
+  "보관불가",
+  "기부불가",
+  "투명불가",
+  "투명",
+  "마법",
+  "버릴수없음",
+  "축복",
+  "선거부",
+  "악거부",
+  "중립거부",
+  "마법사거부",
+  "성직자거부",
+  "도둑거부",
+  "전사거부",
+  "팔수없음",
+  "임무",
   "\n"
 };
 
@@ -458,24 +460,24 @@ const char *extra_bits[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *apply_types[] = {
-  "NONE",
-  "STR",
-  "DEX",
-  "INT",
-  "WIS",
-  "CON",
-  "CHA",
-  "CLASS",
-  "LEVEL",
-  "AGE",
-  "CHAR_WEIGHT",
-  "CHAR_HEIGHT",
-  "MAXMANA",
-  "MAXHIT",
-  "MAXMOVE",
-  "GOLD",
-  "EXP",
-  "ARMOR",
+  "없음",
+  "근력",
+  "민첩",
+  "지식",
+  "인내",
+  "맺집",
+  "기술",
+  "직업",
+  "레벨",
+  "나이",
+  "체중",
+  "키",
+  "최대마력",
+  "최대체력",
+  "최대이동력",
+  "돈",
+  "경험치",
+  "방어",
   "HITROLL",
   "DAMROLL",
   "SAVING_PARA",
@@ -490,10 +492,10 @@ const char *apply_types[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *container_bits[] = {
-  "CLOSEABLE",
-  "PICKPROOF",
-  "CLOSED",
-  "LOCKED",
+  "열린",
+  "풀린",
+  "닫힌",
+  "잠긴",
   "\n",
 };
 
@@ -502,22 +504,22 @@ const char *container_bits[] = {
  * Must end array with a single newline. */
 const char *drinks[] =
 {
-  "water",
-  "beer",
-  "wine",
-  "ale",
-  "dark ale",
-  "whisky",
-  "lemonade",
+  "물",
+  "맥주",
+  "포도주",
+  "맥주",
+  "흑맥주",
+  "위스키",
+  "레모네이드",
   "firebreather",
   "local speciality",
   "slime mold juice",
-  "milk",
-  "tea",
-  "coffee",
-  "blood",
-  "salt water",
-  "clear water",
+  "우유",
+  "차",
+  "커피",
+  "피",
+  "소금물",
+  "깨끗한물",
   "\n"
 };
 
@@ -526,13 +528,13 @@ const char *drinks[] =
  * Must end array with a single newline. */
 const char *drinknames[] =
 {
-  "water",
-  "beer",
-  "wine",
-  "ale",
-  "ale",
-  "whisky",
-  "lemonade",
+  "물",
+  "맥주",
+  "와인",
+  "에일",
+  "에일",
+  "위스키",
+  "레모네이드",
   "firebreather",
   "local",
   "juice",
@@ -572,22 +574,22 @@ int drink_aff[][3] = {
  * Must end array with a single newline. */
 const char *color_liquid[] =
 {
-  "clear",
-  "brown",
-  "clear",
-  "brown",
-  "dark",
-  "golden",
-  "red",
-  "green",
-  "clear",
-  "light green",
-  "white",
-  "brown",
-  "black",
-  "red",
-  "clear",
-  "crystal clear",
+  "투명한",
+  "갈색",
+  "투명한",
+  "갈색",
+  "검은색",
+  "금색",
+  "붉은색",
+  "푸른색",
+  "투명한",
+  "연두색",
+  "흰색",
+  "갈색",
+  "검은색",
+  "붉은색",
+  "투명한",
+  "매우투명한",
   "\n"
 };
 
@@ -595,9 +597,9 @@ const char *color_liquid[] =
  * sprinttype() so no \\n. */
 const char *fullness[] =
 {
-  "less than half ",
-  "about half ",
-  "more than half ",
+  "조금 ",
+  "절반 ",
+  "가득 ",
   ""
 };
 
@@ -836,23 +838,23 @@ const char *weekdays[] = {
 
 /** The names of the mud months. Not used in sprinttype(). */
 const char *month_name[] = {
-  "Month of Winter",		/* 0 */
-  "Month of the Winter Wolf",
-  "Month of the Frost Giant",
-  "Month of the Old Forces",
-  "Month of the Grand Struggle",
-  "Month of the Spring",
-  "Month of Nature",
-  "Month of Futility",
-  "Month of the Dragon",
-  "Month of the Sun",
-  "Month of the Heat",
-  "Month of the Battle",
-  "Month of the Dark Shades",
-  "Month of the Shadows",
-  "Month of the Long Shadows",
-  "Month of the Ancient Darkness",
-  "Month of the Great Evil"
+  "혹한의 달",		/* 0 */
+  "겨울늑대의 달",
+  "숲거인의 달",
+  "힘의 달",
+  "노력의 달",
+  "봄의 달",
+  "대자연의 달",
+  "무효의 달",
+  "용의 달",
+  "태양의 달",
+  "온기의 달",
+  "전투의 달",
+  "어두운 그늘의 달",
+  "암흑의 달",
+  "긴그림자의 달",
+  "고대암흑의 달",
+  "대악마의 달"
 };
 
 /** Names for mob trigger types. */
@@ -934,15 +936,15 @@ const char *wtrig_types[] = {
  * @todo Only referenced by do_history at the moment. Should be moved local
  * to that function. */
 const char *history_types[] = {
-  "all",
-  "say",
-  "gossip",
-  "wiznet",
-  "tell",
-  "shout",
-  "grats",
-  "holler",
-  "auction",
+  "모두",
+  "말",
+  "잡담",
+  "신채널",
+  "이야기",
+  "외침",
+  "축하",
+  "불평",
+  "경매",
   "\n"
 };
 

@@ -98,10 +98,10 @@ ACMD(do_wizhelp)
   if (!ch->desc)
     return;
 
-  send_to_char(ch, "The following privileged commands are available:\r\n"); 
+  send_to_char(ch, "레벨별 관리자 명령어 목록 :\r\n"); 
   
   for (level = LVL_IMPL; level >= LVL_IMMORT; level--) { 
-    send_to_char(ch, "%sLevel %d%s:\r\n", CCCYN(ch, C_NRM), level, CCNRM(ch, C_NRM)); 
+    send_to_char(ch, "%s%d레벨%s :\r\n", CCCYN(ch, C_NRM), level, CCNRM(ch, C_NRM)); 
     for (no = 1, cmd_num = 1; complete_cmd_info[cmd_sort_info[cmd_num]].command[0] != '\n'; cmd_num++) { 
       i = cmd_sort_info[cmd_num]; 
   
@@ -174,13 +174,13 @@ room_rnum find_target_room(struct char_data *ch, char *rawroomstr)
   one_argument(rawroomstr, roomstr);
 
   if (!*roomstr) {
-    send_to_char(ch, "You must supply a room number or name.\r\n");
+    send_to_char(ch, "방번호나 이름을 입력해야 합니다.\r\n");
     return (NOWHERE);
   }
 
   if (isdigit(*roomstr) && !strchr(roomstr, '.')) {
     if ((location = real_room((room_vnum)atoi(roomstr))) == NOWHERE) {
-      send_to_char(ch, "No room exists with that number.\r\n");
+      send_to_char(ch, "그 번호의 방은 없습니다.\r\n");
       return (NOWHERE);
     }
   } else {
@@ -192,7 +192,7 @@ room_rnum find_target_room(struct char_data *ch, char *rawroomstr)
     num = get_number(&mobobjstr);
     if ((target_mob = get_char_vis(ch, mobobjstr, &num, FIND_CHAR_WORLD)) != NULL) {
       if ((location = IN_ROOM(target_mob)) == NOWHERE) {
-        send_to_char(ch, "That character is currently lost.\r\n");
+        send_to_char(ch, "대상을 놓쳤습니다!\r\n");
         return (NOWHERE);
       }
     } else if ((target_obj = get_obj_vis(ch, mobobjstr, &num)) != NULL) {
@@ -204,13 +204,13 @@ room_rnum find_target_room(struct char_data *ch, char *rawroomstr)
         location = IN_ROOM(target_obj->worn_by);
 
       if (location == NOWHERE) {
-        send_to_char(ch, "That object is currently not in a room.\r\n");
+        send_to_char(ch, "대상이 방에 있지 않습니다!\r\n");
         return (NOWHERE);
       }
     }
 
     if (location == NOWHERE) {
-      send_to_char(ch, "Nothing exists by that name.\r\n");
+        send_to_char(ch, "그런 이름을 가진 사람은 없습니다.\r\n");
       return (NOWHERE);
     }
   }
@@ -220,11 +220,11 @@ room_rnum find_target_room(struct char_data *ch, char *rawroomstr)
     return (location);
 
   if (ROOM_FLAGGED(location, ROOM_GODROOM))
-    send_to_char(ch, "You are not godly enough to use that room!\r\n");
+    send_to_char(ch, "당신의 권한으로 들어갈 수 없습니다!\r\n");
   else if (ROOM_FLAGGED(location, ROOM_PRIVATE) && world[location].people && world[location].people->next_in_room)
-    send_to_char(ch, "There's a private conversation going on in that room.\r\n");
+    send_to_char(ch, "개인 사유지 입니다.\r\n");
   else if (ROOM_FLAGGED(location, ROOM_HOUSE) && !House_can_enter(ch, GET_ROOM_VNUM(location)))
-    send_to_char(ch, "That's private property -- no trespassing!\r\n");
+    send_to_char(ch, "개인집 입니다 -- 출입금지!\r\n");
   else
     return (location);
 
@@ -238,12 +238,14 @@ ACMD(do_at)
 
   half_chop(argument, buf, command);
   if (!*buf) {
-    send_to_char(ch, "You must supply a room number or a name.\r\n");
+       send_to_char(ch, "방번호나 이름을 입력해야 합니다.\r\n");
+       send_to_char(ch, "%s %s %s.\r\n",argument, buf, command );
     return;
   }
 
   if (!*command) {
-    send_to_char(ch, "What do you want to do there?\r\n");
+    send_to_char(ch, "거기서 무엇을 할까요?\r\n");
+    send_to_char(ch, "%s %s %s.\r\n",argument, buf, command );
     return;
   }
 
@@ -272,17 +274,17 @@ ACMD(do_goto)
     return;
 
   if (ZONE_FLAGGED(GET_ROOM_ZONE(location), ZONE_NOIMMORT) && (GET_LEVEL(ch) >= LVL_IMMORT) && (GET_LEVEL(ch) < LVL_GRGOD)) {
-    send_to_char(ch, "Sorry, that zone is off-limits for immortals!");
+    send_to_char(ch, "신비로운 벽이 가로막습니다! 출입제한 구역입니다.\r\n");
     return;
   }
 
-  snprintf(buf, sizeof(buf), "$n %s", POOFOUT(ch) ? POOFOUT(ch) : "disappears in a puff of smoke.");
+  snprintf(buf, sizeof(buf), "$n님이 %s", POOFOUT(ch) ? POOFOUT(ch) : "갑자기 자욱한 연기와 함께 사라집니다.");
   act(buf, TRUE, ch, 0, 0, TO_ROOM);
 
   char_from_room(ch);
   char_to_room(ch, location);
 
-  snprintf(buf, sizeof(buf), "$n %s", POOFIN(ch) ? POOFIN(ch) : "appears with an ear-splitting bang.");
+  snprintf(buf, sizeof(buf), "$n님이 %s", POOFIN(ch) ? POOFIN(ch) : "밝은 섬광과 함께 나타납니다.");
   act(buf, TRUE, ch, 0, 0, TO_ROOM);
 
   look_at_room(ch, 0);
@@ -297,29 +299,29 @@ ACMD(do_trans)
 
   one_argument(argument, buf);
   if (!*buf)
-    send_to_char(ch, "Whom do you wish to transfer?\r\n");
-  else if (str_cmp("all", buf)) {
+    send_to_char(ch, "누구를 공간이동 시킬까요?\r\n");
+  else if (str_cmp("모두", buf)) {
     if (!(victim = get_char_vis(ch, buf, NULL, FIND_CHAR_WORLD)))
       send_to_char(ch, "%s", CONFIG_NOPERSON);
     else if (victim == ch)
-      send_to_char(ch, "That doesn't make much sense, does it?\r\n");
+      send_to_char(ch, "자신에게 사용할 수 없습니다.\r\n");
     else {
       if ((GET_LEVEL(ch) < GET_LEVEL(victim)) && !IS_NPC(victim)) {
-	send_to_char(ch, "Go transfer someone your own size.\r\n");
+	send_to_char(ch, "자신보다 높은 사람에게 사용할 수 없습니다.\r\n");
 	return;
       }
-      act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0, TO_ROOM);
+      act("$n님의 모습이 구름과 함께 사라집니다.", FALSE, victim, 0, 0, TO_ROOM);
       char_from_room(victim);
       char_to_room(victim, IN_ROOM(ch));
-      act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
-      act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
+      act("$n님이 자욱한 연기를 헤치며 나타납니다.", FALSE, victim, 0, 0, TO_ROOM);
+      act("$n님이 당신을 공간이동 시켰습니다!", FALSE, ch, 0, victim, TO_VICT);
       look_at_room(victim, 0);
 
       enter_wtrigger(&world[IN_ROOM(victim)], victim, -1);
     }
   } else {			/* Trans All */
     if (GET_LEVEL(ch) < LVL_GRGOD) {
-      send_to_char(ch, "I think not.\r\n");
+      send_to_char(ch, "권한이 없습니다.\r\n");
       return;
     }
 
@@ -328,11 +330,11 @@ ACMD(do_trans)
 	victim = i->character;
 	if (GET_LEVEL(victim) >= GET_LEVEL(ch))
 	  continue;
-	act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0, TO_ROOM);
+	act("$n님의 모습이 구름과 함께 사라집니다.", FALSE, victim, 0, 0, TO_ROOM);
 	char_from_room(victim);
 	char_to_room(victim, IN_ROOM(ch));
-	act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
-	act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
+	act("$n님이 자욱한 연기를 헤치며 나타납니다.", FALSE, victim, 0, 0, TO_ROOM);
+	act("$n님이 당신을 공간이동 시켰습니다!", FALSE, ch, 0, victim, TO_VICT);
 	look_at_room(victim, 0);
         enter_wtrigger(&world[IN_ROOM(victim)], victim, -1);
       }
@@ -349,22 +351,22 @@ ACMD(do_teleport)
   two_arguments(argument, buf, buf2);
 
   if (!*buf)
-    send_to_char(ch, "Whom do you wish to teleport?\r\n");
+    send_to_char(ch, "누구를 공간이동 시킬까요?\r\n");
   else if (!(victim = get_char_vis(ch, buf, NULL, FIND_CHAR_WORLD)))
     send_to_char(ch, "%s", CONFIG_NOPERSON);
   else if (victim == ch)
-    send_to_char(ch, "Use 'goto' to teleport yourself.\r\n");
+    send_to_char(ch, "자신에게 사용할 수 없습니다.\r\n");
   else if (GET_LEVEL(victim) >= GET_LEVEL(ch))
-    send_to_char(ch, "Maybe you shouldn't do that.\r\n");
+    send_to_char(ch, "권한이 없습니다.\r\n");
   else if (!*buf2)
-    send_to_char(ch, "Where do you wish to send this person?\r\n");
+    send_to_char(ch, "그 사람을 어디로 공간이동 시킬까요?\r\n");
   else if ((target = find_target_room(ch, buf2)) != NOWHERE) {
     send_to_char(ch, "%s", CONFIG_OK);
-    act("$n disappears in a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
+    act("$n님의 모습이 구름과 함께 사라집니다.", FALSE, victim, 0, 0, TO_ROOM);
     char_from_room(victim);
     char_to_room(victim, target);
-    act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
-    act("$n has teleported you!", FALSE, ch, 0, (char *) victim, TO_VICT);
+    act("$n님이 자욱한 연기를 헤치며 나타납니다.", FALSE, victim, 0, 0, TO_ROOM);
+	act("$n님이 당신을 공간이동 시켰습니다!", FALSE, ch, 0, victim, TO_VICT);
     look_at_room(victim, 0);
     enter_wtrigger(&world[IN_ROOM(victim)], victim, -1);
   }
@@ -378,27 +380,27 @@ ACMD(do_vnum)
   half_chop(argument, buf, buf2);
 
   if (!*buf || !*buf2) {
-    send_to_char(ch, "Usage: vnum { obj | mob | room | trig } <name>\r\n");
+    send_to_char(ch, "사용법: { 몹 | 물건 | 방 | 트리거 } <이름> 번호조회\r\n");
     return;
   }
-  if (is_abbrev(buf, "mob") && (good_arg = 1))
+  if (is_abbrev(buf, "몹") && (good_arg = 1))
     if (!vnum_mobile(buf2, ch))
-      send_to_char(ch, "No mobiles by that name.\r\n");
+      send_to_char(ch, "그런 이름의 몹은 없습니다.\r\n");
 
-  if (is_abbrev(buf, "obj") && (good_arg =1 ))
+  if (is_abbrev(buf, "물건") && (good_arg =1 ))
     if (!vnum_object(buf2, ch))
-      send_to_char(ch, "No objects by that name.\r\n");
+      send_to_char(ch, "그런 이름의 물건은 없습니다.\r\n");
 
-  if (is_abbrev(buf, "room") && (good_arg = 1))
+  if (is_abbrev(buf, "방") && (good_arg = 1))
     if (!vnum_room(buf2, ch))
-      send_to_char(ch, "No rooms by that name.\r\n");
+      send_to_char(ch, "그런 이름의 방은 없습니다.\r\n");
 
-  if (is_abbrev(buf, "trig") && (good_arg = 1))
+  if (is_abbrev(buf, "트리거") && (good_arg = 1))
     if (!vnum_trig(buf2, ch))
-      send_to_char(ch, "No triggers by that name.\r\n");
+      send_to_char(ch, "그런 이름의 트리거는 없습니다.\r\n");
 
   if (!good_arg)
-     send_to_char(ch, "Usage: vnum { obj | mob | room | trig } <name>\r\n");
+     send_to_char(ch, "사용법: { 몹 | 물건 | 방 | 트리거 } <이름> 번호조회\r\n");
  }
 
 #define ZOCMD zone_table[zrnum].cmd[subcmd]
@@ -410,13 +412,13 @@ static void list_zone_commands_room(struct char_data *ch, room_vnum rvnum)
   int subcmd = 0, count = 0;
 
   if (zrnum == NOWHERE || rrnum == NOWHERE) {
-    send_to_char(ch, "No zone information available.\r\n");
+    send_to_char(ch, "존 정보를 찾을 수 없습니다.\r\n");
     return;
   }
 
   get_char_colors(ch);
 
-  send_to_char(ch, "Zone commands in this room:%s\r\n", yel);
+  send_to_char(ch, "이 방에 셋팅된 정보 : %s\r\n", yel);
   while (ZOCMD.command != 'S') {
     switch (ZOCMD.command) {
       case 'M':
@@ -437,14 +439,14 @@ static void list_zone_commands_room(struct char_data *ch, room_vnum rvnum)
       /* start listing */
       switch (ZOCMD.command) {
         case 'M':
-          send_to_char(ch, "%sLoad %s [%s%d%s], Max : %d\r\n",
+          send_to_char(ch, "%sLoad %s [%s%d%s], 최대 : %d\r\n",
                   ZOCMD.if_flag ? " then " : "",
                   mob_proto[ZOCMD.arg1].player.short_descr, cyn,
                   mob_index[ZOCMD.arg1].vnum, yel, ZOCMD.arg2
                   );
           break;
         case 'G':
-          send_to_char(ch, "%sGive it %s [%s%d%s], Max : %d\r\n",
+          send_to_char(ch, "%sGive it %s [%s%d%s], 최대 : %d\r\n",
     	      ZOCMD.if_flag ? " then " : "",
     	      obj_proto[ZOCMD.arg1].short_description,
     	      cyn, obj_index[ZOCMD.arg1].vnum, yel,
@@ -452,7 +454,7 @@ static void list_zone_commands_room(struct char_data *ch, room_vnum rvnum)
     	      );
           break;
         case 'O':
-          send_to_char(ch, "%sLoad %s [%s%d%s], Max : %d\r\n",
+          send_to_char(ch, "%sLoad %s [%s%d%s], 최대 : %d\r\n",
     	      ZOCMD.if_flag ? " then " : "",
     	      obj_proto[ZOCMD.arg1].short_description,
     	      cyn, obj_index[ZOCMD.arg1].vnum, yel,
@@ -460,7 +462,7 @@ static void list_zone_commands_room(struct char_data *ch, room_vnum rvnum)
     	      );
           break;
         case 'E':
-          send_to_char(ch, "%sEquip with %s [%s%d%s], %s, Max : %d\r\n",
+          send_to_char(ch, "%sEquip with %s [%s%d%s], %s, 최대 : %d\r\n",
     	      ZOCMD.if_flag ? " then " : "",
     	      obj_proto[ZOCMD.arg1].short_description,
     	      cyn, obj_index[ZOCMD.arg1].vnum, yel,
@@ -469,7 +471,7 @@ static void list_zone_commands_room(struct char_data *ch, room_vnum rvnum)
     	      );
           break;
         case 'P':
-          send_to_char(ch, "%sPut %s [%s%d%s] in %s [%s%d%s], Max : %d\r\n",
+          send_to_char(ch, "%sPut %s [%s%d%s] in %s [%s%d%s], 최대 : %d\r\n",
     	      ZOCMD.if_flag ? " then " : "",
     	      obj_proto[ZOCMD.arg1].short_description,
     	      cyn, obj_index[ZOCMD.arg1].vnum, yel,
@@ -774,19 +776,17 @@ static void do_stat_character(struct char_data *ch, struct char_data *k)
 	  buf, (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 	  GET_NAME(k), IS_NPC(k) ? char_script_id(k) : GET_IDNUM(k), GET_ROOM_VNUM(IN_ROOM(k)), IS_NPC(k) ? NOWHERE : GET_LOADROOM(k));
 
-  if (IS_MOB(k)) {
-    send_to_char(ch, "Keyword: %s, VNum: [%5d], RNum: [%5d]\r\n", k->player.name, GET_MOB_VNUM(k), GET_MOB_RNUM(k));
-    send_to_char(ch, "L-Des: %s", k->player.long_descr ? k->player.long_descr : "<None>\r\n");
-  }
+  if (IS_MOB(k))
+    send_to_char(ch, "키워드: %s, 번호: [%5d], RNum: [%5d]\r\n", k->player.name, GET_MOB_VNUM(k), GET_MOB_RNUM(k));
 
-  if (!IS_MOB(k))
-    send_to_char(ch, "Title: %s\r\n", k->player.title ? k->player.title : "<None>");
+  send_to_char(ch, "칭호: %s\r\n", k->player.title ? k->player.title : "<없음>");
 
-  send_to_char(ch, "D-Des: %s", k->player.description ? k->player.description : "<None>\r\n");
+  send_to_char(ch, "L-Des: %s", k->player.long_descr ? k->player.long_descr : "<없음>\r\n");
+  send_to_char(ch, "D-Des: %s", k->player.description ? k->player.description : "<없음>\r\n");
 
   sprinttype(k->player.chclass, pc_class_types, buf, sizeof(buf));
-  send_to_char(ch, "%s%s, Lev: [%s%2d%s], XP: [%s%7d%s], Align: [%4d]\r\n",
-	IS_NPC(k) ? "Mobile" : "Class: ", IS_NPC(k) ? "" : buf, CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM),
+  send_to_char(ch, "%s%s, 레벨: [%s%2d%s], 경험치: [%s%7d%s], 성향: [%4d]\r\n",
+	IS_NPC(k) ? "몹직업" : "직업: ", IS_NPC(k) ? "" : buf, CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM),
 	CCYEL(ch, C_NRM), GET_EXP(k), CCNRM(ch, C_NRM), GET_ALIGNMENT(k));
 
   if (!IS_NPC(k)) {
@@ -795,22 +795,22 @@ static void do_stat_character(struct char_data *ch, struct char_data *k)
     strftime(buf1, sizeof(buf1), "%a %b %d %Y", localtime(&(k->player.time.birth)));
     strftime(buf2, sizeof(buf2), "%a %b %d %Y", localtime(&(k->player.time.logon)));
 
-    send_to_char(ch, "Created: [%s], Last Logon: [%s]\r\n", buf1, buf2);
+    send_to_char(ch, "탄생: [%s], 마지막접속: [%s]\r\n", buf1, buf2);
 
-    send_to_char(ch, "Played: [%dh %dm], Age: [%d], STL[%d]/per[%d]/NSTL[%d]",
+    send_to_char(ch, "게임시간: [%dh %dm], 나이: [%d], STL[%d]/per[%d]/NSTL[%d]",
             k->player.time.played / 3600, (k->player.time.played % 3600) / 60,
             age(k)->year, GET_PRACTICES(k), int_app[GET_INT(k)].learn,
 	    wis_app[GET_WIS(k)].bonus);
     /* Display OLC zone for immorts. */
     if (GET_LEVEL(k) >= LVL_BUILDER) {
       if (GET_OLC_ZONE(k)==AEDIT_PERMISSION)
-        send_to_char(ch, ", OLC[%sAedit%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        send_to_char(ch, ", OLC[%s감정편집%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
       else if (GET_OLC_ZONE(k)==HEDIT_PERMISSION)
-        send_to_char(ch, ", OLC[%sHedit%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        send_to_char(ch, ", OLC[%s도움편집%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
       else if (GET_OLC_ZONE(k) == ALL_PERMISSION)
-        send_to_char(ch, ", OLC[%sAll%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        send_to_char(ch, ", OLC[%s전부%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
       else if (GET_OLC_ZONE(k)==NOWHERE)
-        send_to_char(ch, ", OLC[%sOFF%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        send_to_char(ch, ", OLC[%s없음%s]", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
       else
         send_to_char(ch, ", OLC[%s%d%s]", CCCYN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
     }
@@ -922,7 +922,7 @@ static void do_stat_character(struct char_data *ch, struct char_data *k)
       if (aff->bitvector[0] || aff->bitvector[1] || aff->bitvector[2] || aff->bitvector[3]) {
         if (aff->modifier)
           send_to_char(ch, ", ");
-        for (i=1; i<NUM_AFF_FLAGS; i++) {
+        for (i=0; i<NUM_AFF_FLAGS; i++) {
           if (IS_SET_AR(aff->bitvector, i)) {
             send_to_char(ch, "sets %s, ", affected_bits[i]);
           }
@@ -993,41 +993,41 @@ ACMD(do_stat)
   half_chop(argument, buf1, buf2);
 
   if (!*buf1) {
-    send_to_char(ch, "Stats on who or what or where?\r\n");
+    send_to_char(ch, "[사용법] 방번호|몹이나 사용자 이름|파일 조회\r\n");
     return;
-  } else if (is_abbrev(buf1, "room")) {
+  } else if (is_abbrev(buf1, "방")) {
     if (!*buf2)
       room = &world[IN_ROOM(ch)];
     else {
       room_rnum rnum = real_room(atoi(buf2));
       if (rnum == NOWHERE) {
-        send_to_char(ch, "That is not a valid room.\r\n");
+        send_to_char(ch, "그번호의 방은 존재하지 않습니다.\r\n");
         return;
       }
       room = &world[rnum];
     }
     do_stat_room(ch, room);
-  } else if (is_abbrev(buf1, "mob")) {
+  } else if (is_abbrev(buf1, "몹")) {
     if (!*buf2)
-      send_to_char(ch, "Stats on which mobile?\r\n");
+      send_to_char(ch, "어느 몹의 정보 조회 할까요?\r\n");
     else {
       if ((victim = get_char_vis(ch, buf2, NULL, FIND_CHAR_WORLD)) != NULL)
 	do_stat_character(ch, victim);
       else
-	send_to_char(ch, "No such mobile around.\r\n");
+	send_to_char(ch, "그런 몹은 없습니다.\r\n");
     }
-  } else if (is_abbrev(buf1, "player")) {
+  } else if (is_abbrev(buf1, "사용자")) {
     if (!*buf2) {
-      send_to_char(ch, "Stats on which player?\r\n");
+      send_to_char(ch, "어느 사용자의 정보를 조회 할까요?\r\n");
     } else {
       if ((victim = get_player_vis(ch, buf2, NULL, FIND_CHAR_WORLD)) != NULL)
 	do_stat_character(ch, victim);
       else
-	send_to_char(ch, "No such player around.\r\n");
+	send_to_char(ch, "그런 이름의 사용자는 없습니다.\r\n");
     }
-  } else if (is_abbrev(buf1, "file")) {
+  } else if (is_abbrev(buf1, "파일")) {
     if (!*buf2)
-      send_to_char(ch, "Stats on which player?\r\n");
+      send_to_char(ch, "어느 사용자의 정보를 조회 할까요?\r\n");
     else if ((victim = get_player_vis(ch, buf2, NULL, FIND_CHAR_WORLD)) != NULL)
 	do_stat_character(ch, victim);
     else {
@@ -1038,25 +1038,25 @@ ACMD(do_stat)
       if (load_char(buf2, victim) >= 0) {
         char_to_room(victim, 0);
         if (GET_LEVEL(victim) > GET_LEVEL(ch))
-	  send_to_char(ch, "Sorry, you can't do that.\r\n");
+	  send_to_char(ch, "당신의 권한으로는 불가능 합니다.\r\n");
 	else
 	  do_stat_character(ch, victim);
 	extract_char_final(victim);
       } else {
-	send_to_char(ch, "There is no such player.\r\n");
+	send_to_char(ch, "그런 이름의 사용자는 없습니다.\r\n");
 	free_char(victim);
       }
     }
-  } else if (is_abbrev(buf1, "object")) {
+  } else if (is_abbrev(buf1, "물건")) {
     if (!*buf2)
-      send_to_char(ch, "Stats on which object?\r\n");
+      send_to_char(ch, "어느 물건의 정보를 조회 할까요?\r\n");
     else {
       if ((object = get_obj_vis(ch, buf2, NULL)) != NULL)
 	do_stat_object(ch, object);
       else
-	send_to_char(ch, "No such object around.\r\n");
+	send_to_char(ch, "그런 이름의 물건은 없습니다.\r\n");
     }
-  } else if (is_abbrev(buf1, "zone")) {
+  } else if (is_abbrev(buf1, "존")) {
     if (!*buf2) {
       print_zone(ch, zone_table[world[IN_ROOM(ch)].zone].number);
       return;
@@ -1081,7 +1081,7 @@ ACMD(do_stat)
     else if ((object = get_obj_vis(ch, name, &number)) != NULL)
       do_stat_object(ch, object);
     else
-      send_to_char(ch, "Nothing around by that name.\r\n");
+      send_to_char(ch, "그런 이름을 가진 것은 없습니다.\r\n");
   }
 }
 
@@ -1099,29 +1099,29 @@ ACMD(do_shutdown)
     log("(GC) Shutdown by %s.", GET_NAME(ch));
     send_to_all("Shutting down.\r\n");
     circle_shutdown = 1;
-  } else if (!str_cmp(arg, "reboot")) {
+  } else if (!str_cmp(arg, "리붓")) {
     log("(GC) Reboot by %s.", GET_NAME(ch));
-    send_to_all("Rebooting.. come back in a few minutes.\r\n");
+    send_to_all("리붓 합니다.. 잠시 뒤에 들어오세요.\r\n");
     touch(FASTBOOT_FILE);
     circle_shutdown = 1;
     circle_reboot = 2; /* do not autosave olc */
-  } else if (!str_cmp(arg, "die")) {
+  } else if (!str_cmp(arg, "완전")) {
     log("(GC) Shutdown by %s.", GET_NAME(ch));
-    send_to_all("Shutting down for maintenance.\r\n");
+    send_to_all("시스템 점검을 위해 닫습니다.\r\n");
     touch(KILLSCRIPT_FILE);
     circle_shutdown = 1;
-  } else if (!str_cmp(arg, "now")) {
+  } else if (!str_cmp(arg, "지금")) {
     log("(GC) Shutdown NOW by %s.", GET_NAME(ch));
-    send_to_all("Rebooting.. come back in a minute or two.\r\n");
+    send_to_all("리붓 합니다.. 1분 후에 접속하세요.\r\n");
     circle_shutdown = 1;
     circle_reboot = 2; /* do not autosave olc */
-  } else if (!str_cmp(arg, "pause")) {
+  } else if (!str_cmp(arg, "정지")) {
     log("(GC) Shutdown by %s.", GET_NAME(ch));
-    send_to_all("Shutting down for maintenance.\r\n");
+    send_to_all("시스템 점검을 위해 닫습니다.\r\n");
     touch(PAUSE_FILE);
     circle_shutdown = 1;
   } else
-    send_to_char(ch, "Unknown shutdown option.\r\n");
+send_to_char(ch, "사용법: { 리붓 | 완전 | 지금 | 정지 } 셧다운\r\n");
 }
 
 void snoop_check(struct char_data *ch)
@@ -1147,9 +1147,9 @@ void snoop_check(struct char_data *ch)
 static void stop_snooping(struct char_data *ch)
 {
   if (!ch->desc->snooping)
-    send_to_char(ch, "You aren't snooping anyone.\r\n");
+    send_to_char(ch, "당신은 어느 누구도 감시할 수 없습니다.\r\n");
   else {
-    send_to_char(ch, "You stop snooping.\r\n");
+    send_to_char(ch, "감시를 중단합니다.\r\n");
 
       mudlog(BRF, GET_LEVEL(ch), TRUE, "(GC) %s stops snooping", GET_NAME(ch));
 
@@ -1171,15 +1171,15 @@ ACMD(do_snoop)
   if (!*arg)
     stop_snooping(ch);
   else if (!(victim = get_char_vis(ch, arg, NULL, FIND_CHAR_WORLD)))
-    send_to_char(ch, "No such person around.\r\n");
+    send_to_char(ch, "대상을 찾을 수 없습니다.\r\n");
   else if (!victim->desc)
-    send_to_char(ch, "There's no link.. nothing to snoop.\r\n");
+    send_to_char(ch, "상대방은 접속중이 아닙니다.\r\n");
   else if (victim == ch)
     stop_snooping(ch);
   else if (victim->desc->snoop_by)
-    send_to_char(ch, "Busy already. \r\n");
+    send_to_char(ch, "이미 감시중입니다.\r\n");
   else if (victim->desc->snooping == ch->desc)
-    send_to_char(ch, "Don't be stupid.\r\n");
+    send_to_char(ch, "자신에게 사용할 수 없습니다.\r\n");
   else {
     if (victim->desc->original)
       tch = victim->desc->original;
@@ -1187,7 +1187,7 @@ ACMD(do_snoop)
       tch = victim;
 
     if (GET_LEVEL(tch) >= GET_LEVEL(ch)) {
-      send_to_char(ch, "You can't.\r\n");
+      send_to_char(ch, "불가능 합니다.\r\n");
       return;
     }
     send_to_char(ch, "%s", CONFIG_OK);
@@ -1210,22 +1210,22 @@ ACMD(do_switch)
   one_argument(argument, arg);
 
   if (ch->desc->original)
-    send_to_char(ch, "You're already switched.\r\n");
+    send_to_char(ch, "이미 몸바꾸기 중입니다.\r\n");
   else if (!*arg)
-    send_to_char(ch, "Switch with who?\r\n");
+    send_to_char(ch, "누구의 몸으로 바꾸겠습니까?\r\n");
   else if (!(victim = get_char_vis(ch, arg, NULL, FIND_CHAR_WORLD)))
-    send_to_char(ch, "No such character.\r\n");
+    send_to_char(ch, "%s", CONFIG_NOPERSON);
   else if (ch == victim)
-    send_to_char(ch, "Hee hee... we are jolly funny today, eh?\r\n");
+    send_to_char(ch, "자신에게 사용할 수 없는 명령입니다.\r\n");
   else if (victim->desc)
-    send_to_char(ch, "You can't do that, the body is already in use!\r\n");
+    send_to_char(ch, "그 몸은 이미 사용중입니다!\r\n");
   else if ((GET_LEVEL(ch) < LVL_IMPL) && !IS_NPC(victim))
-    send_to_char(ch, "You are not holy enough to use their body.\r\n");
+    send_to_char(ch, "권한이 없습니다.\r\n");
   else if (GET_LEVEL(ch) < LVL_GRGOD && ROOM_FLAGGED(IN_ROOM(victim), ROOM_GODROOM))
-    send_to_char(ch, "You are not godly enough to use that room!\r\n");
+    send_to_char(ch, "당신의 권한으로 들어갈 수 없습니다.\r\n");
   else if (GET_LEVEL(ch) < LVL_GRGOD && ROOM_FLAGGED(IN_ROOM(victim), ROOM_HOUSE)
 		&& !House_can_enter(ch, GET_ROOM_VNUM(IN_ROOM(victim))))
-    send_to_char(ch, "That's private property -- no trespassing!\r\n");
+    send_to_char(ch, "개인집 입니다 -- 출입금지!\r\n");
   else {
     send_to_char(ch, "%s", CONFIG_OK);
     mudlog(CMP, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE, "(GC) %s Switched into: %s", GET_NAME(ch), GET_NAME(victim));
@@ -1284,7 +1284,7 @@ ACMD(do_return)
   }
 
   if (ch->desc && ch->desc->original) {
-    send_to_char(ch, "You return to your original body.\r\n");
+    send_to_char(ch, "원래의 몸으로 돌아 왔습니다.\r\n");
     return_to_char(ch);
   }
 }
@@ -1297,11 +1297,11 @@ ACMD(do_load)
   one_argument(two_arguments(argument, buf, buf2), buf3);
 
   if (!*buf || !*buf2 || !isdigit(*buf2)) {
-    send_to_char(ch, "Usage: load < obj | mob > <vnum> <number>\r\n");
+    send_to_char(ch, "사용법: < 물건 | 맙 > <번호> <수량> 창조\r\n");
     return;
   }
   if (!is_number(buf2)) {
-    send_to_char(ch, "That is not a number.\r\n");
+    send_to_char(ch, "올바른 번호가 아닙니다.\r\n");
     return;
   }
 
@@ -1311,39 +1311,27 @@ ACMD(do_load)
     n = 1;
   }
 
-  if (is_abbrev(buf, "mob")) {
-    struct char_data *mob=NULL;
+  if (is_abbrev(buf, "몹")) {
+      struct char_data *mob=NULL;
     mob_rnum r_num;
 
-	if (GET_LEVEL(ch) < LVL_GRGOD && !can_edit_zone(ch, world[IN_ROOM(ch)].zone)) {
-	  send_to_char(ch, "Sorry, you can't load mobs here.\r\n");
-	  return;
-	}
-
     if ((r_num = real_mobile(atoi(buf2))) == NOBODY) {
-      send_to_char(ch, "There is no monster with that number.\r\n");
+      send_to_char(ch, "그 번호의 맙이 없습니다.\r\n");
       return;
     }
     for (i=0; i < n; i++) {
       mob = read_mobile(r_num, REAL);
       char_to_room(mob, IN_ROOM(ch));
-
-      act("$n makes a quaint, magical gesture with one hand.", TRUE, ch, 0, 0, TO_ROOM);
-      act("$n has created $N!", FALSE, ch, 0, mob, TO_ROOM);
-      act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
+	  act("$n님이 $N님을 창조합니다!", FALSE, ch, 0, mob, TO_ROOM);
+	  act("당신은 $N님을 창조합니다.", FALSE, ch, 0, mob, TO_CHAR);
       load_mtrigger(mob);
     }
-  } else if (is_abbrev(buf, "obj")) {
+  } else if (is_abbrev(buf, "물건")) {
     struct obj_data *obj;
     obj_rnum r_num;
 
-	if (GET_LEVEL(ch) < LVL_GRGOD && !can_edit_zone(ch, world[IN_ROOM(ch)].zone)) {
-	  send_to_char(ch, "Sorry, you can't load objects here.\r\n");
-	  return;
-	}
-
     if ((r_num = real_object(atoi(buf2))) == NOTHING) {
-      send_to_char(ch, "There is no object with that number.\r\n");
+      send_to_char(ch, "그 번호의 물건이 없습니다.\r\n");
       return;
     }
     for (i=0; i < n; i++) {
@@ -1352,13 +1340,12 @@ ACMD(do_load)
         obj_to_char(obj, ch);
       else
         obj_to_room(obj, IN_ROOM(ch));
-      act("$n makes a strange magical gesture.", TRUE, ch, 0, 0, TO_ROOM);
-      act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
-      act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
+      act("$n님이 $p$L 창조합니다!", FALSE, ch, obj, 0, TO_ROOM);
+	  act("당신은 $p$L 창조합니다.", FALSE, ch, obj, 0, TO_CHAR);
       load_otrigger(obj);
     }
   } else
-    send_to_char(ch, "That'll have to be either 'obj' or 'mob'.\r\n");
+    send_to_char(ch, "몹이나 물건만 창조할 수 있습니다.\r\n");
 }
 
 ACMD(do_vstat)
@@ -1373,7 +1360,7 @@ ACMD(do_vstat)
   two_arguments(argument, buf, buf2);
 
   if (!*buf || !*buf2 || !isdigit(*buf2)) {
-    send_to_char(ch, "Usage: vstat { o | m | r | t | s | z } <number>\r\n");
+    send_to_char(ch, "사용법: { o | m | r | t | s | z } <번호> vstat\r\n");
     return;
   }
   if (!is_number(buf2)) {
@@ -1564,7 +1551,7 @@ ACMD(do_advance)
    GET_COND(victim, DRUNK)  = -1;
   }
 
-  gain_exp_regardless(victim, level_exp(GET_CLASS(victim), newlevel) - GET_EXP(victim));
+ gain_exp_regardless(victim, level_exp(GET_CLASS(victim), newlevel) - GET_EXP(victim));
   save_char(victim);
 }
 
@@ -1603,7 +1590,7 @@ ACMD(do_restore)
   else {
     mudlog(NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE, "(GC) %s restored %s",GET_NAME(ch), GET_NAME(vict));
 
-    GET_HIT(vict) = GET_MAX_HIT(vict);
+    GET_HIT(vict)  = GET_MAX_HIT(vict);
     GET_MANA(vict) = GET_MAX_MANA(vict);
     GET_MOVE(vict) = GET_MAX_MOVE(vict);
 
@@ -2333,8 +2320,8 @@ ACMD(do_wizutil)
   else {
     switch (subcmd) {
     case SCMD_REROLL:
-      send_to_char(ch, "Rerolled...\r\n");
-      roll_real_abils(vict);
+    //  send_to_char(ch, "Rerolled...\r\n");
+      // roll_real_abils(vict);
       log("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
       send_to_char(ch, "New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
 	      GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
@@ -2501,7 +2488,7 @@ ACMD(do_show)
 
   struct show_struct {
     const char *cmd;
-    const char level;
+    int level;
   } fields[] = {
     { "nothing",	0  },				/* 0 */
     { "zones",		LVL_IMMORT },			/* 1 */
@@ -2615,7 +2602,7 @@ ACMD(do_show)
     send_to_char(ch, "Player: %-12s (%s) [%2d %s]\r\n", GET_NAME(vict),
       genders[(int) GET_SEX(vict)], GET_LEVEL(vict), class_abbrevs[(int)
       GET_CLASS(vict)]);
-    send_to_char(ch, "Gold: %-8d  Bal: %-8d Exp: %-8d  Align: %-5d  Lessons: %-3d\r\n",
+    send_to_char(ch, "Gold: %-7d  Bal: %-7d Exp: %-7d  Align: %-5d  Lessons: %-3d\r\n",
       GET_GOLD(vict), GET_BANK_GOLD(vict), GET_EXP(vict),
       GET_ALIGNMENT(vict), GET_PRACTICES(vict));
     send_to_char(ch, "Started: %-25.25s  Last: %-25.25s\r\n", buf1, buf2);
@@ -2828,41 +2815,41 @@ ACMD(do_show)
 /* The set options available */
 static struct set_struct {
     const char *cmd;
-    const char level;
+    int level;
     const char pcnpc;
     const char type;
   } set_fields[] = {
-   { "ac",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 0  */
+   { "방어",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 0  */
    { "afk",             LVL_BUILDER,	PC,	BINARY },  /* 1  */
-   { "age",		LVL_GOD,	BOTH,	NUMBER },
-   { "align",		LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "bank",		LVL_BUILDER, 	PC, 	NUMBER },
+   { "나이",		LVL_GOD,	BOTH,	NUMBER },
+   { "성향",		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "잔고",		LVL_BUILDER, 	PC, 	NUMBER },
    { "brief",		LVL_GOD, 	PC, 	BINARY },  /* 5  */
-   { "cha",		LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "class",		LVL_BUILDER, 	BOTH, 	MISC },
+   { "기술",		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "직업",		LVL_BUILDER, 	BOTH, 	MISC },
    { "color",		LVL_GOD, 	PC, 	BINARY },
-   { "con", 		LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "damroll",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 10 */
+   { "맷집", 		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "공격력",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 10 */
    { "deleted",		LVL_IMPL, 	PC, 	BINARY },
-   { "dex", 		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "민첩", 		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "drunk",		LVL_BUILDER, 	BOTH, 	MISC },
-   { "exp", 		LVL_GOD, 	BOTH, 	NUMBER },
+   { "경험치", 		LVL_GOD, 	BOTH, 	NUMBER },
    { "frozen",		LVL_GRGOD, 	PC,	BINARY },  /* 15 */
-   { "gold",		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "코퍼",		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "height",		LVL_BUILDER,	BOTH,	NUMBER },
    { "hitpoints",       LVL_BUILDER, 	BOTH, 	NUMBER },
    { "hitroll",		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "hunger",		LVL_BUILDER, 	BOTH, 	MISC },    /* 20 */
-   { "int", 		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "지능", 		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "invis",		LVL_GOD, 	PC, 	NUMBER },
    { "invstart",        LVL_BUILDER,	PC, 	BINARY },
    { "killer",		LVL_GOD, 	PC, 	BINARY },
-   { "level",		LVL_GRGOD, 	BOTH, 	NUMBER },  /* 25 */
+   { "레벨",		LVL_GRGOD, 	BOTH, 	NUMBER },  /* 25 */
    { "loadroom",	LVL_BUILDER, 	PC, 	MISC },
    { "mana",		LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "maxhit",	        LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "maxmana",       	LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "maxmove",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 30 */
+   { "최대체력",	        LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "최대마나",       	LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "최대이동",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 30 */
    { "move",		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "name",	LVL_IMMORT, 	PC, 	MISC },
    { "nodelete",	LVL_GOD, 	PC, 	BINARY },
@@ -2887,9 +2874,10 @@ static struct set_struct {
    { "title",		LVL_GOD, 	PC, 	MISC   },
    { "variable",        LVL_GRGOD,	PC,	MISC },
    { "weight",		LVL_BUILDER,	BOTH,	NUMBER },
-   { "wis", 		LVL_BUILDER, 	BOTH, 	NUMBER }, /* 55 */
+   { "인내", 		LVL_BUILDER, 	BOTH, 	NUMBER }, /* 55 */
    { "questpoints",     LVL_GOD,        PC,     NUMBER },
    { "questhistory",    LVL_GOD,        PC,   NUMBER },
+   { "수련치",    LVL_GOD,        PC,   NUMBER },
    { "\n", 0, BOTH, MISC }
   };
 
@@ -3303,6 +3291,10 @@ static int perform_set(struct char_data *ch, struct char_data *vict, int mode, c
         }
         break;
       }
+	 case 58: /* 수련치 */
+      RANGE(1, 1000);
+      GET_PRACTICES(vict) = value;
+      break;
     default:
       send_to_char(ch, "Can't set that!\r\n");
       return (0);
@@ -3558,7 +3550,7 @@ static struct zcheck_affs {
   {APPLY_SAVING_ROD,  -2,   2, "saving throw (rod)"},
   {APPLY_SAVING_PETRI,-2,   2, "saving throw (death)"},
   {APPLY_SAVING_BREATH,-2,  2, "saving throw (breath)"},
-  {APPLY_SAVING_SPELL,-2,   2, "saving throw (spell)"}
+  {APPLY_SAVING_SPELL,-2,   2, "saving throw (spell)"},
 };
 
 /* These are ABS() values. */
@@ -3635,10 +3627,10 @@ ACMD (do_zcheck)
                           "- Damroll of %d is too high (limit: %d)\r\n",
                           GET_DAMROLL(mob), MAX_DAMROLL_ALLOWED);
 
-        if (GET_HITROLL(mob)>MAX_HITROLL_ALLOWED && (found=1))
+        if (GET_HIT(mob)>MAX_HITROLL_ALLOWED && (found=1))
           len += snprintf(buf + len, sizeof(buf) - len,
                           "- Hitroll of %d is too high (limit: %d)\r\n",
-                          GET_HITROLL(mob), MAX_HITROLL_ALLOWED);
+                          GET_HIT(mob), MAX_HITROLL_ALLOWED);
 
         /* avg. dam including damroll per round of combat */
         avg_dam = (((mob->mob_specials.damsizedice / 2.0) * mob->mob_specials.damnodice)+GET_DAMROLL(mob));
@@ -4315,7 +4307,7 @@ ACMD(do_file)
   /* Defines which files are available to read. */
   struct file_struct {
     char *cmd;          /* The 'name' of the file to view */
-    char level;         /* Minimum level needed to view. */
+    int level;         /* Minimum level needed to view. */
     char *file;         /* The file location, relative to the working dir. */
     int read_backwards; /* Should the file be read backwards by default? */
   } fields[] = {

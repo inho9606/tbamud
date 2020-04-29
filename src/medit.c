@@ -56,11 +56,11 @@ ACMD(do_oasis_medit)
   two_arguments(argument, buf1, buf2);
 
   if (!*buf1) {
-    send_to_char(ch, "Specify a mobile VNUM to edit.\r\n");
+    send_to_char(ch, "편집할 맙 번호를 입력해 주세요.\r\n");
     return;
   } else if (!isdigit(*buf1)) {
     if (str_cmp("save", buf1) != 0) {
-      send_to_char(ch, "Yikes!  Stop that, someone will get hurt!\r\n");
+      send_to_char(ch, "앗!  누군가 다칠지도 모르는 일을 그만 두세요!\r\n");
       return;
     }
 
@@ -78,7 +78,7 @@ ACMD(do_oasis_medit)
     }
 
     if (number == NOWHERE) {
-      send_to_char(ch, "Save which zone?\r\n");
+      send_to_char(ch, "몇 번 존을 저장하시겠습니까?\r\n");
       return;
     }
   }
@@ -88,7 +88,7 @@ ACMD(do_oasis_medit)
     number = atoi(buf1);
 
   if (number < IDXTYPE_MIN || number > IDXTYPE_MAX) {
-    send_to_char(ch, "That mobile VNUM can't exist.\r\n");
+    send_to_char(ch, "존재할 수 없는 맙 번호입니다.\r\n");
     return;
   }
 
@@ -96,7 +96,7 @@ ACMD(do_oasis_medit)
   for (d = descriptor_list; d; d = d->next) {
     if (STATE(d) == CON_MEDIT) {
       if (d->olc && OLC_NUM(d) == number) {
-        send_to_char(ch, "That mobile is currently being edited by %s.\r\n",
+        send_to_char(ch, "그 맙은 현재 %s님이 편집중입니다.\r\n",
           GET_NAME(d->character));
         return;
       }
@@ -117,7 +117,7 @@ ACMD(do_oasis_medit)
   /* Find the zone. */
   OLC_ZNUM(d) = save ? real_zone(number) : real_zone_by_thing(number);
   if (OLC_ZNUM(d) == NOWHERE) {
-    send_to_char(ch, "Sorry, there is no zone for that number!\r\n");
+    send_to_char(ch, "그 번호에 해당하는 존이 없습니다!\r\n");
     free(d->olc);
     d->olc = NULL;
     return;
@@ -134,7 +134,7 @@ ACMD(do_oasis_medit)
 
   /* If save is TRUE, save the mobiles. */
   if (save) {
-    send_to_char(ch, "Saving all mobiles in zone %d.\r\n",
+    send_to_char(ch, "%d 존의 모든 맙 정보를 저장합니다.\r\n",
       zone_table[OLC_ZNUM(d)].number);
     mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE,
       "OLC: %s saves mobile info for zone %d.",
@@ -163,7 +163,7 @@ ACMD(do_oasis_medit)
 
   /* Display the OLC messages to the players in the same room as the
      builder and also log it. */
-  act("$n starts using OLC.", TRUE, d->character, 0, 0, TO_ROOM);
+  act("$n님이 맙 편집을 시작합니다.", TRUE, d->character, 0, 0, TO_ROOM);
   SET_BIT_AR(PLR_FLAGS(ch), PLR_WRITING);
 
   mudlog(CMP, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE,"OLC: %s starts editing zone %d allowed zone %d",
@@ -308,7 +308,7 @@ static void medit_disp_positions(struct descriptor_data *d)
   get_char_colors(d->character);
   clear_screen(d);
   column_list(d->character, 0, position_types, NUM_POSITIONS, TRUE);
-  write_to_output(d, "Enter position number : ");
+  write_to_output(d, "초기 자세를 선택하세요 : ");
 }
 
 /* Display the gender of the mobile. */
@@ -317,7 +317,7 @@ static void medit_disp_sex(struct descriptor_data *d)
   get_char_colors(d->character);
   clear_screen(d);
   column_list(d->character, 0, genders, NUM_GENDERS, TRUE);
-  write_to_output(d, "Enter gender number : ");
+  write_to_output(d, "성별을 선택하세요 : ");
 }
 
 /* Display attack types menu. */
@@ -331,7 +331,7 @@ static void medit_disp_attack_types(struct descriptor_data *d)
   for (i = 0; i < NUM_ATTACK_TYPES; i++) {
     write_to_output(d, "%s%2d%s) %s\r\n", grn, i, nrm, attack_hit_text[i].singular);
   }
-  write_to_output(d, "Enter attack type : ");
+  write_to_output(d, "공격 유형을 선택하세요 : ");
 }
 
 /* Find mob flags that shouldn't be set by builders */
@@ -386,7 +386,7 @@ static void medit_disp_mob_flags(struct descriptor_data *d)
   }
 
   sprintbitarray(MOB_FLAGS(OLC_MOB(d)), action_bits, AF_ARRAY_MAX, flags);
-  write_to_output(d, "\r\nCurrent flags : %s%s%s\r\nEnter mob flags (0 to quit) : ", cyn, flags, nrm);
+  write_to_output(d, "\r\n현재 적용된 속성 : %s%s%s\r\n맙 속성을 선택하세요 (0 to quit) : ", cyn, flags, nrm);
 }
 
 /* Display affection flags menu. */
@@ -396,10 +396,10 @@ static void medit_disp_aff_flags(struct descriptor_data *d)
 
   get_char_colors(d->character);
   clear_screen(d);
-  /* +1/-1 antics needed because AFF_FLAGS doesn't start at 0. */
-  column_list(d->character, 0, affected_bits + 1, NUM_AFF_FLAGS - 1, TRUE);
+  /* +1 since AFF_FLAGS don't start at 0. */
+  column_list(d->character, 0, affected_bits + 1, NUM_AFF_FLAGS, TRUE);
   sprintbitarray(AFF_FLAGS(OLC_MOB(d)), affected_bits, AF_ARRAY_MAX, flags);
-  write_to_output(d, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ",
+  write_to_output(d, "\r\n현재 적용된 속성 : %s%s%s\r\n효과 속성을 선택하세요 (0 to quit) : ",
                           cyn, flags, nrm);
 }
 
@@ -414,11 +414,11 @@ static void medit_disp_menu(struct descriptor_data *d)
   clear_screen(d);
 
   write_to_output(d,
-  "-- Mob Number:  [%s%d%s]\r\n"
-  "%s1%s) Sex: %s%-7.7s%s	         %s2%s) Keywords: %s%s\r\n"
-  "%s3%s) S-Desc: %s%s\r\n"
-  "%s4%s) L-Desc:-\r\n%s%s\r\n"
-  "%s5%s) D-Desc:-\r\n%s%s\r\n",
+  "-- 맙 번호:  [%s%d%s]\r\n"
+  "%s1%s) 성별: %s%-7.7s%s	         %s2%s) 키워드: %s%s\r\n"
+  "%s3%s) 짧은 묘사: %s%s\r\n"
+  "%s4%s) 서 있을 때 묘사:-\r\n%s%s\r\n"
+  "%s5%s) 볼 때 묘사:-\r\n%s%s\r\n",
 
 	  cyn, OLC_NUM(d), nrm,
 	  grn, nrm, yel, genders[(int)GET_SEX(mob)], nrm,
@@ -431,17 +431,17 @@ static void medit_disp_menu(struct descriptor_data *d)
   sprintbitarray(MOB_FLAGS(mob), action_bits, AF_ARRAY_MAX, flags);
   sprintbitarray(AFF_FLAGS(mob), affected_bits, AF_ARRAY_MAX, flag2);
   write_to_output(d,
-	  "%s6%s) Position  : %s%s\r\n"
-	  "%s7%s) Default   : %s%s\r\n"
-	  "%s8%s) Attack    : %s%s\r\n"
-      "%s9%s) Stats Menu...\r\n"
-	  "%sA%s) NPC Flags : %s%s\r\n"
-	  "%sB%s) AFF Flags : %s%s\r\n"
-          "%sS%s) Script    : %s%s\r\n"
-          "%sW%s) Copy mob\r\n"
-	  "%sX%s) Delete mob\r\n"
-	  "%sQ%s) Quit\r\n"
-	  "Enter choice : ",
+	  "%s6%s) 자세  : %s%s\r\n"
+	  "%s7%s) 기본값   : %s%s\r\n"
+	  "%s8%s) 공격    : %s%s\r\n"
+      "%s9%s) 능력치 메뉴...\r\n"
+	  "%sA%s) NPC 속성 : %s%s\r\n"
+	  "%sB%s) 효과 속성 : %s%s\r\n"
+          "%sS%s) 스크립트        : %s%s\r\n"
+          "%sW%s) 맙 복사\r\n"
+	  "%sX%s) 맙 삭제\r\n"
+	  "%sQ%s) 종료\r\n"
+	  "선택하세요 : ",
 
 	  grn, nrm, yel, position_types[(int)GET_POS(mob)],
 	  grn, nrm, yel, position_types[(int)GET_DEFAULT_POS(mob)],
@@ -469,22 +469,22 @@ static void medit_disp_stats_menu(struct descriptor_data *d)
   clear_screen(d);
 
   /* Color codes have to be used here, for count_color_codes to work */
-  sprintf(buf, "(range \ty%d\tn to \ty%d\tn)", GET_HIT(mob) + GET_MOVE(mob), (GET_HIT(mob) * GET_MANA(mob)) + GET_MOVE(mob));
+  sprintf(buf, "(체력 범위\ty%d\tn ~ \ty%d\tn)", GET_HIT(mob) + GET_MOVE(mob), (GET_HIT(mob) * GET_MANA(mob)) + GET_MOVE(mob));
 
   /* Top section - standard stats */
   write_to_output(d,
-  "-- Mob Number:  %s[%s%d%s]%s\r\n"
-  "(%s1%s) Level:       %s[%s%4d%s]%s\r\n"
-  "(%s2%s) %sAuto Set Stats (based on level)%s\r\n\r\n"
-  "Hit Points  (xdy+z):        Bare Hand Damage (xdy+z): \r\n"
-  "(%s3%s) HP NumDice:  %s[%s%5d%s]%s    (%s6%s) BHD NumDice:  %s[%s%5d%s]%s\r\n"
-  "(%s4%s) HP SizeDice: %s[%s%5d%s]%s    (%s7%s) BHD SizeDice: %s[%s%5d%s]%s\r\n"
-  "(%s5%s) HP Addition: %s[%s%5d%s]%s    (%s8%s) DamRoll:      %s[%s%5d%s]%s\r\n"
-  "%-*s(range %s%d%s to %s%d%s)\r\n\r\n"
+  "-- 맙 번호:  %s[%s%d%s]%s\r\n"
+  "(%s1%s) 레벨:       %s[%s%4d%s]%s\r\n"
+  "(%s2%s) %s레벨 기준 능력치 자동 설정)%s\r\n\r\n"
+  "체력  (xdy+z):        맨손 타격치 (xdy+z): \r\n"
+  "(%s3%s) 기준 체력:  %s[%s%5d%s]%s    (%s6%s) 기준 타격치:  %s[%s%5d%s]%s\r\n"
+  "(%s4%s) 보너스 체력: %s[%s%5d%s]%s    (%s7%s) 보너스 타격치: %s[%s%5d%s]%s\r\n"
+  "(%s5%s) 기본 체력: %s[%s%5d%s]%s    (%s8%s) 기본 타격치:      %s[%s%5d%s]%s\r\n"
+  "%-*s(타격치 범위 %s%d%s ~ %s%d%s)\r\n\r\n"
 
-  "(%sA%s) Armor Class: %s[%s%4d%s]%s        (%sD%s) Hitroll:   %s[%s%5d%s]%s\r\n"
-  "(%sB%s) Exp Points:  %s[%s%10d%s]%s  (%sE%s) Alignment: %s[%s%5d%s]%s\r\n"
-  "(%sC%s) Gold:        %s[%s%10d%s]%s\r\n\r\n",
+  "(%sA%s) 방어력: %s[%s%4d%s]%s        (%sD%s) 공격력:   %s[%s%5d%s]%s\r\n"
+  "(%sB%s) 경험치:  %s[%s%10d%s]%s  (%sE%s) 정렬: %s[%s%5d%s]%s\r\n"
+  "(%sC%s) 돈:        %s[%s%10d%s]%s\r\n\r\n",
       cyn, yel, OLC_NUM(d), cyn, nrm,
       cyn, nrm, cyn, yel, GET_LEVEL(mob), cyn, nrm,
       cyn, nrm, cyn, nrm,
@@ -504,12 +504,12 @@ static void medit_disp_stats_menu(struct descriptor_data *d)
   if (CONFIG_MEDIT_ADVANCED) {
     /* Bottom section - non-standard stats, togglable in cedit */
     write_to_output(d,
-    "(%sF%s) Str: %s[%s%2d/%3d%s]%s   Saving Throws\r\n"
-    "(%sG%s) Int: %s[%s%3d%s]%s      (%sL%s) Paralysis     %s[%s%3d%s]%s\r\n"
-    "(%sH%s) Wis: %s[%s%3d%s]%s      (%sM%s) Rods/Staves   %s[%s%3d%s]%s\r\n"
-    "(%sI%s) Dex: %s[%s%3d%s]%s      (%sN%s) Petrification %s[%s%3d%s]%s\r\n"
-    "(%sJ%s) Con: %s[%s%3d%s]%s      (%sO%s) Breath        %s[%s%3d%s]%s\r\n"
-    "(%sK%s) Cha: %s[%s%3d%s]%s      (%sP%s) Spells        %s[%s%3d%s]%s\r\n\r\n",
+    "(%sF%s) 힘: %s[%s%2d/%3d%s]%s   내성굴림\r\n"
+    "(%sG%s) 지능: %s[%s%3d%s]%s      (%sL%s) 마비     %s[%s%3d%s]%s\r\n"
+    "(%sH%s) 지식: %s[%s%3d%s]%s      (%sM%s) 막대기   %s[%s%3d%s]%s\r\n"
+    "(%sI%s) 민첩: %s[%s%3d%s]%s      (%sN%s) 석화 %s[%s%3d%s]%s\r\n"
+    "(%sJ%s) 건강: %s[%s%3d%s]%s      (%sO%s) 호흡곤란        %s[%s%3d%s]%s\r\n"
+    "(%sK%s) 매력: %s[%s%3d%s]%s      (%sP%s) 마법        %s[%s%3d%s]%s\r\n\r\n",
         cyn, nrm, cyn, yel, GET_STR(mob), GET_ADD(mob), cyn, nrm,
         cyn, nrm, cyn, yel, GET_INT(mob), cyn, nrm,   cyn, nrm, cyn, yel, GET_SAVE(mob, SAVING_PARA), cyn, nrm,
         cyn, nrm, cyn, yel, GET_WIS(mob), cyn, nrm,   cyn, nrm, cyn, yel, GET_SAVE(mob, SAVING_ROD), cyn, nrm,
@@ -520,7 +520,7 @@ static void medit_disp_stats_menu(struct descriptor_data *d)
   }
 
   /* Quit to previous menu option */
-  write_to_output(d, "(%sQ%s) Quit to main menu\r\nEnter choice : ", cyn, nrm);
+  write_to_output(d, "(%sQ%s) 메인 메뉴\r\n선택하세요 : ", cyn, nrm);
 
   OLC_MODE(d) = MEDIT_STATS_MENU;
 }
@@ -533,7 +533,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
   if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE) {
     i = atoi(arg);
     if (!*arg || (!isdigit(arg[0]) && ((*arg == '-') && !isdigit(arg[1])))) {
-      write_to_output(d, "Try again : ");
+      write_to_output(d, "다시 시도 : ");
       return;
     }
   } else {	/* String response. */
@@ -552,9 +552,9 @@ void medit_parse(struct descriptor_data *d, char *arg)
       mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), TRUE, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
       if (CONFIG_OLC_SAVE) {
         medit_save_to_disk(zone_table[real_zone_by_thing(OLC_NUM(d))].number);
-        write_to_output(d, "Mobile saved to disk.\r\n");
+        write_to_output(d, "맙 데이터를 디스크에 저장했습니다.\r\n");
       } else
-        write_to_output(d, "Mobile saved to memory.\r\n");
+        write_to_output(d, "맙 데이터를 메모리에 저장했습니다.\r\n");
       cleanup_olc(d, CLEANUP_ALL);
       return;
     case 'n':
@@ -566,8 +566,8 @@ void medit_parse(struct descriptor_data *d, char *arg)
       cleanup_olc(d, CLEANUP_ALL);
       return;
     default:
-      write_to_output(d, "Invalid choice!\r\n");
-      write_to_output(d, "Do you wish to save your changes? : ");
+      write_to_output(d, "잘못 입력하셨습니다!\r\n");
+      write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
       return;
     }
 
@@ -577,8 +577,8 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) {	/* Anything been changed? */
-	      write_to_output(d, "Do you wish to save your changes? : ");
-	      OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
+	write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
+	OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
       } else
 	cleanup_olc(d, CLEANUP_ALL);
       return;
@@ -601,10 +601,10 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case '5':
       OLC_MODE(d) = MEDIT_D_DESC;
       send_editor_help(d);
-      write_to_output(d, "Enter mob description:\r\n\r\n");
+      write_to_output(d, "맙 묘사를 입력하세요:\r\n\r\n");
       if (OLC_MOB(d)->player.description) {
-	      write_to_output(d, "%s", OLC_MOB(d)->player.description);
-	      oldtext = strdup(OLC_MOB(d)->player.description);
+	write_to_output(d, "%s", OLC_MOB(d)->player.description);
+	oldtext = strdup(OLC_MOB(d)->player.description);
       }
       string_write(d, &OLC_MOB(d)->player.description, MAX_MOB_DESC, 0, oldtext);
       OLC_VAL(d) = 1;
@@ -637,12 +637,12 @@ void medit_parse(struct descriptor_data *d, char *arg)
       return;
     case 'w':
     case 'W':
-      write_to_output(d, "Copy what mob? ");
+      write_to_output(d, "어떤 맙을 복사하시겠습니까?");
       OLC_MODE(d) = MEDIT_COPY;
       return;
     case 'x':
     case 'X':
-      write_to_output(d, "Are you sure you want to delete this mobile? ");
+      write_to_output(d, "정말로 이 맙을 삭제하시겠습니까?");
       OLC_MODE(d) = MEDIT_DELETE;
       return;
     case 's':
@@ -657,11 +657,11 @@ void medit_parse(struct descriptor_data *d, char *arg)
     if (i == 0)
       break;
     else if (i == 1)
-      write_to_output(d, "\r\nEnter new value : ");
+      write_to_output(d, "\r\n값을 입력하세요 : ");
     else if (i == -1)
-      write_to_output(d, "\r\nEnter new text :\r\n] ");
+      write_to_output(d, "\r\n내용을 입력하세요 :\r\n] ");
     else
-      write_to_output(d, "Oops...\r\n");
+      write_to_output(d, "이런...\r\n");
     return;
 
   case MEDIT_STATS_MENU:
@@ -732,7 +732,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'f':
     case 'F':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_STR;
@@ -741,7 +741,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'g':
     case 'G':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_INT;
@@ -750,7 +750,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'h':
     case 'H':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_WIS;
@@ -759,7 +759,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'i':
     case 'I':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_DEX;
@@ -768,7 +768,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'j':
     case 'J':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_CON;
@@ -777,7 +777,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'k':
     case 'K':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_CHA;
@@ -786,7 +786,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'l':
     case 'L':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_PARA;
@@ -795,7 +795,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'm':
     case 'M':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_ROD;
@@ -804,7 +804,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'n':
     case 'N':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_PETRI;
@@ -813,7 +813,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'o':
     case 'O':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_BREATH;
@@ -822,7 +822,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'p':
     case 'P':
       if (!CONFIG_MEDIT_ADVANCED) {
-        write_to_output(d, "Invalid Choice!\r\nEnter Choice : ");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n선택하세요 : ");
         return;
 	  }
       OLC_MODE(d) = MEDIT_SPELL;
@@ -835,11 +835,11 @@ void medit_parse(struct descriptor_data *d, char *arg)
     if (i == 0)
       break;
     else if (i == 1)
-      write_to_output(d, "\r\nEnter new value : ");
+      write_to_output(d, "\r\n값을 입력하세요 : ");
     else if (i == -1)
-      write_to_output(d, "\r\nEnter new text :\r\n] ");
+      write_to_output(d, "\r\n내용을 입력하세요 :\r\n] ");
     else
-      write_to_output(d, "Oops...\r\n");
+      write_to_output(d, "이런...\r\n");
     return;
 
   case OLC_SCRIPT_EDIT:
@@ -879,15 +879,15 @@ void medit_parse(struct descriptor_data *d, char *arg)
      */
     cleanup_olc(d, CLEANUP_ALL);
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: medit_parse(): Reached D_DESC case!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     break;
 
   case MEDIT_NPC_FLAGS:
     if ((i = atoi(arg)) <= 0)
       break;
     else if ( (j = medit_get_mob_flag_by_number(i)) == -1) {
-       write_to_output(d, "Invalid choice!\r\n");
-       write_to_output(d, "Enter mob flags (0 to quit) :");
+       write_to_output(d, "잘못 입력하셨습니다!\r\n");
+       write_to_output(d, "맙 속성을 입력하세요 (0 ~ quit) :");
        return;
     } else if (j <= NUM_MOB_FLAGS) {
       TOGGLE_BIT_AR(MOB_FLAGS(OLC_MOB(d)), (j));
@@ -898,7 +898,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
   case MEDIT_AFF_FLAGS:
     if ((i = atoi(arg)) <= 0)
       break;
-    else if (i < NUM_AFF_FLAGS)
+    else if (i <= NUM_AFF_FLAGS)
       TOGGLE_BIT_AR(AFF_FLAGS(OLC_MOB(d)), i);
 
     /* Remove unwanted bits right away. */
@@ -1068,15 +1068,15 @@ void medit_parse(struct descriptor_data *d, char *arg)
     if ((i = real_mobile(atoi(arg))) != NOWHERE) {
       medit_setup_existing(d, i);
     } else
-      write_to_output(d, "That mob does not exist.\r\n");
+      write_to_output(d, "그런 맙은 없습니다.\r\n");
     break;
 
   case MEDIT_DELETE:
     if (*arg == 'y' || *arg == 'Y') {
       if (delete_mobile(GET_MOB_RNUM(OLC_MOB(d))) != NOBODY)
-        write_to_output(d, "Mobile deleted.\r\n");
+        write_to_output(d, "맙 삭제 완료\r\n");
       else
-        write_to_output(d, "Couldn't delete the mobile!\r\n");
+        write_to_output(d, "삭제할 수 없는 맙입니다!\r\n");
 
       cleanup_olc(d, CLEANUP_ALL);
       return;
@@ -1085,14 +1085,14 @@ void medit_parse(struct descriptor_data *d, char *arg)
       OLC_MODE(d) = MEDIT_MAIN_MENU;
       return;
     } else
-      write_to_output(d, "Please answer 'Y' or 'N': ");
+      write_to_output(d, "'Y' 또는 'N'을 입력해 주세요: ");
     break;
 
   default:
     /* We should never get here. */
     cleanup_olc(d, CLEANUP_ALL);
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: medit_parse(): Reached default case!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의해 주세요\r\n");
     break;
   }
 

@@ -64,6 +64,26 @@ cpp_extern const struct command_info cmd_info[] = {
   { "RESERVED", "", 0, 0, 0, 0 }, /* this must be first -- for specprocs */
 
   /* directions must come before other commands but after RESERVED */
+  { "북"    , "ㅂ"       , POS_STANDING, do_move     , 0, SCMD_NORTH },
+  { "동"     , "ㄷ"       , POS_STANDING, do_move     , 0, SCMD_EAST },
+  { "남"    , "ㄴ"       , POS_STANDING, do_move     , 0, SCMD_SOUTH },
+  { "서"     , "ㅅ"       , POS_STANDING, do_move     , 0, SCMD_WEST },
+  { "위"       , "ㅇ"       , POS_STANDING, do_move     , 0, SCMD_UP },
+  { "밑"     , "ㅁ"       , POS_STANDING, do_move     , 0, SCMD_DOWN },
+  { "ㅂ"    , "ㅂ"       , POS_STANDING, do_move     , 0, SCMD_NORTH },
+  { "ㄷ"     , "ㄷ"       , POS_STANDING, do_move     , 0, SCMD_EAST },
+  { "ㄴ"    , "ㄴ"       , POS_STANDING, do_move     , 0, SCMD_SOUTH },
+  { "ㅅ"     , "ㅅ"       , POS_STANDING, do_move     , 0, SCMD_WEST },
+  { "ㅇ"       , "ㅇ"       , POS_STANDING, do_move     , 0, SCMD_UP },
+  { "ㅁ"     , "ㅁ"       , POS_STANDING, do_move     , 0, SCMD_DOWN },
+  { "북서", "ㅄ"  , POS_STANDING, do_move     , 0, SCMD_NW },
+  { "ㅄ"       , "ㅄ"      , POS_STANDING, do_move     , 0, SCMD_NW },
+  { "북동", "ㅂㄷ"  , POS_STANDING, do_move     , 0, SCMD_NE },
+  { "ㅂㄷ"       , "ㅂㄷ"      , POS_STANDING, do_move     , 0,  SCMD_NE },
+  { "남동", "ㄴㄷ"  , POS_STANDING, do_move     , 0, SCMD_SE },
+  { "ㄴㄷ"       , "ㄴㄷ"      , POS_STANDING, do_move     , 0, SCMD_SE },
+  { "남서", "ㄴㅅ"  , POS_STANDING, do_move     , 0, SCMD_SW },
+  { "ㄴㅅ"       , "ㄴㅅ"      , POS_STANDING, do_move     , 0, SCMD_SW },
   { "north"    , "n"       , POS_STANDING, do_move     , 0, SCMD_NORTH },
   { "east"     , "e"       , POS_STANDING, do_move     , 0, SCMD_EAST },
   { "south"    , "s"       , POS_STANDING, do_move     , 0, SCMD_SOUTH },
@@ -80,220 +100,220 @@ cpp_extern const struct command_info cmd_info[] = {
   { "sw"       , "sw"      , POS_STANDING, do_move     , 0, SCMD_SW },
   
   /* now, the main list */
-  { "at"       , "at"      , POS_DEAD    , do_at       , LVL_IMMORT, 0 },
-  { "advance"  , "adv"     , POS_DEAD    , do_advance  , LVL_GRGOD, 0 },
+  { "원격"       , "at"      , POS_DEAD    , do_at       , LVL_IMMORT, 0 },
+  { "레벨구간"   , "lev"     , POS_DEAD    , do_levels   , 0, 0 },
+  { "승급"  , "adv"     , POS_DEAD    , do_advance  , LVL_GRGOD, 0 },
   { "aedit"    , "aed"     , POS_DEAD    , do_oasis_aedit, LVL_GOD, 0 },
-  { "alias"    , "ali"     , POS_DEAD    , do_alias    , 0, 0 },
-  { "afk"      , "afk"     , POS_DEAD    , do_gen_tog  , 0, SCMD_AFK },
-  { "areas"    , "are"     , POS_DEAD    , do_areas    , 0, 0 },
-  { "assist"   , "as"      , POS_FIGHTING, do_assist   , 1, 0 },
-  { "ask"      , "ask"     , POS_RESTING , do_spec_comm, 0, SCMD_ASK },
-  { "astat"    , "ast"     , POS_DEAD    , do_astat    , 0, 0 },
+  { "줄임말"    , "ali"     , POS_DEAD    , do_alias    , 0, 0 },
+  { "접속유지"      , "afk"     , POS_DEAD    , do_gen_tog  , 0, SCMD_AFK },
+  { "지역"    , "are"     , POS_DEAD    , do_areas    , 0, 0 },
+  { "지원"   , "as"      , POS_FIGHTING, do_assist   , 1, 0 },
+  { "질문"      , "ask"     , POS_RESTING , do_spec_comm, 0, SCMD_ASK },
+  { "감정" , "id"      , POS_STANDING, do_not_here , 1, 0 }, // identify
+  { "감정상세"    , "ast"     , POS_DEAD    , do_astat    , 0, 0 },
   { "attach"   , "attach"  , POS_DEAD    , do_attach   , LVL_BUILDER, 0 },
-  { "auction"  , "auc"     , POS_SLEEPING, do_gen_comm , 0, SCMD_AUCTION },
-  { "autoexits" , "autoex"  , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOEXIT },
-  { "autoassist","autoass" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOASSIST },
-  { "autodoor" , "autodoor", POS_DEAD    , do_gen_tog , 0, SCMD_AUTODOOR },
-  { "autogold" , "autogold", POS_DEAD    , do_gen_tog , 0, SCMD_AUTOGOLD },
-  { "autokey"  , "autokey" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOKEY },
-  { "autoloot" , "autoloot", POS_DEAD    , do_gen_tog , 0, SCMD_AUTOLOOT },
-  { "automap"  , "automap" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOMAP },
-  { "autosac"  , "autosac" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOSAC },
-  { "autosplit", "autospl" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOSPLIT },
+  { "경매"  , "auc"     , POS_SLEEPING, do_gen_comm , 0, SCMD_AUCTION },
+  { "자동출구" , "autoex"  , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOEXIT },
+  { "자동돕기","autoass" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOASSIST },
+  { "자동문감지" , "autodoor", POS_DEAD    , do_gen_tog , 0, SCMD_AUTODOOR },
+  { "자동돈줍기" , "autogold", POS_DEAD    , do_gen_tog , 0, SCMD_AUTOGOLD },
+  { "자동문따기"  , "autokey" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOKEY },
+  { "자동줍기" , "autoloot", POS_DEAD    , do_gen_tog , 0, SCMD_AUTOLOOT },
+  { "자동지도"  , "automap" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOMAP },
+  { "자동제물"  , "autosac" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOSAC },
+  { "자동분배", "autospl" , POS_DEAD    , do_gen_tog , 0, SCMD_AUTOSPLIT },
 
   { "backstab" , "ba"      , POS_STANDING, do_backstab , 1, 0 },
-  { "ban"      , "ban"     , POS_DEAD    , do_ban      , LVL_GRGOD, 0 },
+  { "접속금지"      , "ban"     , POS_DEAD    , do_ban      , LVL_GRGOD, 0 },
   { "bandage"  , "band"    , POS_RESTING , do_bandage  , 1, 0 },
-  { "balance"  , "bal"     , POS_STANDING, do_not_here , 1, 0 },
+  { "벨런스"  , "bal"     , POS_STANDING, do_not_here , 1, 0 },
   { "bash"     , "bas"     , POS_FIGHTING, do_bash     , 1, 0 },
-  { "brief"    , "br"      , POS_DEAD    , do_gen_tog  , 0, SCMD_BRIEF },
-  { "buildwalk", "buildwalk", POS_STANDING, do_gen_tog , LVL_BUILDER, SCMD_BUILDWALK },
-  { "buy"      , "bu"      , POS_STANDING, do_not_here , 0, 0 },
-  { "bug"      , "bug"     , POS_DEAD    , do_ibt      , 0, SCMD_BUG },
+  { "간략"    , "br"      , POS_DEAD    , do_gen_tog  , 0, SCMD_BRIEF },
+  { "존제작", "buildwalk", POS_STANDING, do_gen_tog , LVL_BUILDER, SCMD_BUILDWALK },
+  { "사"      , "bu"      , POS_STANDING, do_not_here , 0, 0 },
+  { "버그"      , "bug"     , POS_DEAD    , do_ibt      , 0, SCMD_BUG },
 
-  { "cast"     , "c"       , POS_SITTING , do_cast     , 1, 0 },
+  { "캐스팅"     , "c"       , POS_SITTING , do_cast     , 1, 0 }, // cast
   { "cedit"    , "cedit"   , POS_DEAD    , do_oasis_cedit, LVL_IMPL, 0 },
   { "changelog", "cha"     , POS_DEAD    , do_changelog, LVL_IMPL, 0 },
-  { "check"    , "ch"      , POS_STANDING, do_not_here , 1, 0 },
-  { "checkload", "checkl"  , POS_DEAD    , do_checkloadstatus, LVL_GOD, 0 },
-  { "close"    , "cl"      , POS_SITTING , do_gen_door , 0, SCMD_CLOSE },
-  { "clear"    , "cle"     , POS_DEAD    , do_gen_ps   , 0, SCMD_CLEAR },
-  { "cls"      , "cls"     , POS_DEAD    , do_gen_ps   , 0, SCMD_CLEAR },
-  { "consider" , "con"     , POS_RESTING , do_consider , 0, 0 },
-  { "commands" , "com"     , POS_DEAD    , do_commands , 0, SCMD_COMMANDS },
-  { "compact"  , "comp"    , POS_DEAD    , do_gen_tog  , 0, SCMD_COMPACT },
-  { "copyover" , "copyover", POS_DEAD    , do_copyover , LVL_GRGOD, 0 },
+  { "편지확인"    , "ch"      , POS_STANDING, do_not_here , 1, 0 }, // check
+  { "편지받아"  , "rece"    , POS_STANDING, do_not_here , 1, 0 }, // receive
+  { "편지쓰기"     , "mail"    , POS_STANDING, do_not_here , 1, 0 }, // mail
+  { "확인", "checkl"  , POS_DEAD    , do_checkloadstatus, LVL_GOD, 0 },
+  { "닫아"    , "cl"      , POS_SITTING , do_gen_door , 0, SCMD_CLOSE },
+  { "화면정리"    , "cle"     , POS_DEAD    , do_gen_ps   , 0, SCMD_CLEAR },
+  { "화면초기화"      , "cls"     , POS_DEAD    , do_gen_ps   , 0, SCMD_CLEAR },
+  { "비교" , "con"     , POS_RESTING , do_consider , 0, 0 },
+  { "모든명령" , "com"     , POS_DEAD    , do_commands , 0, SCMD_COMMANDS },
+  { "공격"      , "hit"     , POS_FIGHTING, do_hit      , 0, SCMD_HIT },
+  { "운영공지"    , "imo"     , POS_DEAD    , do_gen_ps   , LVL_IMMORT, SCMD_IMOTD }, // imotd
+  { "공백제거"  , "comp"    , POS_DEAD    , do_gen_tog  , 0, SCMD_COMPACT },
+  { "업데이트" , "copyover", POS_DEAD    , do_copyover , LVL_GRGOD, 0 },
   { "credits"  , "cred"    , POS_DEAD    , do_gen_ps   , 0, SCMD_CREDITS },
 
-  { "date"     , "da"      , POS_DEAD    , do_date     , LVL_IMMORT, SCMD_DATE },
-  { "dc"       , "dc"      , POS_DEAD    , do_dc       , LVL_GOD, 0 },
-  { "deposit"  , "depo"    , POS_STANDING, do_not_here , 1, 0 },
+  { "시간"     , "da"      , POS_DEAD    , do_date     , LVL_IMMORT, SCMD_DATE },
+  { "접속끊기"       , "dc"      , POS_DEAD    , do_dc       , LVL_GOD, 0 },
+  { "입어"     , "wea"     , POS_RESTING , do_wear     , 0, 0 },
+  { "입금"  , "depo"    , POS_STANDING, do_not_here , 1, 0 },
   { "detach"   , "detach"  , POS_DEAD    , do_detach   , LVL_BUILDER, 0 },
-  { "diagnose" , "diag"    , POS_RESTING , do_diagnose , 0, 0 },
-  { "dig"      , "dig"     , POS_DEAD    , do_dig      , LVL_BUILDER, 0 },
-  { "display"  , "disp"    , POS_DEAD    , do_display  , 0, 0 },
-  { "donate"   , "don"     , POS_RESTING , do_drop     , 0, SCMD_DONATE },
-  { "drink"    , "dri"     , POS_RESTING , do_drink    , 0, SCMD_DRINK },
-  { "drop"     , "dro"     , POS_RESTING , do_drop     , 0, SCMD_DROP },
+  { "진단" , "diag"    , POS_RESTING , do_diagnose , 0, 0 },
+  { "방연결"      , "dig"     , POS_DEAD    , do_dig      , LVL_BUILDER, 0 },
+  { "표시"  , "disp"    , POS_DEAD    , do_display  , 0, 0 }, // display
+  { "기부"   , "don"     , POS_RESTING , do_drop     , 0, SCMD_DONATE },
+  { "마셔"    , "dri"     , POS_RESTING , do_drink    , 0, SCMD_DRINK },
+  { "버려"     , "dro"     , POS_RESTING , do_drop     , 0, SCMD_DROP },
 
-  { "eat"      , "ea"      , POS_RESTING , do_eat      , 0, SCMD_EAT },
-  { "echo"     , "ec"      , POS_SLEEPING, do_echo     , LVL_IMMORT, SCMD_ECHO },
-  { "emote"    , "em"      , POS_RESTING , do_echo     , 0, SCMD_EMOTE },
+  { "먹어"      , "ea"      , POS_RESTING , do_eat      , 0, SCMD_EAT },
+  { "방공지"     , "ec"      , POS_SLEEPING, do_echo     , LVL_IMMORT, SCMD_ECHO }, // echo
+  { "표현"    , "em"      , POS_RESTING , do_echo     , 0, SCMD_EMOTE },
   { ":"        , ":"       , POS_RESTING, do_echo      , 1, SCMD_EMOTE },
-  { "enter"    , "ent"     , POS_STANDING, do_enter    , 0, 0 },
-  { "equipment", "eq"      , POS_SLEEPING, do_equipment, 0, 0 },
-  { "exits"    , "ex"      , POS_RESTING , do_exits    , 0, 0 },
-  { "examine"  , "exa"     , POS_SITTING , do_examine  , 0, 0 },
+  { "들어가"    , "ent"     , POS_STANDING, do_enter    , 0, 0 },
+  { "장비", "eq"      , POS_SLEEPING, do_equipment, 0, 0 },
+  { "출구"    , "ex"      , POS_RESTING , do_exits    , 0, 0 },
+  { "조사"  , "exa"     , POS_SITTING , do_examine  , 0, 0 },
   { "export"   , "export"  , POS_DEAD    , do_export_zone, LVL_IMPL, 0 },
 
-  { "force"    , "force"   , POS_SLEEPING, do_force    , LVL_GOD, 0 },
-  { "fill"     , "fil"     , POS_STANDING, do_pour     , 0, SCMD_FILL },
-  { "file"     , "file"    , POS_SLEEPING, do_file     , LVL_GOD, 0 },
-  { "flee"     , "fl"      , POS_FIGHTING, do_flee     , 1, 0 },
-  { "follow"   , "fol"     , POS_RESTING , do_follow   , 0, 0 },
-  { "freeze"   , "freeze"  , POS_DEAD    , do_wizutil  , LVL_GRGOD, SCMD_FREEZE },
+  { "강제명령"    , "force"   , POS_SLEEPING, do_force    , LVL_GOD, 0 }, // force
+  { "채워"     , "fil"     , POS_STANDING, do_pour     , 0, SCMD_FILL },
+  { "로그조회"     , "file"    , POS_SLEEPING, do_file     , LVL_GOD, 0 },
+  { "도망"     , "fl"      , POS_FIGHTING, do_flee     , 1, 0 },
+  { "따라"   , "fol"     , POS_RESTING , do_follow   , 0, 0 },
+  { "냉동"   , "freeze"  , POS_DEAD    , do_wizutil  , LVL_GRGOD, SCMD_FREEZE },
 
-  { "get"      , "g"       , POS_RESTING , do_get      , 0, 0 },
-  { "gecho"    , "gecho"   , POS_DEAD    , do_gecho    , LVL_GOD, 0 },
-  { "gemote"   , "gem"     , POS_SLEEPING, do_gen_comm , 0, SCMD_GEMOTE },
-  { "give"     , "giv"     , POS_RESTING , do_give     , 0, 0 },
-  { "goto"     , "go"      , POS_SLEEPING, do_goto     , LVL_IMMORT, 0 },
-  { "gold"     , "gol"     , POS_RESTING , do_gold     , 0, 0 },
-  { "gossip"   , "gos"     , POS_SLEEPING, do_gen_comm , 0, SCMD_GOSSIP },
-  { "group"    , "gr"      , POS_RESTING , do_group    , 1, 0 },
-  { "grab"     , "grab"    , POS_RESTING , do_grab     , 0, 0 },
-  { "grats"    , "grat"    , POS_SLEEPING, do_gen_comm , 0, SCMD_GRATZ },
-  { "gsay"     , "gsay"    , POS_SLEEPING, do_gsay     , 0, 0 },
-  { "gtell"    , "gt"      , POS_SLEEPING, do_gsay     , 0, 0 },
+  { "가져"      , "g"       , POS_RESTING , do_get      , 0, 0 },
+  { "게임공지"    , "gecho"   , POS_DEAD    , do_gecho    , LVL_GOD, 0 }, // gecho
+  { "푸념"   , "gem"     , POS_SLEEPING, do_gen_comm , 0, SCMD_GEMOTE },
+  { "줘"     , "giv"     , POS_RESTING , do_give     , 0, 0 },
+  { "순간이동"     , "go"      , POS_SLEEPING, do_goto     , LVL_IMMORT, 0 },
+  { "돈"     , "gol"     , POS_RESTING , do_gold     , 0, 0 },
+  { "잡담"   , "gos"     , POS_SLEEPING, do_gen_comm , 0, SCMD_GOSSIP },
+  { "그룹"    , "gr"      , POS_RESTING , do_group    , 1, 0 },
+  { "쥐어"     , "grab"    , POS_RESTING , do_grab     , 0, 0 },
+  { "축하"    , "grat"    , POS_SLEEPING, do_gen_comm , 0, SCMD_GRATZ },
+  { "그룹말"     , "gsay"    , POS_SLEEPING, do_gsay     , 0, 0 },
+  { "["    , "gt"      , POS_SLEEPING, do_gsay     , 0, 0 },
 
   { "help"     , "h"       , POS_DEAD    , do_help     , 0, 0 },
-  { "happyhour", "ha"      , POS_DEAD    , do_happyhour, 0, 0 },
+  { "행복시간", "ha"      , POS_DEAD    , do_happyhour, 0, 0 },
   { "hedit"    , "hedit"   , POS_DEAD    , do_oasis_hedit, LVL_GOD , 0 },
   { "helpcheck", "helpch"  , POS_DEAD    , do_helpcheck, LVL_GOD, 0 },
-  { "hide"     , "hi"      , POS_RESTING , do_hide     , 1, 0 },
+  { "숨어"     , "hi"      , POS_RESTING , do_hide     , 1, 0 },
   { "hindex"   , "hind"    , POS_DEAD    , do_hindex   , 0, 0 },
-  { "handbook" , "handb"   , POS_DEAD    , do_gen_ps   , LVL_IMMORT, SCMD_HANDBOOK },
-  { "hcontrol" , "hcontrol", POS_DEAD    , do_hcontrol , LVL_GRGOD, 0 },
-  { "history"  , "history" , POS_DEAD    , do_history, 0, 0},
-  { "hit"      , "hit"     , POS_FIGHTING, do_hit      , 0, SCMD_HIT },
+  { "핸드북" , "handb"   , POS_DEAD    , do_gen_ps   , LVL_IMMORT, SCMD_HANDBOOK },
+  { "집설정" , "hcontrol", POS_DEAD    , do_hcontrol , LVL_GRGOD, 0 },
+  { "기록보기"  , "history" , POS_DEAD    , do_history, 0, 0},
   { "hold"     , "hold"    , POS_RESTING , do_grab     , 1, 0 },
   { "holler"   , "holler"  , POS_RESTING , do_gen_comm , 1, SCMD_HOLLER },
-  { "holylight", "holy"    , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_HOLYLIGHT },
-  { "house"    , "house"   , POS_RESTING , do_house    , 0, 0 },
+  { "암흑보기", "holy"    , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_HOLYLIGHT },
+  { "초대"    , "house"   , POS_RESTING , do_house    , 0, 0 },
 
-  { "inventory", "i"       , POS_DEAD    , do_inventory, 0, 0 },
-  { "identify" , "id"      , POS_STANDING, do_not_here , 1, 0 },
-  { "idea"     , "ide"      , POS_DEAD    , do_ibt      , 0, SCMD_IDEA },
-  { "imotd"    , "imo"     , POS_DEAD    , do_gen_ps   , LVL_IMMORT, SCMD_IMOTD },
+  { "소지품", "i"       , POS_DEAD    , do_inventory, 0, 0 },
+  { "건의"     , "ide"      , POS_DEAD    , do_ibt      , 0, SCMD_IDEA }, // idea
+  { "정보"     , "info"    , POS_SLEEPING, do_gen_ps   , 0, SCMD_INFO },
+  { "소각"     , "j"       , POS_RESTING , do_drop     , 0, SCMD_JUNK }, // junk
+  { "투명화"    , "invi"    , POS_DEAD    , do_invis    , LVL_IMMORT, 0 }, // invi
+  { "차기"     , "ki"      , POS_FIGHTING, do_kick     , 1, 0 }, // kick
+  { "봐"     , "l"       , POS_RESTING , do_look     , 0, SCMD_LOOK },
+  { "마지막접속"     , "last"    , POS_DEAD    , do_last     , LVL_GOD, 0 }, // last
+  { "나가"    , "lea"     , POS_STANDING, do_leave    , 0, 0 }, // leave
+  { "품목"     , "lis"     , POS_STANDING, do_not_here , 0, 0 }, // list
+  { "존출구"    , "lin"     , POS_STANDING, do_links    , LVL_GOD, 0 }, // links
+  { "잠가"     , "loc"     , POS_SITTING , do_gen_door , 0, SCMD_LOCK }, // lock
+  { "창조"     , "load"     , POS_DEAD    , do_load     , LVL_BUILDER, 0 }, // load
+
   { "immlist"  , "imm"     , POS_DEAD    , do_gen_ps   , 0, SCMD_IMMLIST },
-  { "info"     , "info"    , POS_SLEEPING, do_gen_ps   , 0, SCMD_INFO },
-  { "invis"    , "invi"    , POS_DEAD    , do_invis    , LVL_IMMORT, 0 },
 
-  { "junk"     , "j"       , POS_RESTING , do_drop     , 0, SCMD_JUNK },
+  { "쳐"     , "k"       , POS_FIGHTING, do_kill     , 0, 0 }, // kill
 
-  { "kill"     , "k"       , POS_FIGHTING, do_kill     , 0, 0 },
-  { "kick"     , "ki"      , POS_FIGHTING, do_kick     , 1, 0 },
 
-  { "look"     , "l"       , POS_RESTING , do_look     , 0, SCMD_LOOK },
-  { "last"     , "last"    , POS_DEAD    , do_last     , LVL_GOD, 0 },
-  { "leave"    , "lea"     , POS_STANDING, do_leave    , 0, 0 },
-  { "levels"   , "lev"     , POS_DEAD    , do_levels   , 0, 0 },
-  { "list"     , "lis"     , POS_STANDING, do_not_here , 0, 0 },
-  { "links"    , "lin"     , POS_STANDING, do_links    , LVL_GOD, 0 },
-  { "lock"     , "loc"     , POS_SITTING , do_gen_door , 0, SCMD_LOCK },
-  { "load"     , "load"     , POS_DEAD    , do_load     , LVL_BUILDER, 0 },
+  { "공지"     , "motd"    , POS_DEAD    , do_gen_ps   , 0, SCMD_MOTD }, // motd
+  { "지도"      , "map"     , POS_STANDING, do_map      , 1, 0 },
+  { "맙편집"    , "med"     , POS_DEAD    , do_oasis_medit, LVL_BUILDER, 0 },
+  { "맙목록"    , "mlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_MLIST },
+  { "맙복사"    , "mcopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_MEDIT },
+  { "메세지편집"  , "msgedit" , POS_DEAD    , do_msgedit,   LVL_GOD, 0 },
+  { "실어증"     , "mute"    , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_MUTE }, // mute
 
-  { "motd"     , "motd"    , POS_DEAD    , do_gen_ps   , 0, SCMD_MOTD },
-  { "mail"     , "mail"    , POS_STANDING, do_not_here , 1, 0 },
-  { "map"      , "map"     , POS_STANDING, do_map      , 1, 0 },
-  { "medit"    , "med"     , POS_DEAD    , do_oasis_medit, LVL_BUILDER, 0 },
-  { "mlist"    , "mlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_MLIST },
-  { "mcopy"    , "mcopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_MEDIT },
-  { "msgedit"  , "msgedit" , POS_DEAD    , do_msgedit,   LVL_GOD, 0 },
-  { "mute"     , "mute"    , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_MUTE },
-
-  { "news"     , "news"    , POS_SLEEPING, do_gen_ps   , 0, SCMD_NEWS },
-  { "noauction", "noauction",POS_DEAD    , do_gen_tog  , 0, SCMD_NOAUCTION },
-  { "nogossip" , "nogossip", POS_DEAD    , do_gen_tog  , 0, SCMD_NOGOSSIP },
-  { "nograts"  , "nograts" , POS_DEAD    , do_gen_tog  , 0, SCMD_NOGRATZ },
-  { "nohassle" , "nohassle", POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOHASSLE },
+  { "뉴스"     , "news"    , POS_SLEEPING, do_gen_ps   , 0, SCMD_NEWS }, // news
+  { "경매거부", "noauction",POS_DEAD    , do_gen_tog  , 0, SCMD_NOAUCTION },
+  { "잡담거부" , "nogossip", POS_DEAD    , do_gen_tog  , 0, SCMD_NOGOSSIP },
+  { "축하거부"  , "nograts" , POS_DEAD    , do_gen_tog  , 0, SCMD_NOGRATZ }, // nograts
+  { "유령화" , "nohassle", POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOHASSLE }, // nohassle
   { "norepeat" , "norepeat", POS_DEAD    , do_gen_tog  , 0, SCMD_NOREPEAT },
-  { "noshout"  , "noshout" , POS_SLEEPING, do_gen_tog  , 1, SCMD_NOSHOUT },
-  { "nosummon" , "nosummon", POS_DEAD    , do_gen_tog  , 1, SCMD_NOSUMMON },
-  { "notell"   , "notell"  , POS_DEAD    , do_gen_tog  , 1, SCMD_NOTELL },
-  { "notitle"  , "notitle" , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_NOTITLE },
-  { "nowiz"    , "nowiz"   , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOWIZ },
+  { "외침거부"  , "noshout" , POS_SLEEPING, do_gen_tog  , 1, SCMD_NOSHOUT },
+  { "소환거부" , "nosummon", POS_DEAD    , do_gen_tog  , 1, SCMD_NOSUMMON },
+  { "귓말거부"   , "notell"  , POS_DEAD    , do_gen_tog  , 1, SCMD_NOTELL },
+  { "칭호고정"  , "notitle" , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_NOTITLE }, // notitle
+  { "신채널거부"    , "nowiz"   , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOWIZ },
 
-  { "open"     , "o"       , POS_SITTING , do_gen_door , 0, SCMD_OPEN },
-  { "order"    , "ord"     , POS_RESTING , do_order    , 1, 0 },
+  { "열어"     , "o"       , POS_SITTING , do_gen_door , 0, SCMD_OPEN },
+  { "명령"    , "ord"     , POS_RESTING , do_order    , 1, 0 }, // order
   { "offer"    , "off"     , POS_STANDING, do_not_here , 1, 0 },
-  { "olc"      , "olc"     , POS_DEAD    , do_show_save_list, LVL_BUILDER, 0 },
-  { "olist"    , "olist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_OLIST },
-  { "oedit"    , "oedit"   , POS_DEAD    , do_oasis_oedit, LVL_BUILDER, 0 },
+  { "편집상태"      , "olc"     , POS_DEAD    , do_show_save_list, LVL_BUILDER, 0 }, // olc
+  { "물건목록"    , "olist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_OLIST }, // olist
+  { "물건편집"    , "oedit"   , POS_DEAD    , do_oasis_oedit, LVL_BUILDER, 0 },
   { "oset"     , "oset"    , POS_DEAD    , do_oset,        LVL_BUILDER, 0 },  
-  { "ocopy"    , "ocopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_OEDIT },
+  { "물건복사"    , "ocopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_OEDIT },
 
-  { "put"      , "p"       , POS_RESTING , do_put      , 0, 0 },
-  { "peace"    , "pe"      , POS_DEAD    , do_peace    , LVL_BUILDER, 0 },
-  { "pick"     , "pi"      , POS_STANDING, do_gen_door , 1, SCMD_PICK },
-  { "practice" , "pr"      , POS_RESTING , do_practice , 1, 0 },
-  { "page"     , "pag"     , POS_DEAD    , do_page     , 1, 0 },
-  { "pardon"   , "pardon"  , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_PARDON },
-  { "plist"    , "plist"   , POS_DEAD    , do_plist    , LVL_GOD, 0 },
-  { "policy"   , "pol"     , POS_DEAD    , do_gen_ps   , 0, SCMD_POLICIES },
-  { "pour"     , "pour"    , POS_STANDING, do_pour     , 0, SCMD_POUR },
-  { "prompt"   , "pro"     , POS_DEAD    , do_display  , 0, 0 },
+  { "넣어"      , "p"       , POS_RESTING , do_put      , 0, 0 }, // put
+  { "전투중지"    , "pe"      , POS_DEAD    , do_peace    , LVL_BUILDER, 0 }, // peace
+  { "문따기"     , "pi"      , POS_STANDING, do_gen_door , 1, SCMD_PICK }, // pick
+  { "수련" , "pr"      , POS_RESTING , do_practice , 1, 0 },
+  { "호출"     , "pag"     , POS_DEAD    , do_page     , 1, 0 }, // page
+  { "용서"   , "pardon"  , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_PARDON }, // pardon
+  { "플레이어목록"    , "plist"   , POS_DEAD    , do_plist    , LVL_GOD, 0 }, // plist
+  { "법"   , "pol"     , POS_DEAD    , do_gen_ps   , 0, SCMD_POLICIES }, // policy
+  { "부워"     , "pour"    , POS_STANDING, do_pour     , 0, SCMD_POUR }, // pour
+  { "프롬프트"   , "pro"     , POS_DEAD    , do_display  , 0, 0 }, // prompt
   { "prefedit" , "pre"     , POS_DEAD    , do_oasis_prefedit , 0, 0 },
-  { "purge"    , "purge"   , POS_DEAD    , do_purge    , LVL_BUILDER, 0 },
+  { "없애"    , "purge"   , POS_DEAD    , do_purge    , LVL_BUILDER, 0 }, // purge
 
   { "qedit"    , "qedit"   , POS_DEAD    , do_oasis_qedit, LVL_BUILDER, 0 },
-  { "qlist"    , "qlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_QLIST },
-  { "quaff"    , "qua"     , POS_RESTING , do_use      , 0, SCMD_QUAFF },
-  { "qecho"    , "qec"     , POS_DEAD    , do_qcomm    , LVL_GOD, SCMD_QECHO },
-  { "quest"    , "que"     , POS_DEAD    , do_quest    , 0, 0 },
-  { "qui"      , "qui"     , POS_DEAD    , do_quit     , 0, 0 },
-  { "quit"     , "quit"    , POS_DEAD    , do_quit     , 0, SCMD_QUIT },
-  { "qsay"     , "qsay"    , POS_RESTING , do_qcomm    , 0, SCMD_QSAY },
+  { "임무"    , "que"     , POS_DEAD    , do_quest    , 0, 0 }, // quest
+  { "임무말"     , "qsay"    , POS_RESTING , do_qcomm    , 0, SCMD_QSAY }, // qsay
+  { "임무목록"    , "qlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_QLIST }, // qlist
+  { "복용"    , "qua"     , POS_RESTING , do_use      , 0, SCMD_QUAFF }, // quaff
+  { "임무공지"    , "qec"     , POS_DEAD    , do_qcomm    , LVL_GOD, SCMD_QECHO }, // qecho
+  { "끝"     , "quit"    , POS_DEAD    , do_quit     , 0, SCMD_QUIT },
 
-  { "reply"    , "r"       , POS_SLEEPING, do_reply    , 0, 0 },
-  { "rest"     , "res"     , POS_RESTING , do_rest     , 0, 0 },
-  { "read"     , "rea"     , POS_RESTING , do_look     , 0, SCMD_READ },
-  { "reload"   , "reload"  , POS_DEAD    , do_reboot   , LVL_IMPL, 0 },
-  { "recite"   , "reci"    , POS_RESTING , do_use      , 0, SCMD_RECITE },
-  { "receive"  , "rece"    , POS_STANDING, do_not_here , 1, 0 },
-  { "recent"   , "recent"  , POS_DEAD    , do_recent   , LVL_IMMORT, 0 },
-  { "remove"   , "rem"     , POS_RESTING , do_remove   , 0, 0 },
+  { "대답"    , "r"       , POS_SLEEPING, do_reply    , 0, 0 },
+  { "쉬어"     , "res"     , POS_RESTING , do_rest     , 0, 0 },
+  { "읽어"     , "rea"     , POS_RESTING , do_look     , 0, SCMD_READ },
+  { "새로고침"   , "reload"  , POS_DEAD    , do_reboot   , LVL_IMPL, 0 }, // reload
+  { "찢어"   , "reci"    , POS_RESTING , do_use      , 0, SCMD_RECITE }, // recite
+  { "최근접속"   , "recent"  , POS_DEAD    , do_recent   , LVL_IMMORT, 0 },
+  { "벗어"   , "rem"     , POS_RESTING , do_remove   , 0, 0 },
   { "rent"     , "rent"    , POS_STANDING, do_not_here , 1, 0 },
   { "report"   , "repo"    , POS_RESTING , do_report   , 0, 0 },
   { "reroll"   , "rero"    , POS_DEAD    , do_wizutil  , LVL_GRGOD, SCMD_REROLL },
   { "rescue"   , "resc"    , POS_FIGHTING, do_rescue   , 1, 0 },
   { "restore"  , "resto"   , POS_DEAD    , do_restore  , LVL_GOD, 0 },
   { "return"   , "retu"    , POS_DEAD    , do_return   , 0, 0 },
-  { "redit"    , "redit"   , POS_DEAD    , do_oasis_redit, LVL_BUILDER, 0 },
-  { "rlist"    , "rlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_RLIST },
-  { "rcopy"    , "rcopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_REDIT },
-  { "roomflags", "roomflags", POS_DEAD   , do_gen_tog  , LVL_IMMORT, SCMD_SHOWVNUMS },
+  { "방편집"    , "redit"   , POS_DEAD    , do_oasis_redit, LVL_BUILDER, 0 },
+  { "방목록"    , "rlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_RLIST },
+  { "방복사"    , "rcopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_REDIT },
+  { "방속성", "roomflags", POS_DEAD   , do_gen_tog  , LVL_IMMORT, SCMD_SHOWVNUMS },
 
   { "sacrifice", "sac"     , POS_RESTING , do_sac      , 0, 0 },
-  { "say"      , "s"       , POS_RESTING , do_say      , 0, 0 },
-  { "score"    , "sc"      , POS_DEAD    , do_score    , 0, 0 },
+  { "말"      , "s"       , POS_RESTING , do_say      , 0, 0 },
+  { "점수"    , "sc"      , POS_DEAD    , do_score    , 0, 0 },
   { "scan"     , "sca"     , POS_RESTING , do_scan     , 0, 0 },
   { "scopy"    , "scopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_SEDIT },
-  { "sit"      , "si"      , POS_RESTING , do_sit      , 0, 0 },
+  { "앉아"      , "si"      , POS_RESTING , do_sit      , 0, 0 },
   { "'"        , "'"       , POS_RESTING , do_say      , 0, 0 },
-  { "save"     , "sav"     , POS_SLEEPING, do_save     , 0, 0 },
+  { "저장"     , "sav"     , POS_SLEEPING, do_save     , 0, 0 },
   { "saveall"  , "saveall" , POS_DEAD    , do_saveall  , LVL_BUILDER, 0},
-  { "sell"     , "sell"    , POS_STANDING, do_not_here , 0, 0 },
-  { "sedit"    , "sedit"   , POS_DEAD    , do_oasis_sedit, LVL_BUILDER, 0 },
+  { "팔아"     , "sell"    , POS_STANDING, do_not_here , 0, 0 },
+  { "상점편집"    , "sedit"   , POS_DEAD    , do_oasis_sedit, LVL_BUILDER, 0 },
   { "send"     , "send"    , POS_SLEEPING, do_send     , LVL_GOD, 0 },
-  { "set"      , "set"     , POS_DEAD    , do_set      , LVL_IMMORT, 0 },
-  { "shout"    , "sho"     , POS_RESTING , do_gen_comm , 0, SCMD_SHOUT },
+  { "셋팅"      , "set"     , POS_DEAD    , do_set      , LVL_IMMORT, 0 },
+  { "외쳐"    , "sho"     , POS_RESTING , do_gen_comm , 0, SCMD_SHOUT },
   { "show"     , "show"    , POS_DEAD    , do_show     , LVL_IMMORT, 0 },
   { "shutdow"  , "shutdow" , POS_DEAD    , do_shutdown , LVL_IMPL, 0 },
-  { "shutdown" , "shutdown", POS_DEAD    , do_shutdown , LVL_IMPL, SCMD_SHUTDOWN },
+  { "셧다운" , "shutdown", POS_DEAD    , do_shutdown , LVL_IMPL, SCMD_SHUTDOWN },
   { "sip"      , "sip"     , POS_RESTING , do_drink    , 0, SCMD_SIP },
-  { "skillset" , "skillset", POS_SLEEPING, do_skillset , LVL_GRGOD, 0 },
-  { "sleep"    , "sl"      , POS_SLEEPING, do_sleep    , 0, 0 },
+  { "기술셋팅" , "skillset", POS_SLEEPING, do_skillset , LVL_GRGOD, 0 }, // skillset
+  { "자"    , "sl"      , POS_SLEEPING, do_sleep    , 0, 0 }, // sleep
   { "slist"    , "slist"   , POS_SLEEPING, do_oasis_list, LVL_BUILDER, SCMD_OASIS_SLIST },
   { "sneak"    , "sneak"   , POS_STANDING, do_sneak    , 1, 0 },
   { "snoop"    , "snoop"   , POS_DEAD    , do_snoop    , LVL_GOD, 0 },
@@ -329,27 +349,26 @@ cpp_extern const struct command_info cmd_info[] = {
   { "use"      , "use"     , POS_SITTING , do_use      , 1, SCMD_USE },
   { "users"    , "users"   , POS_DEAD    , do_users    , LVL_GOD, 0 },
 
-  { "value"    , "val"     , POS_STANDING, do_not_here , 0, 0 },
+  { "가격"    , "val"     , POS_STANDING, do_not_here , 0, 0 }, // value
   { "version"  , "ver"     , POS_DEAD    , do_gen_ps   , 0, SCMD_VERSION },
   { "visible"  , "vis"     , POS_RESTING , do_visible  , 1, 0 },
   { "vnum"     , "vnum"    , POS_DEAD    , do_vnum     , LVL_IMMORT, 0 },
   { "vstat"    , "vstat"   , POS_DEAD    , do_vstat    , LVL_IMMORT, 0 },
   { "vdelete"  , "vdelete" , POS_DEAD    , do_vdelete  , LVL_BUILDER, 0 },
 
-  { "wake"     , "wake"    , POS_SLEEPING, do_wake     , 0, 0 },
-  { "wear"     , "wea"     , POS_RESTING , do_wear     , 0, 0 },
-  { "weather"  , "weather" , POS_RESTING , do_weather  , 0, 0 },
-  { "who"      , "wh"      , POS_DEAD    , do_who      , 0, 0 },
-  { "whois"    , "whoi"    , POS_DEAD    , do_whois    , 0, 0 },
+  { "깨어나"     , "wake"    , POS_SLEEPING, do_wake     , 0, 0 },
+  { "날씨"  , "weather" , POS_RESTING , do_weather  , 0, 0 },
+  { "누구"      , "wh"      , POS_DEAD    , do_who      , 0, 0 },
+  { "자세히"    , "whoi"    , POS_DEAD    , do_whois    , 0, 0 }, // whois // whois
   { "whoami"   , "whoami"  , POS_DEAD    , do_gen_ps   , 0, SCMD_WHOAMI },
-  { "where"    , "where"   , POS_RESTING , do_where    , 1, 0 },
+  { "어디"    , "where"   , POS_RESTING , do_where    , 1, 0 },
   { "whirlwind", "whirl"   , POS_FIGHTING, do_whirlwind, 0, 0 },
-  { "whisper"  , "whisper" , POS_RESTING , do_spec_comm, 0, SCMD_WHISPER },
-  { "wield"    , "wie"     , POS_RESTING , do_wield    , 0, 0 },
-  { "withdraw" , "withdraw", POS_STANDING, do_not_here , 1, 0 },
-  { "wiznet"   , "wiz"     , POS_DEAD    , do_wiznet   , LVL_IMMORT, 0 },
+  { "속삭여"  , "whisper" , POS_RESTING , do_spec_comm, 0, SCMD_WHISPER }, // whisper
+  { "무장"    , "wie"     , POS_RESTING , do_wield    , 0, 0 }, // wield
+  { "출금" , "withdraw", POS_STANDING, do_not_here , 1, 0 }, // withdraw
+  { "신채널"   , "wiz"     , POS_DEAD    , do_wiznet   , LVL_IMMORT, 0 }, // wiznet
   { ";"        , ";"       , POS_DEAD    , do_wiznet   , LVL_IMMORT, 0 },
-  { "wizhelp"  , "wizhelp" , POS_DEAD    , do_wizhelp  , LVL_IMMORT, 0 },
+  { "운영명령"  , "wizhelp" , POS_DEAD    , do_wizhelp  , LVL_IMMORT, 0 }, // wizhelp
   { "wizlist"  , "wizlist" , POS_DEAD    , do_gen_ps   , 0, SCMD_WIZLIST },
   { "wizupdate", "wizupde" , POS_DEAD    , do_wizupdate, LVL_GRGOD, 0 },
   { "wizlock"  , "wizlock" , POS_DEAD    , do_wizlock  , LVL_IMPL, 0 },
@@ -357,8 +376,8 @@ cpp_extern const struct command_info cmd_info[] = {
 
   { "zoneresets", "zoner" ,  POS_DEAD    , do_gen_tog , LVL_IMPL, SCMD_ZONERESETS },
   { "zreset"   , "zreset"  , POS_DEAD    , do_zreset   , LVL_BUILDER, 0 },
-  { "zedit"    , "zedit"   , POS_DEAD    , do_oasis_zedit, LVL_BUILDER, 0 },
-  { "zlist"    , "zlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_ZLIST },
+  { "존편집"    , "zedit"   , POS_DEAD    , do_oasis_zedit, LVL_BUILDER, 0 },
+  { "존목록"    , "zlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_ZLIST },
   { "zlock"    , "zlock"   , POS_DEAD    , do_zlock    , LVL_GOD, 0 },
   { "zunlock"  , "zunlock" , POS_DEAD    , do_zunlock  , LVL_GOD, 0 },
   { "zcheck"   , "zcheck"  , POS_DEAD    , do_zcheck   , LVL_BUILDER, 0 },
@@ -479,7 +498,10 @@ void command_interpreter(struct char_data *ch, char *argument)
   int cmd, length;
   char *line;
   char arg[MAX_INPUT_LENGTH];
-
+  // 한글처리 : 어순변경
+  char hanparse[MAX_INPUT_LENGTH];
+  char hancommand[MAX_INPUT_LENGTH];
+  
   REMOVE_BIT_AR(AFF_FLAGS(ch), AFF_HIDE);
 
   /* just drop to next line for hitting CR */
@@ -487,10 +509,24 @@ void command_interpreter(struct char_data *ch, char *argument)
   if (!*argument)
     return;
 
+  // 한글처리 : 어순변경
+  sprintf(hanparse, "%s", argument);
+  if(strrchr(hanparse, ' ')) {
+    sprintf(hancommand, "%s ", strrchr(hanparse, ' '));
+    hanparse[strlen(hanparse) - (strlen(hancommand) - 1)] = '\0';
+    strcat(hancommand, hanparse);
+    argument = hancommand;
+  } else
+    argument = hanparse; 
+
+  skip_spaces(&argument);
+
   /* special case to handle one-character, non-alphanumeric commands; requested
    * by many people so "'hi" or ";godnet test" is possible. Patch sent by Eric
    * Green and Stefan Wasilewski. */
-  if (!isalpha(*argument)) {
+// 한글처리
+  if (!ishanalp(*argument)) { 
+//  if (!isalpha(*argument)) {
     arg[0] = argument[0];
     arg[1] = '\0';
     line = argument + 1;
@@ -814,7 +850,8 @@ int is_number(const char *str)
 /* Function to skip over the leading spaces of a string. */
 void skip_spaces(char **string)
 {
-  for (; **string && **string != '\t' && isspace(**string); (*string)++);
+ // for (; **string && **string != '\t' && isspace(**string); (*string)++);
+for (; **string && isnhspace(**string); (*string)++);
 }
 
 /* Given a string, change all instances of double dollar signs ($$) to single
@@ -1014,9 +1051,12 @@ static int _parse_name(char *arg, char *name)
 {
   int i;
 
-  skip_spaces(&arg);
+  //skip_spaces(&arg);
+  for (; isnhspace(*arg); arg++);
+
   for (i = 0; (*name = *arg); arg++, i++, name++)
-    if (!isalpha(*arg))
+    //if (!isalpha(*arg)) 
+	if (!ishanalp(*arg))
       return (1);
 
   if (!i)
@@ -1372,12 +1412,55 @@ void nanny(struct descriptor_data *d, char *arg)
     else {
       char buf[MAX_INPUT_LENGTH], tmp_name[MAX_INPUT_LENGTH];
 
-      if ((_parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
-       strlen(tmp_name) > MAX_NAME_LENGTH || !valid_name(tmp_name) ||
-       fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {	/* strcpy: OK (mutual MAX_INPUT_LENGTH) */
-          write_to_output(d, "Invalid name, please try another.\r\nName: ");
-          return;
+//      if ((_parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
+//       strlen(tmp_name) > MAX_NAME_LENGTH || !valid_name(tmp_name) ||
+//       fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {	/* strcpy: OK (mutual MAX_INPUT_LENGTH) */
+//          write_to_output(d, "Invalid name, please try another.\r\nName: ");
+//          return;
+//     }
+
+	  if ((_parse_name(arg, tmp_name)) || (strlen(tmp_name) < 4) || !is_han(tmp_name) ||
+         strlen(tmp_name) > MAX_NAME_LENGTH || !valid_name(tmp_name) || 
+		 fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
+        write_to_output(d, "1.Invalid name, please try another.rnName: ");
+        return;
+      } 
+	  
+/*	  	  if (_parse_name(arg, tmp_name)) {
+        write_to_output(d, "1.Invalid name, please try another.rnName: ");
+        return;
       }
+	  
+	  	  if (strlen(tmp_name) < 4) {
+        write_to_output(d, "2.Invalid name, please try another.rnName: ");
+        return;
+      }
+	  
+	  	  if (!is_han(tmp_name)) {
+        write_to_output(d, "3.Invalid name, please try another.rnName: ");
+        return;
+      }
+	  
+	  	  if (strlen(tmp_name) > MAX_NAME_LENGTH) {
+        write_to_output(d, "4.Invalid name, please try another.rnName: ");
+        return;
+      }
+	  
+	  	  if (!valid_name(tmp_name)) {
+        write_to_output(d, "5.Invalid name, please try another.rnName: ");
+        return;
+      }
+	  
+	  	  if (fill_word(strcpy(buf, tmp_name))) {
+        write_to_output(d, "6.Invalid name, please try another.rnName: ");
+        return;
+      }
+	  
+	  	  if (reserved_word(buf)) {
+        write_to_output(d, "7.Invalid name, please try another.rnName: ");
+        return;
+      } */
+
       if ((player_i = load_char(tmp_name, d->character)) > -1) {
         GET_PFILEPOS(d->character) = player_i;
 
@@ -1392,7 +1475,7 @@ void nanny(struct descriptor_data *d, char *arg)
 
           /* Check for multiple creations. */
           if (!valid_name(tmp_name)) {
-            write_to_output(d, "Invalid name, please try another.\r\nName: ");
+            write_to_output(d, "2.Invalid name, please try another.\r\nName: ");
             return;
           }
           CREATE(d->character, struct char_data, 1);
@@ -1549,11 +1632,29 @@ void nanny(struct descriptor_data *d, char *arg)
 
   case CON_NEWPASSWD:
   case CON_CHPWD_GETNEW:
-    if (!*arg || strlen(arg) > MAX_PWD_LENGTH || strlen(arg) < 3 ||
+ /*   if (!*arg || strlen(arg) > MAX_PWD_LENGTH || strlen(arg) < 3 ||
 	!str_cmp(arg, GET_PC_NAME(d->character))) {
       write_to_output(d, "\r\nIllegal password.\r\nPassword: ");
       return;
+    } */
+	
+		if (!*arg) {
+      write_to_output(d, "\r\n#1 Illegal password.\r\nPassword: ");
+      return;
     }
+	  if (strlen(arg) > MAX_PWD_LENGTH) {
+      write_to_output(d, "\r\n#2 Illegal password.\r\nPassword: ");
+      return;
+    }
+	  if (strlen(arg) < 3) {
+      write_to_output(d, "\r\n#3 Illegal password.\r\nPassword: ");
+      return;
+    }
+	  if (!str_cmp(arg, GET_PC_NAME(d->character))) {
+      write_to_output(d, "\r\n#4 Illegal password.\r\nPassword: ");
+      return;
+    }
+	
     strncpy(GET_PASSWD(d->character), CRYPT(arg, GET_PC_NAME(d->character)), MAX_PWD_LENGTH);	/* strncpy: OK (G_P:MAX_PWD_LENGTH+1) */
     *(GET_PASSWD(d->character) + MAX_PWD_LENGTH) = '\0';
 

@@ -56,7 +56,7 @@ ACMD(do_oasis_zedit)
   if (!*buf1)
     number = GET_ROOM_VNUM(IN_ROOM(ch));
   else if (!isdigit(*buf1)) {
-    if (str_cmp("save", buf1) == 0) {
+    if (str_cmp("저장", buf1) == 0) {
       save = TRUE;
 
       if (is_number(buf2))
@@ -71,16 +71,16 @@ ACMD(do_oasis_zedit)
       }
 
       if (number == NOWHERE) {
-        send_to_char(ch, "Save which zone?\r\n");
+        send_to_char(ch, "몇 번 존 정보를 저장하시겠습니까?\r\n");
         return;
       }
     } else if (GET_LEVEL(ch) >= LVL_IMPL) {
-      if (str_cmp("new", buf1) || !stop || !*stop)
-        send_to_char(ch, "Format: zedit new <zone number> <bottom-room> "
-           "<upper-room>\r\n");
+      if (str_cmp("제작", buf1) || !stop || !*stop)
+        send_to_char(ch, "형식: 제작 <존 번호> <시작 방> "
+           "<끝 방> 존편집\r\n");
       else {
         if (atoi(stop) < 0 || atoi(sbot) < 0) {
-          send_to_char(ch, "Zones cannot contain negative vnums.\r\n");
+          send_to_char(ch, "존 번호에는 음수를 포함할 수 없습니다.\r\n");
           return;
         }
         number = atoidx(buf2);
@@ -97,7 +97,7 @@ ACMD(do_oasis_zedit)
       return;
 
     } else {
-      send_to_char(ch, "Yikes!  Stop that, someone will get hurt!\r\n");
+      send_to_char(ch, "아잇! 누군가가 다칠 지도 모르는 일을 멈추세요!\r\n");
       return;
     }
   }
@@ -110,7 +110,7 @@ ACMD(do_oasis_zedit)
   for (d = descriptor_list; d; d = d->next) {
     if (STATE(d) == CON_ZEDIT) {
       if (d->olc && OLC_NUM(d) == number) {
-        send_to_char(ch, "That zone is currently being edited by %s.\r\n",
+        send_to_char(ch, "그 존은 현재 %s님이 편집중입니다.\r\n",
           PERS(d->character, ch));
         return;
       }
@@ -132,7 +132,7 @@ ACMD(do_oasis_zedit)
   /* Find the zone. */
   OLC_ZNUM(d) = save ? real_zone(number) : real_zone_by_thing(number);
   if (OLC_ZNUM(d) == NOWHERE) {
-    send_to_char(ch, "Sorry, there is no zone for that number!\r\n");
+    send_to_char(ch, "그 번호에 해당하는 존이 없습니다!\r\n");
 
     /* Free the descriptor's OLC structure. */
     free(d->olc);
@@ -151,7 +151,7 @@ ACMD(do_oasis_zedit)
 
   /* If we need to save, then save the zone. */
   if (save) {
-    send_to_char(ch, "Saving all zone information for zone %d.\r\n",
+    send_to_char(ch, "%d 존의 모든 존 정보를 저장합니다.\r\n",
       zone_table[OLC_ZNUM(d)].number);
     mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE,
       "OLC: %s saves zone information for zone %d.", GET_NAME(ch),
@@ -169,7 +169,7 @@ ACMD(do_oasis_zedit)
   OLC_NUM(d) = number;
 
   if ((real_num = real_room(number)) == NOWHERE) {
-    write_to_output(d, "That room does not exist.\r\n");
+    write_to_output(d, "그 방은 존재하지 않습니다.\r\n");
 
     /* Free the descriptor's OLC structure. */
     free(d->olc);
@@ -180,7 +180,7 @@ ACMD(do_oasis_zedit)
   zedit_setup(d, real_num);
   STATE(d) = CON_ZEDIT;
 
-  act("$n starts using OLC.", TRUE, d->character, 0, 0, TO_ROOM);
+  act("$n님이 존 편집을 시작합니다.", TRUE, d->character, 0, 0, TO_ROOM);
   SET_BIT_AR(PLR_FLAGS(ch), PLR_WRITING);
 
   mudlog(CMP, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE, "OLC: %s starts editing zone %d allowed zone %d",
@@ -280,7 +280,7 @@ static void zedit_new_zone(struct char_data *ch, zone_vnum vzone_num, room_vnum 
   zedit_save_to_disk(result); /* save to disk .. */
 
   mudlog(BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE, "OLC: %s creates new zone #%d", GET_NAME(ch), vzone_num);
-  write_to_output(ch->desc, "Zone created successfully.\r\n");
+  write_to_output(ch->desc, "새로운 존을 성공적으로 만들었습니다.\r\n");
 }
 
 /* Save all the information in the player's temporary buffer back into
@@ -314,12 +314,12 @@ static void zedit_save_internally(struct descriptor_data *d)
       case 'E':
         if (mobloaded)
           break;
-        write_to_output(d, "Equip/Give command not saved since no mob was loaded first.\r\n");
+        write_to_output(d, "맙을 먼저 로드하지 않았기 때문에 장비/소지품 생성 작업은 저장되지 않았습니다.\r\n");
         continue;
       case 'P':
         if (objloaded)
           break;
-        write_to_output(d, "Put command not saved since another object was not loaded first.\r\n");
+        write_to_output(d, "다른 물건을 먼저 로드하지 않았기 때문에 물건 넣기 작업은 저장되지 않았습니다.\r\n");
         continue;
       /* Pass cases. */
       case 'M':
@@ -379,8 +379,8 @@ static void zedit_disp_flag_menu(struct descriptor_data *d)
   column_list(d->character, 0, zone_bits, NUM_ZONE_FLAGS, TRUE);
 
   sprintbitarray(OLC_ZONE(d)->zone_flags, zone_bits, ZN_ARRAY_MAX, bits);
-  write_to_output(d, "\r\nZone flags: \tc%s\tn\r\n"
-         "Enter Zone flags, 0 to quit : ", bits);
+  write_to_output(d, "\r\n존 속성: \tc%s\tn\r\n"
+         "존 속성을 입력하세요, 0에서 quit : ", bits);
   OLC_MODE(d) = ZEDIT_ZONE_FLAGS;
 }
 
@@ -389,21 +389,21 @@ static bool zedit_get_levels(struct descriptor_data *d, char *buf)
 {
   /* Create a string for the recommended levels for this zone. */
   if ((OLC_ZONE(d)->min_level == -1) && (OLC_ZONE(d)->max_level == -1)) {
-    sprintf(buf, "<Not Set!>");
+    sprintf(buf, "<설정값 없음!>");
     return FALSE;
   }
 
   if (OLC_ZONE(d)->min_level == -1) {
-    sprintf(buf, "Up to level %d", OLC_ZONE(d)->max_level);
+    sprintf(buf, "최대 레벨 %d", OLC_ZONE(d)->max_level);
     return TRUE;
   }
 
   if (OLC_ZONE(d)->max_level == -1) {
-    sprintf(buf, "Above level %d", OLC_ZONE(d)->min_level);
+    sprintf(buf, "최소 레벨 %d", OLC_ZONE(d)->min_level);
     return TRUE;
   }
 
-  sprintf(buf, "Levels %d to %d", OLC_ZONE(d)->min_level, OLC_ZONE(d)->max_level);
+  sprintf(buf, "%d 레벨에서 %d 레벨까지", OLC_ZONE(d)->min_level, OLC_ZONE(d)->max_level);
   return TRUE;
 }
 
@@ -424,16 +424,16 @@ static void zedit_disp_menu(struct descriptor_data *d)
 
   /* Menu header */
   send_to_char(d->character,
-	  "Room number: %s%d%s Room zone: %s%d\r\n"
-	  "%s1%s) Builders       : %s%s\r\n"
-	  "%sZ%s) Zone name      : %s%s\r\n"
-	  "%sL%s) Lifespan       : %s%d minutes\r\n"
-	  "%sB%s) Bottom of zone : %s%d\r\n"
-	  "%sT%s) Top of zone    : %s%d\r\n"
-	  "%sR%s) Reset Mode     : %s%s\r\n"
-	  "%sF%s) Zone Flags     : %s%s\r\n"
-	  "%sM%s) Level Range    : %s%s%s\r\n"
-	  "[Command list]\r\n",
+	  "방 번호 : %s%d%s Room zone: %s%d\r\n"
+	  "%s1%s) 제작자       : %s%s\r\n"
+	  "%sZ%s) 존 이름      : %s%s\r\n"
+	  "%sL%s) 리젠주기       : %s%d 분\r\n"
+	  "%sB%s) 존 시작 : %s%d\r\n"
+	  "%sT%s) 존 끝    : %s%d\r\n"
+	  "%sR%s) 리셋 모드     : %s%s\r\n"
+	  "%sF%s) 존 속성     : %s%s\r\n"
+	  "%sM%s) 출입 가능 레벨 : %s%s%s\r\n"
+	  "[리젠 시 수행 작업 목록]\r\n",
 
 	  cyn, OLC_NUM(d), nrm,
 	  cyn, zone_table[OLC_ZNUM(d)].number,
@@ -455,14 +455,14 @@ static void zedit_disp_menu(struct descriptor_data *d)
     write_to_output(d, "%s%d - %s", nrm, counter++, yel);
     switch (MYCMD.command) {
     case 'M':
-      write_to_output(d, "%sLoad %s [%s%d%s], Max : %d",
+      write_to_output(d, "%s 맙 로드 %s [%s%d%s], 최대개수 : %d",
               MYCMD.if_flag ? " then " : "",
               mob_proto[MYCMD.arg1].player.short_descr, cyn,
               mob_index[MYCMD.arg1].vnum, yel, MYCMD.arg2
               );
       break;
     case 'G':
-      write_to_output(d, "%sGive it %s [%s%d%s], Max : %d",
+      write_to_output(d, "%s %s[%s%d%s] 물건을 위 맙 소지품에 추가, 최대개수 : %d",
 	      MYCMD.if_flag ? " then " : "",
 	      obj_proto[MYCMD.arg1].short_description,
 	      cyn, obj_index[MYCMD.arg1].vnum, yel,
@@ -470,7 +470,7 @@ static void zedit_disp_menu(struct descriptor_data *d)
 	      );
       break;
     case 'O':
-      write_to_output(d, "%sLoad %s [%s%d%s], Max : %d",
+      write_to_output(d, "%s %s[%s%d%s] 물건을 방에 로드, 최대개수 : %d",
 	      MYCMD.if_flag ? " then " : "",
 	      obj_proto[MYCMD.arg1].short_description,
 	      cyn, obj_index[MYCMD.arg1].vnum, yel,
@@ -478,7 +478,7 @@ static void zedit_disp_menu(struct descriptor_data *d)
 	      );
       break;
     case 'E':
-      write_to_output(d, "%sEquip with %s [%s%d%s], %s, Max : %d",
+      write_to_output(d, "%s 장비 착용 %s [%s%d%s], %s, 최대개수 : %d",
 	      MYCMD.if_flag ? " then " : "",
 	      obj_proto[MYCMD.arg1].short_description,
 	      cyn, obj_index[MYCMD.arg1].vnum, yel,
@@ -487,7 +487,7 @@ static void zedit_disp_menu(struct descriptor_data *d)
 	      );
       break;
     case 'P':
-      write_to_output(d, "%sPut %s [%s%d%s] in %s [%s%d%s], Max : %d",
+      write_to_output(d, "%s%s 물건[%s%d%s]을 %s[%s%d%s]에 넣음, 최대개수 : %d",
 	      MYCMD.if_flag ? " then " : "",
 	      obj_proto[MYCMD.arg1].short_description,
 	      cyn, obj_index[MYCMD.arg1].vnum, yel,
@@ -497,21 +497,21 @@ static void zedit_disp_menu(struct descriptor_data *d)
 	      );
       break;
     case 'R':
-      write_to_output(d, "%sRemove %s [%s%d%s] from room.",
+      write_to_output(d, "%s %s[%s%d%s] 물건을 방에서 삭제.",
 	      MYCMD.if_flag ? " then " : "",
 	      obj_proto[MYCMD.arg2].short_description,
 	      cyn, obj_index[MYCMD.arg2].vnum, yel
 	      );
       break;
     case 'D':
-      write_to_output(d, "%sSet door %s as %s.",
+      write_to_output(d, "%s%s쪽 방향 문을 %s 상태로 초기화.",
 	      MYCMD.if_flag ? " then " : "",
 	      dirs[MYCMD.arg2],
 	      MYCMD.arg3 ? ((MYCMD.arg3 == 1) ? "closed" : "locked") : "open"
 	      );
       break;
     case 'T':
-      write_to_output(d, "%sAttach trigger %s%s%s [%s%d%s] to %s",
+      write_to_output(d, "%s Attach trigger %s%s%s [%s%d%s] to %s",
         MYCMD.if_flag ? " then " : "",
         cyn, trig_index[MYCMD.arg2]->proto->name, yel,
         cyn, trig_index[MYCMD.arg2]->vnum, yel,
@@ -529,7 +529,7 @@ static void zedit_disp_menu(struct descriptor_data *d)
         MYCMD.sarg2);
       break;
     default:
-      write_to_output(d, "<Unknown Command>");
+      write_to_output(d, "<알 수 없는 작업>");
       break;
     }
     write_to_output(d, "\r\n");
@@ -537,11 +537,11 @@ static void zedit_disp_menu(struct descriptor_data *d)
   }
   /* Finish off menu */
    write_to_output(d,
-	  "%s%d - <END OF LIST>\r\n"
-	  "%sN%s) Insert new command.\r\n"
-	  "%sE%s) Edit a command.\r\n"
-	  "%sD%s) Delete a command.\r\n"
-	  "%sQ%s) Quit\r\nEnter your choice : ",
+	  "%s%d - <목록 끝>\r\n"
+	  "%sN%s) 새로운 작업 추가.\r\n"
+	  "%sE%s) 작업 수정.\r\n"
+	  "%sD%s) 작업 삭제.\r\n"
+	  "%sQ%s) 종료\r\n선택하세요 : ",
 	  nrm, counter, grn, nrm, grn, nrm, grn, nrm, grn, nrm
 	  );
 
@@ -555,13 +555,13 @@ static void zedit_disp_comtype(struct descriptor_data *d)
   clear_screen(d);
   write_to_output(d,
 	"\r\n"
-	"%sM%s) Load Mobile to room             %sO%s) Load Object to room\r\n"
-	"%sE%s) Equip mobile with object        %sG%s) Give an object to a mobile\r\n"
-	"%sP%s) Put object in another object    %sD%s) Open/Close/Lock a Door\r\n"
-	"%sR%s) Remove an object from the room\r\n"
-        "%sT%s) Assign a trigger                %sV%s) Set a global variable\r\n"
+	"%sM%s) 방에 맙 창조             %sO%s) 방에 물건 창조\r\n"
+	"%sE%s) 맙에 장비 착용        %sG%s) 맙 소지품에 물건 추가\r\n"
+	"%sP%s) 물건을 다른 물건에 넣음    %sD%s) 열린/닫힌/잠긴 문 설정\r\n"
+	"%sR%s) 방에서 물건 제거\r\n"
+        "%sT%s) 트리거 할당                %sV%s) 전역 변수 설정\r\n"
 	"\r\n"
-	"What sort of command will this be? : ",
+	"어떤 작업을 하시겠습니까? : ",
 	grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm,
 	grn, nrm, grn, nrm, grn, nrm, grn, nrm
 	);
@@ -576,14 +576,14 @@ static void zedit_disp_arg1(struct descriptor_data *d)
 
   switch (OLC_CMD(d).command) {
   case 'M':
-    write_to_output(d, "Input mob's vnum : ");
+    write_to_output(d, "맙 번호를 입력하세요 : ");
     OLC_MODE(d) = ZEDIT_ARG1;
     break;
   case 'O':
   case 'E':
   case 'P':
   case 'G':
-    write_to_output(d, "Input object vnum : ");
+    write_to_output(d, "물건 번호를 입력하세요 : ");
     OLC_MODE(d) = ZEDIT_ARG1;
     break;
   case 'D':
@@ -594,14 +594,14 @@ static void zedit_disp_arg1(struct descriptor_data *d)
     break;
   case 'T':
   case 'V':
-    write_to_output(d, "Input trigger type (0:mob, 1:obj, 2:room) :");
+    write_to_output(d, "트리거 종류(0:맙, 1:물건, 2:방)를 입력하세요 :");
     OLC_MODE(d) = ZEDIT_ARG1;
     break;
   default:
     /* We should never get here. */
     cleanup_olc(d, CLEANUP_ALL);
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: zedit_disp_arg1(): Help!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     return;
   }
 }
@@ -620,28 +620,28 @@ static void zedit_disp_arg2(struct descriptor_data *d)
   case 'E':
   case 'P':
   case 'G':
-    write_to_output(d, "Input the maximum number that can exist on the mud : ");
+    write_to_output(d, "리젠으로 생성될 수 있는 최대 수를 입력하세요 : ");
     break;
   case 'D':
     for (i = 0; *dirs[i] != '\n'; i++) {
-      write_to_output(d, "%d) Exit %s.\r\n", i, dirs[i]);
+      write_to_output(d, "%d) 출구 %s.\r\n", i, dirs[i]);
     }
-    write_to_output(d, "Enter exit number for door : ");
+    write_to_output(d, "문 값을 변경할 출구 번호를 입력하세요 : ");
     break;
   case 'R':
-    write_to_output(d, "Input object's vnum : ");
+    write_to_output(d, "물건 번호를 입력하세요 : ");
     break;
   case 'T':
-    write_to_output(d, "Enter the trigger VNum : ");
+    write_to_output(d, "트리거 번호를 입력하세요 : ");
     break;
   case 'V':
-    write_to_output(d, "Global's context (0 for none) : ");
+    write_to_output(d, "전 지역 상황 (0은 none) : ");
     break;
   default:
     /* We should never get here, but just in case.  */
     cleanup_olc(d, CLEANUP_ALL);
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: zedit_disp_arg2(): Help!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     return;
   }
   OLC_MODE(d) = ZEDIT_ARG2;
@@ -657,16 +657,16 @@ static void zedit_disp_arg3(struct descriptor_data *d)
   switch (OLC_CMD(d).command) {
   case 'E':
     column_list(d->character, 0, equipment_types, NUM_WEARS, TRUE);
-    write_to_output(d, "Location to equip : ");
+    write_to_output(d, "장비 위치 : ");
     break;
   case 'P':
-    write_to_output(d, "Virtual number of the container : ");
+    write_to_output(d, "보관함의 가상 번호 : ");
     break;
   case 'D':
-    write_to_output(d, 	"0)  Door open\r\n"
-		"1)  Door closed\r\n"
-		"2)  Door locked\r\n"
-		"Enter state of the door : ");
+    write_to_output(d, 	"0)  문 열림\r\n"
+		"1)  문 닫힘\r\n"
+		"2)  문 잠김\r\n"
+		"문 상태를 입력하세요 : ");
     break;
   case 'V':
   case 'T':
@@ -678,7 +678,7 @@ static void zedit_disp_arg3(struct descriptor_data *d)
     /* We should never get here, just in case. */
     cleanup_olc(d, CLEANUP_ALL);
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: zedit_disp_arg3(): Help!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     return;
   }
   OLC_MODE(d) = ZEDIT_ARG3;
@@ -698,13 +698,13 @@ static void zedit_disp_levels(struct descriptor_data *d)
   clear_screen(d);
   write_to_output(d,
 	"\r\n"
-	"\ty1\tn) Set minimum level recommendation\r\n"
-	"\ty2\tn) Set maximum level recommendation\r\n"
-	"\ty3\tn) Clear level recommendations\r\n\r\n"
-	"\ty0\tn) Quit to main menu\r\n"
-        "\tgCurrent Setting: %s%s%s\r\n"
+	"\ty1\tn) 권장 최소 레벨 설정\r\n"
+	"\ty2\tn) 권장 최고 레벨 설정\r\n"
+	"\ty3\tn) 권장 레벨 초기화\r\n\r\n"
+	"\ty0\tn) 메인 메뉴\r\n"
+        "\tg현재 설정: %s%s%s\r\n"
 	"\r\n"
-	"Enter choice (0 to quit): ", levels_set ? "\tc" : "\ty", lev_string, "\tn"
+	"선택하세요 (0에서 quit): ", levels_set ? "\tc" : "\ty", lev_string, "\tn"
 	);
   OLC_MODE(d) = ZEDIT_LEVELS;
 }
@@ -722,10 +722,10 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       /* Save the zone in memory, hiding invisible people. */
       zedit_save_internally(d);
       if (CONFIG_OLC_SAVE) {
-        write_to_output(d, "Saving zone info to disk.\r\n");
+        write_to_output(d, "존 정보를 디스크에 저장합니다.\r\n");
         zedit_save_to_disk(OLC_ZNUM(d));
       } else
-        write_to_output(d, "Saving zone info in memory.\r\n");
+        write_to_output(d, "존 정보를 메모리에 저장합니다.\r\n");
 
       mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), TRUE, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
       /* FALL THROUGH */
@@ -734,8 +734,8 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       cleanup_olc(d, CLEANUP_ALL);
       break;
     default:
-      write_to_output(d, "Invalid choice!\r\n");
-      write_to_output(d, "Do you wish to save your changes? : ");
+      write_to_output(d, "잘못 입력하셨습니다! (Y / N)\r\n");
+      write_to_output(d, "변경 내용을 저장하시겠습니까? : (Y / N)");
       break;
     }
     break;
@@ -746,10 +746,10 @@ void zedit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_ZONE(d)->age || OLC_ZONE(d)->number) {
-	write_to_output(d, "Do you wish to save your changes? : ");
+	write_to_output(d, "변경 내용을 저장하시겠습니까? : (Y / N)");
 	OLC_MODE(d) = ZEDIT_CONFIRM_SAVESTRING;
       } else {
-	write_to_output(d, "No changes made.\r\n");
+	write_to_output(d, "변경 내용이 없습니다.\r\n");
 	cleanup_olc(d, CLEANUP_ALL);
       }
       break;
@@ -764,30 +764,30 @@ void zedit_parse(struct descriptor_data *d, char *arg)
           break;
 	}
       }
-      write_to_output(d, "What number in the list should the new command be? : ");
+      write_to_output(d, "새로운 작업의 우선순위는 목록에서 몇 번째입니까? : ");
       OLC_MODE(d) = ZEDIT_NEW_ENTRY;
       break;
     case 'e':
     case 'E':
       /* Change an entry. */
-      write_to_output(d, "Which command do you wish to change? : ");
+      write_to_output(d, "몇 번 작업을 변경하시겠습니까? : ");
       OLC_MODE(d) = ZEDIT_CHANGE_ENTRY;
       break;
     case 'd':
     case 'D':
       /* Delete an entry. */
-      write_to_output(d, "Which command do you wish to delete? : ");
+      write_to_output(d, "몇 번 작업을 삭제하시겠습니까? : ");
       OLC_MODE(d) = ZEDIT_DELETE_ENTRY;
       break;
     case 'z':
     case 'Z':
       /* Edit zone name. */
-      write_to_output(d, "Enter new zone name : ");
+      write_to_output(d, "새로운 존 이름을 입력하세요 : ");
       OLC_MODE(d) = ZEDIT_ZONE_NAME;
       break;
     case '1':
       /* Edit zone builders. */
-      write_to_output(d, "Enter new builders list : ");
+      write_to_output(d, "존 제작자 명단을 입력하세요 : ");
       OLC_MODE(d) = ZEDIT_ZONE_BUILDERS;
       break;
     case 'b':
@@ -796,7 +796,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       if (GET_LEVEL(d->character) < LVL_IMPL)
 	zedit_disp_menu(d);
       else {
-	write_to_output(d, "Enter new bottom of zone : ");
+	write_to_output(d, "존 시작 방 번호를 입력하세요 : ");
 	OLC_MODE(d) = ZEDIT_ZONE_BOT;
       }
       break;
@@ -806,24 +806,24 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       if (GET_LEVEL(d->character) < LVL_IMPL)
 	zedit_disp_menu(d);
       else {
-	write_to_output(d, "Enter new top of zone : ");
+	write_to_output(d, "존 끝 방 번호를 입력하세요 : ");
 	OLC_MODE(d) = ZEDIT_ZONE_TOP;
       }
       break;
     case 'l':
     case 'L':
       /* Edit zone lifespan. */
-      write_to_output(d, "Enter new zone lifespan : ");
+      write_to_output(d, "리젠 주기를 입력하세요 : ");
       OLC_MODE(d) = ZEDIT_ZONE_LIFE;
       break;
     case 'r':
     case 'R':
       /* Edit zone reset mode. */
       write_to_output(d, "\r\n"
-		"0) Never reset\r\n"
-		"1) Reset only when no players in zone\r\n"
-		"2) Normal reset\r\n"
-		"Enter new zone reset type : ");
+		"0) 리젠 안 함\r\n"
+		"1) 존에 아무도 없을 때만 리젠\r\n"
+		"2) 일반 리젠\r\n"
+		"리젠 타입을 선택하세요 : ");
       OLC_MODE(d) = ZEDIT_ZONE_RESET;
       break;
     case 'f':
@@ -845,11 +845,11 @@ void zedit_parse(struct descriptor_data *d, char *arg)
 /*-------------------------------------------------------------------*/
   case ZEDIT_LEVELS:
     switch (*arg) {
-    case '1': write_to_output(d, "Enter the min level for this zone (0-%d, -1 = none): ", (LVL_IMMORT-1));
+    case '1': write_to_output(d, "이 존의 최소 레벨을 입력하세요 (0-%d, -1은 없음): ", (LVL_IMMORT-1));
               OLC_MODE(d) = ZEDIT_LEV_MIN;
               break;
 
-    case '2': write_to_output(d, "Enter the max level for this zone (0-%d, -1 = none): ", (LVL_IMMORT-1));
+    case '2': write_to_output(d, "이 존의 최대 레벨을 입력하세요 (0-%d, -1은 없음): ", (LVL_IMMORT-1));
               OLC_MODE(d) = ZEDIT_LEV_MAX;
               break;
 
@@ -863,7 +863,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       zedit_disp_menu(d);
       break;
 
-    default: write_to_output(d, "Invalid choice!\r\n");
+    default: write_to_output(d, "잘못 입력하셨습니다!\r\n");
              break;
     }
     break;
@@ -933,14 +933,14 @@ void zedit_parse(struct descriptor_data *d, char *arg)
     /* Parse the input for which type of command this is, and goto next quiz. */
     OLC_CMD(d).command = toupper(*arg);
     if (!OLC_CMD(d).command || (strchr("MOPEDGRTV", OLC_CMD(d).command) == NULL)) {
-      write_to_output(d, "Invalid choice, try again : ");
+      write_to_output(d, "잘못 입력하셨습니다, 다시 시도 : ");
     } else {
       if (OLC_VAL(d)) {	/* If there was a previous command. */
         if (OLC_CMD(d).command == 'T' || OLC_CMD(d).command == 'V') {
           OLC_CMD(d).if_flag = 1;
           zedit_disp_arg1(d);
         } else {
-	  write_to_output(d, "Is this command dependent on the success of the previous one? (y/n)\r\n");
+	  write_to_output(d, "이 작업은 이전 작업 결과에 영향을 받습니까? (y/n)\r\n");
 	  OLC_MODE(d) = ZEDIT_IF_FLAG;
         }
       } else {	/* 'if-flag' not appropriate. */
@@ -963,7 +963,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       OLC_CMD(d).if_flag = 0;
       break;
     default:
-      write_to_output(d, "Try again : ");
+      write_to_output(d, "다시 시도해 주세요 : ");
       return;
     }
     zedit_disp_arg1(d);
@@ -973,7 +973,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
   case ZEDIT_ARG1:
     /* Parse the input for arg1, and goto next quiz. */
     if (!isdigit(*arg)) {
-      write_to_output(d, "Must be a numeric value, try again : ");
+      write_to_output(d, "숫자를 입력해야 합니다, 다시 시도 : ");
       return;
     }
     switch (OLC_CMD(d).command) {
@@ -982,7 +982,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
 	OLC_CMD(d).arg1 = pos;
 	zedit_disp_arg2(d);
       } else
-	write_to_output(d, "That mobile does not exist, try again : ");
+	write_to_output(d, "그 번호의 맙은 존재하지 않습니다, 다시 시도 : ");
       break;
     case 'O':
     case 'P':
@@ -992,12 +992,12 @@ void zedit_parse(struct descriptor_data *d, char *arg)
 	OLC_CMD(d).arg1 = pos;
 	zedit_disp_arg2(d);
       } else
-	write_to_output(d, "That object does not exist, try again : ");
+	write_to_output(d, "그 번호의 물건은 존재하지 않습니다, 다시 시도 : ");
       break;
     case 'T':
     case 'V':
       if (atoi(arg)<MOB_TRIGGER || atoi(arg)>WLD_TRIGGER)
-        write_to_output(d, "Invalid input.");
+        write_to_output(d, "잘못 입력하셨습니다.");
       else {
        OLC_CMD(d).arg1 = atoi(arg);
         zedit_disp_arg2(d);
@@ -1009,7 +1009,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       /* We should never get here. */
       cleanup_olc(d, CLEANUP_ALL);
       mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: zedit_parse(): case ARG1: Ack!");
-      write_to_output(d, "Oops...\r\n");
+      write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
       break;
     }
     break;
@@ -1018,7 +1018,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
   case ZEDIT_ARG2:
     /* Parse the input for arg2, and goto next quiz. */
     if (!isdigit(*arg)) {
-      write_to_output(d, "Must be a numeric value, try again : ");
+      write_to_output(d, "숫자를 입력해야 합니다, 다시 시도 : ");
       return;
     }
     switch (OLC_CMD(d).command) {
@@ -1049,13 +1049,13 @@ void zedit_parse(struct descriptor_data *d, char *arg)
         OLC_CMD(d).arg3 = real_room(OLC_NUM(d));
         zedit_disp_menu(d);
       } else
-        write_to_output(d, "That trigger does not exist, try again : ");
+        write_to_output(d, "그 트리거는 존재하지 않습니다, 다시 시도 : ");
       break;
     case 'D':
       pos = atoi(arg);
       /* Count directions. */
       if (pos < 0 || pos > DIR_COUNT)
-	write_to_output(d, "Try again : ");
+	write_to_output(d, "다시 시도하세요 : ");
       else {
 	OLC_CMD(d).arg2 = pos;
 	zedit_disp_arg3(d);
@@ -1066,13 +1066,13 @@ void zedit_parse(struct descriptor_data *d, char *arg)
 	OLC_CMD(d).arg2 = pos;
 	zedit_disp_menu(d);
       } else
-	write_to_output(d, "That object does not exist, try again : ");
+	write_to_output(d, "그 물건은 존재하지 않습니다, 다시 시도 : ");
       break;
     default:
       /* We should never get here, but just in case. */
       cleanup_olc(d, CLEANUP_ALL);
       mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: zedit_parse(): case ARG2: Ack!");
-      write_to_output(d, "Oops...\r\n");
+      write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
       break;
     }
     break;
@@ -1081,7 +1081,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
   case ZEDIT_ARG3:
     /* Parse the input for arg3, and go back to main menu. */
     if (!isdigit(*arg)) {
-      write_to_output(d, "Must be a numeric value, try again : ");
+      write_to_output(d, "숫자를 입력해야 합니다, 다시 시도 : ");
       return;
     }
     switch (OLC_CMD(d).command) {
@@ -1089,7 +1089,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       pos = atoi(arg) - 1;
       /* Count number of wear positions. */
       if (pos < 0 || pos >= NUM_WEARS)
-	write_to_output(d, "Try again : ");
+	write_to_output(d, "다시 시도 : ");
       else {
 	OLC_CMD(d).arg3 = pos;
 	zedit_disp_menu(d);
@@ -1100,12 +1100,12 @@ void zedit_parse(struct descriptor_data *d, char *arg)
 	OLC_CMD(d).arg3 = pos;
 	zedit_disp_menu(d);
       } else
-	write_to_output(d, "That object does not exist, try again : ");
+	write_to_output(d, "그 물건은 존재하지 않습니다, 다시 시도 : ");
       break;
     case 'D':
       pos = atoi(arg);
       if (pos < 0 || pos > 2)
-	write_to_output(d, "Try again : ");
+	write_to_output(d, "다시 시도 : ");
       else {
 	OLC_CMD(d).arg3 = pos;
 	zedit_disp_menu(d);
@@ -1121,7 +1121,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       /* We should never get here, but just in case. */
       cleanup_olc(d, CLEANUP_ALL);
       mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: zedit_parse(): case ARG3: Ack!");
-      write_to_output(d, "Oops...\r\n");
+      write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
       break;
     }
     break;
@@ -1142,7 +1142,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       OLC_CMD(d).sarg2 = strdup(arg);
       zedit_disp_menu(d);
     } else
-      write_to_output(d, "Must have some value to set it to :");
+      write_to_output(d, "설정 값이 필요합니다 :");
     break;
 
 /*-------------------------------------------------------------------*/
@@ -1178,7 +1178,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
     /* Parse and add new reset_mode and return to main menu. */
     pos = atoi(arg);
     if (!isdigit(*arg) || pos < 0 || pos > 2)
-      write_to_output(d, "Try again (0-2) : ");
+      write_to_output(d, "다시 시도하세요 (0-2) : ");
     else {
       OLC_ZONE(d)->reset_mode = pos;
       OLC_ZONE(d)->number = 1;
@@ -1191,7 +1191,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
     /* Parse and add new lifespan and return to main menu. */
     pos = atoi(arg);
     if (!isdigit(*arg) || pos < 0 || pos > 240)
-      write_to_output(d, "Try again (0-240) : ");
+      write_to_output(d, "다시 시도하세요 (0-240) : ");
     else {
       OLC_ZONE(d)->lifespan = pos;
       OLC_ZONE(d)->number = 1;
@@ -1203,7 +1203,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
   case ZEDIT_ZONE_FLAGS:
     number = atoi(arg);
     if (number < 0 || number > NUM_ZONE_FLAGS) {
-      write_to_output(d, "That is not a valid choice!\r\n");
+      write_to_output(d, "잘못 입력하셨습니다!\r\n");
       zedit_disp_flag_menu(d);
     } else if (number == 0) {
       zedit_disp_menu(d);
@@ -1245,7 +1245,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
     /* We should never get here, but just in case... */
     cleanup_olc(d, CLEANUP_ALL);
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: zedit_parse(): Reached default case!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     break;
   }
 }

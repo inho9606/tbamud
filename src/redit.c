@@ -50,7 +50,7 @@ ACMD(do_oasis_redit)
     number = GET_ROOM_VNUM(IN_ROOM(ch));
   else if (!isdigit(*buf1)) {
     if (str_cmp("save", buf1) != 0) {
-      send_to_char(ch, "Yikes!  Stop that, someone will get hurt!\r\n");
+      send_to_char(ch, "앗!  누군가가 다칠 일을 멈추세요!\r\n");
       return;
     }
 
@@ -68,7 +68,7 @@ ACMD(do_oasis_redit)
     }
 
     if (number == NOWHERE) {
-      send_to_char(ch, "Save which zone?\r\n");
+      send_to_char(ch, "어떤 존을 저장하시겠습니까?\r\n");
       return;
     }
   }
@@ -78,7 +78,7 @@ ACMD(do_oasis_redit)
     number = atoi(buf1);
 
   if (number < IDXTYPE_MIN || number > IDXTYPE_MAX) {
-    send_to_char(ch, "That room VNUM can't exist.\r\n");
+    send_to_char(ch, "그런 방번호는 존재하지 않습니다.\r\n");
     return;
   }
 
@@ -86,7 +86,7 @@ ACMD(do_oasis_redit)
   for (d = descriptor_list; d; d = d->next) {
     if (STATE(d) == CON_REDIT) {
       if (d->olc && OLC_NUM(d) == number) {
-        send_to_char(ch, "That room is currently being edited by %s.\r\n",
+        send_to_char(ch, "그 방은 현재 %s님이 편집중입니다.\r\n",
           PERS(d->character, ch));
         return;
       }
@@ -108,7 +108,7 @@ ACMD(do_oasis_redit)
   /* Find the zone. */
   OLC_ZNUM(d) = save ? real_zone(number) : real_zone_by_thing(number);
   if (OLC_ZNUM(d) == NOWHERE) {
-    send_to_char(ch, "Sorry, there is no zone for that number!\r\n");
+    send_to_char(ch, "그 번호에 해당하는 존이 없습니다!\r\n");
     free(d->olc);
     d->olc = NULL;
     return;
@@ -124,7 +124,7 @@ ACMD(do_oasis_redit)
   }
 
   if (save) {
-    send_to_char(ch, "Saving all rooms in zone %d.\r\n", zone_table[OLC_ZNUM(d)].number);
+    send_to_char(ch, "%d 존 내의 모든 방을 저장합니다.\r\n", zone_table[OLC_ZNUM(d)].number);
     mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE, "OLC: %s saves room info for zone %d.", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
 
     /* Save the rooms. */
@@ -145,7 +145,7 @@ ACMD(do_oasis_redit)
 
   redit_disp_menu(d);
   STATE(d) = CON_REDIT;
-  act("$n starts using OLC.", TRUE, d->character, 0, 0, TO_ROOM);
+  act("$n님이 방 편집을 시작합니다.", TRUE, d->character, 0, 0, TO_ROOM);
   SET_BIT_AR(PLR_FLAGS(ch), PLR_WRITING);
 
   mudlog(CMP, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE, "OLC: %s starts editing zone %d allowed zone %d",
@@ -244,7 +244,7 @@ void redit_save_internally(struct descriptor_data *d)
   OLC_ROOM(d)->zone = OLC_ZNUM(d);
 
   if ((room_num = add_room(OLC_ROOM(d))) == NOWHERE) {
-    write_to_output(d, "Something went wrong...\r\n");
+    write_to_output(d, "잘못 입력하셨습니다..\r\n");
     log("SYSERR: redit_save_internally: Something failed! (%d)", room_num);
     return;
   }
@@ -328,7 +328,7 @@ static void redit_disp_extradesc_menu(struct descriptor_data *d)
 	  );
 
   write_to_output(d, !extra_desc->next ? "Not Set.\r\n" : "Set.\r\n");
-  write_to_output(d, "Enter choice (0 to quit) : ");
+  write_to_output(d, "0부터 quit 중에 선택하세요 :");
   OLC_MODE(d) = REDIT_EXTRADESC_MENU;
 }
 
@@ -345,26 +345,26 @@ static void redit_disp_exit_menu(struct descriptor_data *d)
   /* Weird door handling! */
   if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR)) {
     if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) && IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN))
-      strncpy(door_buf, "Hidden Pickproof", sizeof(door_buf)-1);
+      strncpy(door_buf, "숨겨진 증명 필요", sizeof(door_buf)-1);
     else if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF))
-      strncpy(door_buf, "Pickproof", sizeof(door_buf)-1);
+      strncpy(door_buf, "증명 필요", sizeof(door_buf)-1);
     else if (IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN))
-      strncpy(door_buf, "Is a Hidden Door", sizeof(door_buf)-1);
+      strncpy(door_buf, "숨겨진 문", sizeof(door_buf)-1);
     else
-      strncpy(door_buf, "Is a door", sizeof(door_buf)-1);
+      strncpy(door_buf, "일반 문", sizeof(door_buf)-1);
   } else
-    strncpy(door_buf, "No door", sizeof(door_buf)-1);
+    strncpy(door_buf, "문 없음", sizeof(door_buf)-1);
 
   get_char_colors(d->character);
   clear_screen(d);
   write_to_output(d,
-	  "%s1%s) Exit to     : %s%d\r\n"
-	  "%s2%s) Description :-\r\n%s%s\r\n"
-	  "%s3%s) Door name   : %s%s\r\n"
-	  "%s4%s) Key         : %s%d\r\n"
-	  "%s5%s) Door flags  : %s%s\r\n"
-	  "%s6%s) Purge exit.\r\n"
-	  "Enter choice, 0 to quit : ",
+	  "%s1%s) 연결 방번호     : %s%d\r\n"
+	  "%s2%s) 묘사 :-\r\n%s%s\r\n"
+	  "%s3%s) 문 이름   : %s%s\r\n"
+	  "%s4%s) 열쇠         : %s%d\r\n"
+	  "%s5%s) 문 속성  : %s%s\r\n"
+	  "%s6%s) 출구 제거.\r\n"
+	  "0에서 6 중에 선택하세요 : ",
 
 	  grn, nrm, cyn, OLC_EXIT(d)->to_room != NOWHERE ? world[OLC_EXIT(d)->to_room].number : -1,
 	  grn, nrm, yel, OLC_EXIT(d)->general_description ? OLC_EXIT(d)->general_description : "<NONE>",
@@ -380,12 +380,12 @@ static void redit_disp_exit_menu(struct descriptor_data *d)
 static void redit_disp_exit_flag_menu(struct descriptor_data *d)
 {
   get_char_colors(d->character);
-  write_to_output(d, "%s0%s) No door\r\n"
-	  "%s1%s) Closeable door\r\n"
-      "%s2%s) Pickproof Door\r\n"
-      "%s3%s) Hidden Door\r\n"
-      "%s4%s) Hidden, Pickproof Door\r\n"
-      "Enter choice : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+  write_to_output(d, "%s0%s) 문 없음\r\n"
+	  "%s1%s) 개폐식 문\r\n"
+      "%s2%s) 증명필요 문\r\n"
+      "%s3%s) 숨겨진 문\r\n"
+      "%s4%s) 숨겨진 증명필요 문\r\n"
+      "선택하세요 : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 }
 
 /* For room flags. */
@@ -398,8 +398,8 @@ static void redit_disp_flag_menu(struct descriptor_data *d)
   column_list(d->character, 0, room_bits, NUM_ROOM_FLAGS, TRUE);
 
   sprintbitarray(OLC_ROOM(d)->room_flags, room_bits, RF_ARRAY_MAX, bits);
-  write_to_output(d, "\r\nRoom flags: %s%s%s\r\n"
-	  "Enter room flags, 0 to quit : ", cyn, bits, nrm);
+  write_to_output(d, "\r\n방 속성: %s%s%s\r\n"
+	  "방 속성을 선택하세요, 0에서 q : ", cyn, bits, nrm);
   OLC_MODE(d) = REDIT_FLAGS;
 }
 
@@ -408,7 +408,7 @@ static void redit_disp_sector_menu(struct descriptor_data *d)
 {
   clear_screen(d);
   column_list(d->character, 0, sector_types, NUM_ROOM_SECTORS, TRUE);
-  write_to_output(d, "\r\nEnter sector type : ");
+  write_to_output(d, "\r\n지역 선택 : ");
   OLC_MODE(d) = REDIT_SECTOR;
 }
 
@@ -426,11 +426,11 @@ static void redit_disp_menu(struct descriptor_data *d)
   sprintbitarray(room->room_flags, room_bits, RF_ARRAY_MAX, buf1);
   sprinttype(room->sector_type, sector_types, buf2, sizeof(buf2));
   write_to_output(d,
-      "-- Room number : [%s%d%s] Room zone: [%s%d%s]\r\n"
-      "%s1%s) Name        : %s%s\r\n"
-      "%s2%s) Description :\r\n%s%s"
-      "%s3%s) Room flags  : %s%s\r\n"
-      "%s4%s) Sector type : %s%s\r\n",
+      "-- 방 번호 : [%s%d%s] 존 번호 : [%s%d%s]\r\n"
+      "%s1%s) 이름        : %s%s\r\n"
+      "%s2%s) 묘사 :\r\n%s%s"
+      "%s3%s) 방 속성 : %s%s\r\n"
+      "%s4%s) 지역 유형 : %s%s\r\n",
       cyn, OLC_NUM(d), nrm,
       cyn, zone_table[OLC_ZNUM(d)].number, nrm,
       grn, nrm, yel, room->name,
@@ -441,10 +441,10 @@ static void redit_disp_menu(struct descriptor_data *d)
   if (!CONFIG_DIAGONAL_DIRS)
   {
     write_to_output(d,
-      "%s5%s) Exit north  : %s%d\r\n"
-      "%s6%s) Exit east   : %s%d\r\n"
-      "%s7%s) Exit south  : %s%d\r\n"
-      "%s8%s) Exit west   : %s%d\r\n",
+      "%s5%s) 출구 북 : %s%d\r\n"
+      "%s6%s) 출구 동 : %s%d\r\n"
+      "%s7%s) 출구 남 : %s%d\r\n"
+      "%s8%s) 출구 서 : %s%d\r\n",
       grn, nrm, cyn,
       room->dir_option[NORTH] && room->dir_option[NORTH]->to_room != NOWHERE ?
       world[room->dir_option[NORTH]->to_room].number : -1,
@@ -459,10 +459,10 @@ static void redit_disp_menu(struct descriptor_data *d)
       world[room->dir_option[WEST]->to_room].number : -1);
   } else {
     write_to_output(d,
-      "%s5%s) Exit north  : %s%-6d%s,  %sB%s) Exit northwest : %s%d\r\n"
-      "%s6%s) Exit east   : %s%-6d%s,  %sC%s) Exit northeast : %s%d\r\n"
-      "%s7%s) Exit south  : %s%-6d%s,  %sD%s) Exit southeast : %s%d\r\n"
-      "%s8%s) Exit west   : %s%-6d%s,  %sE%s) Exit southwest : %s%d\r\n",
+      "%s5%s) 출구 북 : %s%-6d%s,  %sB%s) 출구 북서 : %s%d\r\n"
+      "%s6%s) 출구 동 : %s%-6d%s,  %sC%s) 출구 북동 : %s%d\r\n"
+      "%s7%s) 출구 남 : %s%-6d%s,  %sD%s) 출구 남동 : %s%d\r\n"
+      "%s8%s) 출구 서 : %s%-6d%s,  %sE%s) 출구 남서 : %s%d\r\n",
       grn, nrm, cyn,
       room->dir_option[NORTH] && room->dir_option[NORTH]->to_room != NOWHERE ?
       world[room->dir_option[NORTH]->to_room].number : -1, nrm,
@@ -490,14 +490,14 @@ static void redit_disp_menu(struct descriptor_data *d)
       );
   }
   write_to_output(d,
-      "%s9%s) Exit up     : %s%d\r\n"
-      "%sA%s) Exit down   : %s%d\r\n"
-      "%sF%s) Extra descriptions menu\r\n"
-      "%sS%s) Script      : %s%s\r\n"
-       "%sW%s) Copy Room\r\n"
-      "%sX%s) Delete Room\r\n"
-      "%sQ%s) Quit\r\n"
-      "Enter choice : ",
+      "%s9%s) 출구 위 : %s%d\r\n"
+      "%sA%s) 출구 밑 : %s%d\r\n"
+      "%sF%s) 기타 묘사 메뉴\r\n"
+      "%sS%s) 스크립트      : %s%s\r\n"
+       "%sW%s) 방 복사\r\n"
+      "%sX%s) 방 삭제\r\n"
+      "%sQ%s) 종료\r\n"
+      "선택하세요 : ",
       grn, nrm, cyn,
       room->dir_option[UP] && room->dir_option[UP]->to_room != NOWHERE ?
       world[room->dir_option[UP]->to_room].number : -1,
@@ -529,9 +529,9 @@ void redit_parse(struct descriptor_data *d, char *arg)
       mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), TRUE, "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
       if (CONFIG_OLC_SAVE) {
         redit_save_to_disk(real_zone_by_thing(OLC_NUM(d)));
-        write_to_output(d, "Room saved to disk.\r\n");
+        write_to_output(d, "방 정보를 디스크에 저장했습니다.\r\n");
       } else
-        write_to_output(d, "Room saved to memory.\r\n");
+        write_to_output(d, "방 정보를 메모리에 저장했습니다.\r\n");
       /* Free everything. */
       cleanup_olc(d, CLEANUP_ALL);
       break;
@@ -544,7 +544,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
       cleanup_olc(d, CLEANUP_ALL);
       break;
     default:
-      write_to_output(d, "Invalid choice!\r\nDo you wish to save your changes ? : ");
+      write_to_output(d, "잘못 입력하셨습니다!\r\n변경 내용을 저장하시겠습니까? : (y / n)");
       break;
     }
     return;
@@ -554,20 +554,20 @@ void redit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) { /* Something has been modified. */
-        write_to_output(d, "Do you wish to save your changes? : ");
+        write_to_output(d, "변경 내용을 저장하시겠습니까? : (y / n)");
         OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
       } else
         cleanup_olc(d, CLEANUP_ALL);
       return;
     case '1':
-      write_to_output(d, "Enter room name:-\r\n] ");
+      write_to_output(d, "방 이름을 입력하세요 :-\r\n] ");
       OLC_MODE(d) = REDIT_NAME;
       break;
     case '2':
       OLC_MODE(d) = REDIT_DESC;
       clear_screen(d);
       send_editor_help(d);
-      write_to_output(d, "Enter room description:\r\n\r\n");
+      write_to_output(d, "방 묘사를 입력하세요 :\r\n\r\n");
 
       if (OLC_ROOM(d)->description) {
 	write_to_output(d, "%s", OLC_ROOM(d)->description);
@@ -610,7 +610,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
     case 'b':
     case 'B':
       if (!CONFIG_DIAGONAL_DIRS) {
-        write_to_output(d, "Invalid choice!");
+        write_to_output(d, "잘못 입력하셨습니다!");
         redit_disp_menu(d);
       } else {
         OLC_VAL(d) = NORTHWEST;
@@ -620,7 +620,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
     case 'c':
     case 'C':
       if (!CONFIG_DIAGONAL_DIRS) {
-        write_to_output(d, "Invalid choice!");
+        write_to_output(d, "잘못 입력하셨습니다!");
         redit_disp_menu(d);
       } else {
         OLC_VAL(d) = NORTHEAST;
@@ -630,7 +630,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
     case 'd':
     case 'D':
       if (!CONFIG_DIAGONAL_DIRS) {
-        write_to_output(d, "Invalid choice!");
+        write_to_output(d, "잘못 입력하셨습니다!");
         redit_disp_menu(d);
       } else {
         OLC_VAL(d) = SOUTHEAST;
@@ -640,7 +640,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
     case 'e':
     case 'E':
       if (!CONFIG_DIAGONAL_DIRS) {
-        write_to_output(d, "Invalid choice!");
+        write_to_output(d, "잘못 입력하셨습니다!");
         redit_disp_menu(d);
       } else {
         OLC_VAL(d) = SOUTHWEST;
@@ -657,13 +657,13 @@ void redit_parse(struct descriptor_data *d, char *arg)
       break;
     case 'w':
     case 'W':
-      write_to_output(d, "Copy what room? ");
+      write_to_output(d, "어떤 방을 복사하시겠습니까?");
       OLC_MODE(d) = REDIT_COPY;
       break;
     case 'x':
     case 'X':
       /* Delete the room, prompt first. */
-      write_to_output(d, "Are you sure you want to delete this room? ");
+      write_to_output(d, "정말로 이 방을 삭제하시겠습니까? (y / n)");
       OLC_MODE(d) = REDIT_DELETE;
       break;
 
@@ -673,7 +673,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
       dg_script_menu(d);
       return;
     default:
-      write_to_output(d, "Invalid choice!");
+      write_to_output(d, "잘못 입력하셨습니다!");
       redit_disp_menu(d);
       break;
     }
@@ -688,7 +688,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
     if (!genolc_checkstring(d, arg))
       break;
     if (count_non_protocol_chars(arg) > MAX_ROOM_NAME / 2) {
-      write_to_output(d, "Size limited to %d non-protocol characters.\r\n", MAX_ROOM_NAME / 2);
+      write_to_output(d, "%d 글자 이상 입력할 수 없습니다.\r\n", MAX_ROOM_NAME / 2);
       break;
     }
     if (OLC_ROOM(d)->name)
@@ -706,7 +706,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
   case REDIT_FLAGS:
     number = atoi(arg);
     if (number < 0 || number > NUM_ROOM_FLAGS) {
-      write_to_output(d, "That is not a valid choice!\r\n");
+      write_to_output(d, "올바른 입력이 아닙니다!\r\n");
       redit_disp_flag_menu(d);
     } else if (number == 0)
       break;
@@ -720,7 +720,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
   case REDIT_SECTOR:
     number = atoi(arg) - 1;
     if (number < 0 || number >= NUM_ROOM_SECTORS) {
-      write_to_output(d, "Invalid choice!");
+      write_to_output(d, "잘못 입력하셨습니다!");
       redit_disp_sector_menu(d);
       return;
     }
@@ -733,12 +733,12 @@ void redit_parse(struct descriptor_data *d, char *arg)
       break;
     case '1':
       OLC_MODE(d) = REDIT_EXIT_NUMBER;
-      write_to_output(d, "Exit to room number : ");
+      write_to_output(d, "출구 방 번호 : ");
       return;
     case '2':
       OLC_MODE(d) = REDIT_EXIT_DESCRIPTION;
       send_editor_help(d);
-      write_to_output(d, "Enter exit description:\r\n\r\n");
+      write_to_output(d, "출구 묘사를 입력하세요 :\r\n\r\n");
       if (OLC_EXIT(d)->general_description) {
 	write_to_output(d, "%s", OLC_EXIT(d)->general_description);
 	oldtext = strdup(OLC_EXIT(d)->general_description);
@@ -747,11 +747,11 @@ void redit_parse(struct descriptor_data *d, char *arg)
       return;
     case '3':
       OLC_MODE(d) = REDIT_EXIT_KEYWORD;
-      write_to_output(d, "Enter keywords : ");
+      write_to_output(d, "키워드를 입력하세요 : ");
       return;
     case '4':
       OLC_MODE(d) = REDIT_EXIT_KEY;
-      write_to_output(d, "Enter key number : ");
+      write_to_output(d, "열쇠 번호를 입력하세요 :");
       return;
     case '5':
       OLC_MODE(d) = REDIT_EXIT_DOORFLAGS;
@@ -770,7 +770,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
       OLC_EXIT(d) = NULL;
       break;
     default:
-      write_to_output(d, "Try again : ");
+      write_to_output(d, "다시 입력하세요 :");
       return;
     }
     break;
@@ -778,7 +778,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
   case REDIT_EXIT_NUMBER:
     if ((number = atoi(arg)) != -1)
       if ((number = real_room(number)) == NOWHERE) {
-	write_to_output(d, "That room does not exist, try again : ");
+	write_to_output(d, "그 방은 존재하지 않습니다, 다시 입력하세요 : ");
 	return;
       }
     OLC_EXIT(d)->to_room = number;
@@ -810,7 +810,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
   case REDIT_EXIT_DOORFLAGS:
     number = atoi(arg);
     if (number < 0 || number > 4) {
-      write_to_output(d, "That's not a valid choice!\r\n");
+      write_to_output(d, "잘못 입력하셨습니다!\r\n");
       redit_disp_exit_flag_menu(d);
     } else {
       /* Doors are a bit idiotic, don't you think? :) -- I agree. -gg */
@@ -852,7 +852,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
       break;
     case 1:
       OLC_MODE(d) = REDIT_EXTRADESC_KEY;
-      write_to_output(d, "Enter keywords, separated by spaces : ");
+      write_to_output(d, "키워드를 입력하세요, 스페이스를 기준으로 구분됩니다 : ");
       return;
     case 2:
       OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
@@ -866,7 +866,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
       return;
     case 3:
       if (OLC_DESC(d)->keyword == NULL || OLC_DESC(d)->description == NULL) {
-	write_to_output(d, "You can't edit the next extra description without completing this one.\r\n");
+	write_to_output(d, "이 페이지를 완성하기 전에는 다음 내용을 편집할 수 없습니다.\r\n");
 	redit_disp_extradesc_menu(d);
       } else {
 	struct extra_descr_data *new_extra;
@@ -889,15 +889,15 @@ void redit_parse(struct descriptor_data *d, char *arg)
     if ((number = real_room(atoi(arg))) != NOWHERE) {
       redit_setup_existing(d, number);
     } else
-      write_to_output(d, "That room does not exist.\r\n");
+      write_to_output(d, "그 방은 존재하지 않습니다.\r\n");
     break;
   
   case REDIT_DELETE:
     if (*arg == 'y' || *arg == 'Y') {
       if (delete_room(real_room(OLC_ROOM(d)->number)))
-        write_to_output(d, "Room deleted.\r\n");
+        write_to_output(d, "방 삭제 완료.\r\n");
      else
-        write_to_output(d, "Couldn't delete the room!.\r\n");
+        write_to_output(d, "삭제할 수 없는 방입니다!.\r\n");
 
       cleanup_olc(d, CLEANUP_ALL);
       return;
@@ -906,7 +906,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
       OLC_MODE(d) = REDIT_MAIN_MENU;
       return;
     } else
-      write_to_output(d, "Please answer 'Y' or 'N': ");
+      write_to_output(d, "'Y' 또는 'N'으로 답해주세요 : ");
 
     break;
 

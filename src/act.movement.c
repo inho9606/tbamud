@@ -179,7 +179,7 @@ int do_simple_move(struct char_data *ch, int dir, int need_specials_check)
   {
     if (!has_boat(ch))
     {
-      send_to_char(ch, "You need a boat to go there.\r\n");
+      send_to_char(ch, "보트가 있어야 갈 수 있습니다.\r\n");
       return (0);
     }
   }
@@ -189,7 +189,7 @@ int do_simple_move(struct char_data *ch, int dir, int need_specials_check)
   {
     if (!has_flight(ch))
     {
-      send_to_char(ch, "You need to be flying to go there!\r\n");
+      send_to_char(ch, "날아서 가야하는 곳입니다!\r\n");
       return (0);
     }
   }
@@ -198,7 +198,7 @@ int do_simple_move(struct char_data *ch, int dir, int need_specials_check)
   if ((SECT(was_in) == SECT_UNDERWATER) || (SECT(going_to) == SECT_UNDERWATER))
   {
     if (!has_scuba(ch) && !IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-      send_to_char(ch, "You need to be able to breathe water to go there!\r\n");
+      send_to_char(ch, "잠수복이 있어야 갈 수 있습니다!\r\n");
       return (0);
     }
   }
@@ -208,41 +208,46 @@ int do_simple_move(struct char_data *ch, int dir, int need_specials_check)
   {
     if (!House_can_enter(ch, GET_ROOM_VNUM(going_to)))
     {
-      send_to_char(ch, "That's private property -- no trespassing!\r\n");
+      send_to_char(ch, "개인집 입니다 -- 출입금지!\r\n");
       return (0);
     }
   }
 
   /* Check zone level recommendations */
   if ((ZONE_MINLVL(GET_ROOM_ZONE(going_to)) != -1) && ZONE_MINLVL(GET_ROOM_ZONE(going_to)) > GET_LEVEL(ch)) {
-    send_to_char(ch, "This zone is above your recommended level.\r\n");
+    send_to_char(ch, "아직 이 지역으로 들어가기에 레벨이 낮습니다.\r\n");
+    return (0);
+  }
+if ((GET_LEVEL(ch) < LVL_IMMORT) && (ZONE_MAXLVL(GET_ROOM_ZONE(going_to)) != -1) && ZONE_MAXLVL(GET_ROOM_ZONE(going_to)) < GET_LEVEL(ch)) {
+    send_to_char(ch, "이 지역으로 들어가기에 레벨이 너무 높습니다.\r\n");
+    return (0);
   }
 
-  /* Check zone flag restrictions */
+  /* 제한된 존 체크 */
   if (ZONE_FLAGGED(GET_ROOM_ZONE(going_to), ZONE_CLOSED)) {
-    send_to_char(ch, "A mysterious barrier forces you back! That area is off-limits.\r\n");
+    send_to_char(ch, "신비로운 벽이 가로막습니다! 닫혀있는 구역입니다.\r\n");
     return (0);
   }
   if (ZONE_FLAGGED(GET_ROOM_ZONE(going_to), ZONE_NOIMMORT) && (GET_LEVEL(ch) >= LVL_IMMORT) && (GET_LEVEL(ch) < LVL_GRGOD)) {
-    send_to_char(ch, "A mysterious barrier forces you back! That area is off-limits.\r\n");
+    send_to_char(ch, "신비로운 벽이 가로막습니다! 출입제한 구역입니다.\r\n");
     return (0);
   }
 
-  /* Room Size Capacity: Is the room full of people already? */
+  /* 방크기: 이미 사람이 방에 가득차 있는가? */
   if (ROOM_FLAGGED(going_to, ROOM_TUNNEL) &&
       num_pc_in_room(&(world[going_to])) >= CONFIG_TUNNEL_SIZE)
   {
     if (CONFIG_TUNNEL_SIZE > 1)
-      send_to_char(ch, "There isn't enough room for you to go there!\r\n");
+      send_to_char(ch, "더이상 들어갈 수 없습니다.!\r\n");
     else
-      send_to_char(ch, "There isn't enough room there for more than one person!\r\n");
+      send_to_char(ch, "한사람만 들어갈 수 있습니다!\r\n");
     return (0);
   }
 
   /* Room Level Requirements: Is ch privileged enough to enter the room? */
   if (ROOM_FLAGGED(going_to, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GOD)
   {
-    send_to_char(ch, "You aren't godly enough to use that room!\r\n");
+    send_to_char(ch, "당신의 권한으로 들어갈 수 없습니다!\r\n");
     return (0);
   }
 
@@ -256,9 +261,9 @@ int do_simple_move(struct char_data *ch, int dir, int need_specials_check)
   if (GET_MOVE(ch) < need_movement && !IS_NPC(ch))
   {
     if (need_specials_check && ch->master)
-      send_to_char(ch, "You are too exhausted to follow.\r\n");
+      send_to_char(ch, "당신은 따라가기에 너무 지쳐 있습니다.\r\n");
     else
-      send_to_char(ch, "You are too exhausted.\r\n");
+      send_to_char(ch, "당신은 너무 지쳐 있습니다.\r\n");
 
     return (0);
   }
@@ -276,7 +281,7 @@ int do_simple_move(struct char_data *ch, int dir, int need_specials_check)
   /* Generate the leave message and display to others in the was_in room. */
   if (!AFF_FLAGGED(ch, AFF_SNEAK))
   {
-    snprintf(leave_message, sizeof(leave_message), "$n leaves %s.", dirs[dir]);
+    snprintf(leave_message, sizeof(leave_message), "$n$j %s쪽으로 갑니다.", han_dirs[dir]);
     act(leave_message, TRUE, ch, 0, 0, TO_ROOM);
   }
 
@@ -300,7 +305,7 @@ int do_simple_move(struct char_data *ch, int dir, int need_specials_check)
 
   /* Display arrival information to anyone in the destination room... */
   if (!AFF_FLAGGED(ch, AFF_SNEAK))
-    act("$n has arrived.", TRUE, ch, 0, 0, TO_ROOM);
+    act("$n$j 도착했습니다.", TRUE, ch, 0, 0, TO_ROOM);
 
   /* ... and the room description to the character. */
   if (ch->desc != NULL)
@@ -345,14 +350,15 @@ int perform_move(struct char_data *ch, int dir, int need_specials_check)
   if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || FIGHTING(ch))
     return (0);
   else if (!CONFIG_DIAGONAL_DIRS && IS_DIAGONAL(dir))
-    send_to_char(ch, "Alas, you cannot go that way...\r\n");
+    send_to_char(ch, "그쪽으로는 길이 없습니다.\r\n");
   else if ((!EXIT(ch, dir) && !buildwalk(ch, dir)) || EXIT(ch, dir)->to_room == NOWHERE)
-    send_to_char(ch, "Alas, you cannot go that way...\r\n");
+    send_to_char(ch, "그쪽으로는 길이 없습니다.\r\n");
   else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED) && (GET_LEVEL(ch) < LVL_IMMORT || (!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE)))) {
     if (EXIT(ch, dir)->keyword)
-      send_to_char(ch, "The %s seems to be closed.\r\n", fname(EXIT(ch, dir)->keyword));
+      send_to_char(ch, "%s%s 잠겨 있습니다.\r\n",
+		fname(EXIT(ch, dir)->keyword), check_josa(fname(EXIT(ch, dir)->keyword), 0));
     else
-      send_to_char(ch, "It seems to be closed.\r\n");
+      send_to_char(ch, "잠겨 있는것 같습니다.\r\n");
   } else {
     if (!ch->followers)
       return (do_simple_move(ch, dir, need_specials_check));
@@ -365,7 +371,7 @@ int perform_move(struct char_data *ch, int dir, int need_specials_check)
       next = k->next;
       if ((IN_ROOM(k->follower) == was_in) &&
 	  (GET_POS(k->follower) >= POS_STANDING)) {
-	act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
+	act("당신은 $N$J 따라 이동합니다.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
 	perform_move(k->follower, dir, 1);
       }
     }
@@ -387,7 +393,7 @@ static int find_door(struct char_data *ch, const char *type, char *dir, const ch
   if (*dir) {			/* a direction was specified */
     if ((door = search_block(dir, dirs, FALSE)) == -1) { /* Partial Match */
       if ((door = search_block(dir, autoexits, FALSE)) == -1) { /* Check 'short' dirs too */
-        send_to_char(ch, "That's not a direction.\r\n");
+      send_to_char(ch, "그쪽으로는 길이 없습니다.\r\n");
         return (-1);
       }
     }
@@ -396,18 +402,18 @@ static int find_door(struct char_data *ch, const char *type, char *dir, const ch
         if (is_name(type, EXIT(ch, door)->keyword))
           return (door);
         else {
-          send_to_char(ch, "I see no %s there.\r\n", type);
+	  send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", type, check_josa(type, 1));
           return (-1);
         }
       } else
 	return (door);
     } else {
-      send_to_char(ch, "I really don't see how you can %s anything there.\r\n", cmdname);
+      send_to_char(ch, "어떻게 %s 보려구요?\r\n", cmdname);
       return (-1);
     }
   } else {			/* try to locate the keyword */
     if (!*type) {
-      send_to_char(ch, "What is it you want to %s?\r\n", cmdname);
+      send_to_char(ch, "무엇을 %s 볼까요?\r\n", cmdname);
       return (-1);
     }
     for (door = 0; door < DIR_COUNT; door++)
@@ -420,38 +426,38 @@ static int find_door(struct char_data *ch, const char *type, char *dir, const ch
           {
             if ((!IS_NPC(ch)) && (!PRF_FLAGGED(ch, PRF_AUTODOOR)))
               return door;
-            else if (is_abbrev(cmdname, "open"))
+            else if (is_abbrev(cmdname, "열어"))
             {
               if (IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))
                 return door;
               else if (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED))
                 return door;
             }
-            else if ((is_abbrev(cmdname, "close")) && (!(IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))) )
+            else if ((is_abbrev(cmdname, "닫아")) && (!(IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))) )
               return door;
-            else if ((is_abbrev(cmdname, "lock")) && (!(IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED))) )
+            else if ((is_abbrev(cmdname, "잠궈")) && (!(IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED))) )
               return door;
-            else if ((is_abbrev(cmdname, "unlock")) && (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED)) )
+            else if ((is_abbrev(cmdname, "풀어")) && (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED)) )
               return door;
-            else if ((is_abbrev(cmdname, "pick")) && (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED)) )
+            else if ((is_abbrev(cmdname, "따")) && (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED)) )
               return door;
           }
         }
       }
     }
 
-    if ((!IS_NPC(ch)) && (!PRF_FLAGGED(ch, PRF_AUTODOOR)))
-      send_to_char(ch, "There doesn't seem to be %s %s here.\r\n", AN(type), type);
-    else if (is_abbrev(cmdname, "open"))
-      send_to_char(ch, "There doesn't seem to be %s %s that can be opened.\r\n", AN(type), type);
-    else if (is_abbrev(cmdname, "close"))
-      send_to_char(ch, "There doesn't seem to be %s %s that can be closed.\r\n", AN(type), type);
-    else if (is_abbrev(cmdname, "lock"))
-      send_to_char(ch, "There doesn't seem to be %s %s that can be locked.\r\n", AN(type), type);
-    else if (is_abbrev(cmdname, "unlock"))
-      send_to_char(ch, "There doesn't seem to be %s %s that can be unlocked.\r\n", AN(type), type);
+    if ((!IS_NPC(ch)) && (!PRF_FLAGGED(ch, PRF_AUTODOOR))) // 테스트
+      send_to_char(ch, "There doesn't seem to be %s here.\r\n", type);
+    else if (is_abbrev(cmdname, "열어"))
+      send_to_char(ch, "There doesn't seem to be %s that can be opened.\r\n", type);
+    else if (is_abbrev(cmdname, "닫아"))
+      send_to_char(ch, "There doesn't seem to be %s that can be closed.\r\n", type);
+    else if (is_abbrev(cmdname, "잠궈"))
+      send_to_char(ch, "There doesn't seem to be %s that can be locked.\r\n", type);
+    else if (is_abbrev(cmdname, "풀어"))
+      send_to_char(ch, "There doesn't seem to be %s that can be unlocked.\r\n", type);
     else
-      send_to_char(ch, "There doesn't seem to be %s %s that can be picked.\r\n", AN(type), type);
+      send_to_char(ch, "There doesn't seem to be %s that can be picked.\r\n", type);
 
     return (-1);
   }
@@ -480,11 +486,11 @@ int has_key(struct char_data *ch, obj_vnum key)
 /* cmd_door is required external from act.movement.c */
 const char *cmd_door[] =
 {
-  "open",
-  "close",
-  "unlock",
-  "lock",
-  "pick"
+  "열어",
+  "닫아",
+  "풀어",
+  "잠궈",
+  "따"
 };
 
 static const int flags_door[] =
@@ -551,37 +557,37 @@ static void do_doorcmd(struct char_data *ch, struct obj_data *obj, int door, int
     LOCK_DOOR(IN_ROOM(ch), obj, door);
     if (back)
       LOCK_DOOR(other_room, obj, rev_dir[door]);
-    send_to_char(ch, "*Click*\r\n");
+    send_to_char(ch, "*철컥*\r\n");
     break;
 
   case SCMD_UNLOCK:
     UNLOCK_DOOR(IN_ROOM(ch), obj, door);
     if (back)
       UNLOCK_DOOR(other_room, obj, rev_dir[door]);
-    send_to_char(ch, "*Click*\r\n");
+    send_to_char(ch, "*찰칵*\r\n");
     break;
 
   case SCMD_PICK:
     TOGGLE_LOCK(IN_ROOM(ch), obj, door);
     if (back)
       TOGGLE_LOCK(other_room, obj, rev_dir[door]);
-    send_to_char(ch, "The lock quickly yields to your skills.\r\n");
-    len = strlcpy(buf, "$n skillfully picks the lock on ", sizeof(buf));
+    send_to_char(ch, "당신의 교묘한 손놀림으로 자물쇠를 땁니다.\r\n");
+    len = strlcpy(buf, "$n님의 교묘한 손놀림으로 자물쇠를 땁니다", sizeof(buf));
     break;
   }
 
   /* Notify the room. */
   if (len < sizeof(buf))
-    snprintf(buf + len, sizeof(buf) - len, "%s%s.",
-      obj ? "" : "the ", obj ? "$p" : EXIT(ch, door)->keyword ? "$F" : "door");
+    snprintf(buf + len, sizeof(buf) - len, "%s.",
+	obj ? "$p" : EXIT(ch, door)->keyword ? "$F" : "문");
   if (!obj || IN_ROOM(obj) != NOWHERE)
     act(buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->keyword, TO_ROOM);
 
   /* Notify the other room */
   if (back && (scmd == SCMD_OPEN || scmd == SCMD_CLOSE))
-      send_to_room(EXIT(ch, door)->to_room, "The %s is %s%s from the other side.\r\n",
-        back->keyword ? fname(back->keyword) : "door", cmd_door[scmd],
-        scmd == SCMD_CLOSE ? "d" : "ed");
+      send_to_room(EXIT(ch, door)->to_room, "%s%s 반대 방향에서 %s.\r\n",
+		back->keyword ? fname(back->keyword) : "문",
+ check_josa(back->keyword ? fname(back->keyword) : "문", 0), cmd_door[scmd]);
 }
 
 static int ok_pick(struct char_data *ch, obj_vnum keynum, int pickproof, int scmd)
@@ -595,11 +601,11 @@ static int ok_pick(struct char_data *ch, obj_vnum keynum, int pickproof, int scm
   skill_lvl = GET_SKILL(ch, SKILL_PICK_LOCK) + dex_app_skill[GET_DEX(ch)].p_locks;
 
   if (keynum == NOTHING)
-    send_to_char(ch, "Odd - you can't seem to find a keyhole.\r\n");
+    send_to_char(ch, "열쇠 구멍을 찾을 수 없습니다.\r\n");
   else if (pickproof)
-    send_to_char(ch, "It resists your attempts to pick it.\r\n");
+    send_to_char(ch, "자물쇠가 너무 단단히 잠겨 있습니다.\r\n");
   else if (percent > skill_lvl)
-    send_to_char(ch, "You failed to pick the lock.\r\n");
+    send_to_char(ch, "자물쇠를 따는데 실패했습니다.\r\n");
   else
     return (1);
 
@@ -630,7 +636,7 @@ ACMD(do_gen_door)
 
   skip_spaces(&argument);
   if (!*argument) {
-    send_to_char(ch, "%c%s what?\r\n", UPPER(*cmd_door[subcmd]), cmd_door[subcmd] + 1);
+    send_to_char(ch, "무엇을 %s 볼까요?\r\n", cmd_door[subcmd]);
     return;
   }
   two_arguments(argument, type, dir);
@@ -644,29 +650,34 @@ ACMD(do_gen_door)
 
   if ((obj) || (door >= 0)) {
     keynum = DOOR_KEY(ch, obj, door);
-    if (!(DOOR_IS_OPENABLE(ch, obj, door)))
-      send_to_char(ch, "You can't %s that!\r\n", cmd_door[subcmd]);
-    else if (!DOOR_IS_OPEN(ch, obj, door) && IS_SET(flags_door[subcmd], NEED_OPEN))
-      send_to_char(ch, "But it's already closed!\r\n");
-    else if (!DOOR_IS_CLOSED(ch, obj, door) && IS_SET(flags_door[subcmd], NEED_CLOSED))
-      send_to_char(ch, "But it's currently open!\r\n");
-    else if (!(DOOR_IS_LOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_LOCKED))
-      send_to_char(ch, "Oh.. it wasn't locked, after all..\r\n");
-    else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED) && ((!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOKEY))) && (has_key(ch, keynum)) )
+   if (!(DOOR_IS_OPENABLE(ch, obj, door)))
+      send_to_char(ch, "%s볼 수 없습니다!\r\n", cmd_door[subcmd]);
+    else if (!DOOR_IS_OPEN(ch, obj, door) &&
+	     IS_SET(flags_door[subcmd], NEED_OPEN))
+      send_to_char(ch, "이미 닫혀 있습니다!\r\n");
+    else if (!DOOR_IS_CLOSED(ch, obj, door) &&
+	     IS_SET(flags_door[subcmd], NEED_CLOSED))
+      send_to_char(ch, "이미 열려 있습니다!\r\n");
+    else if (!(DOOR_IS_LOCKED(ch, obj, door)) &&
+	     IS_SET(flags_door[subcmd], NEED_LOCKED))
+      send_to_char(ch, "이미 잠겨 있습니다!\r\n");
+    else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED) && (PRF_FLAGGED(ch, PRF_AUTOKEY)) && (has_key(ch, keynum)) )
     {
-      send_to_char(ch, "It is locked, but you have the key.\r\n");
-      do_doorcmd(ch, obj, door, SCMD_UNLOCK);
+      send_to_char(ch, "잠겨있는데 당신이 맞는 열쇠를 가지고 있습니다.\r\n");
+      send_to_char(ch, "*찰칵*\r\n");
       do_doorcmd(ch, obj, door, subcmd);
     }
-    else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED) && ((!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOKEY))) && (!has_key(ch, keynum)) )
+    else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED) && (PRF_FLAGGED(ch, PRF_AUTOKEY)) && (!has_key(ch, keynum)) )
     {
-      send_to_char(ch, "It is locked, and you do not have the key!\r\n");
+      send_to_char(ch, "잠겨있는데 당신이 맞는 열쇠를 가지고 있지 않습니다!\r\n");
     }
-    else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED) &&
-             (GET_LEVEL(ch) < LVL_IMMORT || (!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE))))
-      send_to_char(ch, "It seems to be locked.\r\n");
-    else if (!has_key(ch, keynum) && (GET_LEVEL(ch) < LVL_GOD) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
-      send_to_char(ch, "You don't seem to have the proper key.\r\n");
+    else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) &&
+	     IS_SET(flags_door[subcmd], NEED_UNLOCKED) &&
+             (GET_LEVEL(ch) < LVL_IMMORT || !PRF_FLAGGED(ch, PRF_NOHASSLE)))
+      send_to_char(ch, "잠겨 있는것 처럼 보입니다.\r\n");
+    else if (!has_key(ch, keynum) && (GET_LEVEL(ch) < LVL_GOD) &&
+	     ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+      send_to_char(ch, "맞는 열쇠를 가지고 있지 않은 것 같습니다.\r\n");
     else if (ok_pick(ch, keynum, DOOR_IS_PICKPROOF(ch, obj, door), subcmd))
       do_doorcmd(ch, obj, door, subcmd);
   }
@@ -689,9 +700,9 @@ ACMD(do_enter)
             perform_move(ch, door, 1);
             return;
           }
-    send_to_char(ch, "There is no %s here.\r\n", buf);
+    send_to_char(ch, "%s 찾을 수 없습니다.\r\n", buf, check_josa(buf, 1));
   } else if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_INDOORS))
-    send_to_char(ch, "You are already indoors.\r\n");
+    send_to_char(ch, "당신은 이미 문안에 서 있습니다.\r\n");
   else {
     /* try to locate an entrance */
     for (door = 0; door < DIR_COUNT; door++)
@@ -702,7 +713,7 @@ ACMD(do_enter)
 	    perform_move(ch, door, 1);
 	    return;
 	  }
-    send_to_char(ch, "You can't seem to find anything to enter.\r\n");
+    send_to_char(ch, "들어갈 만한 곳이 보이지 않습니다.\r\n");
   }
 }
 
@@ -711,7 +722,7 @@ ACMD(do_leave)
   int door;
 
   if (OUTSIDE(ch))
-    send_to_char(ch, "You are outside.. where do you want to go?\r\n");
+    send_to_char(ch, "이미 밖엔데 어디로 갈까요?\r\n");
   else {
     for (door = 0; door < DIR_COUNT; door++)
       if (EXIT(ch, door))
@@ -721,7 +732,7 @@ ACMD(do_leave)
 	    perform_move(ch, door, 1);
 	    return;
 	  }
-    send_to_char(ch, "I see no obvious exits to the outside.\r\n");
+    send_to_char(ch, "밖으로 나가는 출구가 없습니다.\r\n");
   }
 }
 
@@ -729,33 +740,32 @@ ACMD(do_stand)
 {
   switch (GET_POS(ch)) {
   case POS_STANDING:
-    send_to_char(ch, "You are already standing.\r\n");
+    send_to_char(ch, "당신은 이미 서 있습니다.\r\n");
     break;
   case POS_SITTING:
-    send_to_char(ch, "You stand up.\r\n");
-    act("$n clambers to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신은 일어섭니다.\r\n");
+    act("$n$j $s 일어 섭니다.", TRUE, ch, 0, 0, TO_ROOM);
     /* Were they sitting in something? */
     char_from_furniture(ch);
     /* Will be sitting after a successful bash and may still be fighting. */
     GET_POS(ch) = FIGHTING(ch) ? POS_FIGHTING : POS_STANDING;
     break;
   case POS_RESTING:
-    send_to_char(ch, "You stop resting, and stand up.\r\n");
-    act("$n stops resting, and clambers on $s feet.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "휴식을 마치고 일어섭니다.\r\n");
+    act("$n$j 휴식을 마치고 $s 일어섭니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_STANDING;
     /* Were they sitting in something. */
     char_from_furniture(ch);
     break;
   case POS_SLEEPING:
-    send_to_char(ch, "You have to wake up first!\r\n");
+    send_to_char(ch, "먼저 잠에서 깨어나야 합니다!\r\n");
     break;
   case POS_FIGHTING:
-    send_to_char(ch, "Do you not consider fighting as standing?\r\n");
+    send_to_char(ch, "싸움중에는 이미 일어날 필요가 없습니다.\r\n");
     break;
   default:
-    send_to_char(ch, "You stop floating around, and put your feet on the ground.\r\n");
-    act("$n stops floating around, and puts $s feet on the ground.",
-	TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신이 떠다니다가 땅에 발을 내려놓습니다.\r\n");
+    act("$n$j 떠다니다가 $s 땅에 발을 내려놓습니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_STANDING;
     break;
   }
@@ -778,20 +788,20 @@ ACMD(do_sit)
   switch (GET_POS(ch)) {
   case POS_STANDING:
     if (found == 0) {
-      send_to_char(ch, "You sit down.\r\n");
-      act("$n sits down.", FALSE, ch, 0, 0, TO_ROOM);
+      send_to_char(ch, "당신은 자리에 앉습니다\r\n");
+      act("$n$j 자리에 앉습니다.", FALSE, ch, 0, 0, TO_ROOM);
       GET_POS(ch) = POS_SITTING;
     } else {
       if (GET_OBJ_TYPE(furniture) != ITEM_FURNITURE) {
-        send_to_char(ch, "You can't sit on that!\r\n");
+        send_to_char(ch, "앉을수 있는 종류가 아닙니다!\r\n");
         return;
       } else if (GET_OBJ_VAL(furniture, 1) > GET_OBJ_VAL(furniture, 0)) {
         /* Val 1 is current number sitting, 0 is max in sitting. */
-        act("$p looks like it's all full.", TRUE, ch, furniture, 0, TO_CHAR);
-        log("SYSERR: Furniture %d holding too many people.", GET_OBJ_VNUM(furniture));
+		act("$p : 이미 많은 사람이 앉아 있습니다.", TRUE, ch, furniture, 0, TO_CHAR);
+		log("SYSERR: Furniture %d holding too many people.", GET_OBJ_VNUM(furniture));
         return;
       } else if (GET_OBJ_VAL(furniture, 1) == GET_OBJ_VAL(furniture, 0)) {
-        act("There is no where left to sit upon $p.", TRUE, ch, furniture, 0, TO_CHAR);
+		act("$p : 앉을 자리가 없습니다.", TRUE, ch, furniture, 0, TO_CHAR);
         return;
       } else {
         if (OBJ_SAT_IN_BY(furniture) == NULL)
@@ -801,8 +811,8 @@ ACMD(do_sit)
             continue;
           NEXT_SITTING(tempch) = ch;
         }
-        act("You sit down upon $p.", TRUE, ch, furniture, 0, TO_CHAR);
-        act("$n sits down upon $p.", TRUE, ch, furniture, 0, TO_ROOM);
+        act("$p에 앉습니다.", TRUE, ch, furniture, 0, TO_CHAR);
+        act("$n$j $p에 앉습니다.", TRUE, ch, furniture, 0, TO_ROOM);
         SITTING(ch) = furniture;
         NEXT_SITTING(ch) = NULL;
         GET_OBJ_VAL(furniture, 1) += 1;
@@ -811,22 +821,22 @@ ACMD(do_sit)
     }
     break;
   case POS_SITTING:
-    send_to_char(ch, "You're sitting already.\r\n");
+    send_to_char(ch, "당신은 이미 앉아 있습니다.\r\n");
     break;
   case POS_RESTING:
-    send_to_char(ch, "You stop resting, and sit up.\r\n");
-    act("$n stops resting.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "휴식을 중단하고 앉습니다.\r\n");
+    act("$n$j 휴식을 중단하고 앉습니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_SITTING;
     break;
   case POS_SLEEPING:
-    send_to_char(ch, "You have to wake up first.\r\n");
+    send_to_char(ch, "먼저 잠에서 깨어나야 합니다.\r\n");
     break;
   case POS_FIGHTING:
-    send_to_char(ch, "Sit down while fighting? Are you MAD?\r\n");
+    send_to_char(ch, "싸우는 중에는 앉을 수 없습니다.\r\n");
     break;
   default:
-    send_to_char(ch, "You stop floating around, and sit down.\r\n");
-    act("$n stops floating around, and sits down.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신이 떠다니다가 자리에 앉습니다.\r\n");
+    act("$n$j 떠다니다가 자리에 앉습니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_SITTING;
     break;
   }
@@ -836,27 +846,27 @@ ACMD(do_rest)
 {
   switch (GET_POS(ch)) {
   case POS_STANDING:
-    send_to_char(ch, "You sit down and rest your tired bones.\r\n");
-    act("$n sits down and rests.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신은 앉아서 휴식을 취합니다.\r\n");
+    act("$n$j 앉아서 휴식을 취합니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_RESTING;
     break;
   case POS_SITTING:
-    send_to_char(ch, "You rest your tired bones.\r\n");
-    act("$n rests.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신은 휴식을 취합니다.\r\n");
+    act("$n$j 휴식을 취합니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_RESTING;
     break;
   case POS_RESTING:
-    send_to_char(ch, "You are already resting.\r\n");
+    send_to_char(ch, "당신은 이미 휴식중입니다.\r\n");
     break;
   case POS_SLEEPING:
-    send_to_char(ch, "You have to wake up first.\r\n");
+    send_to_char(ch, "먼저 잠에서 깨어나야 합니다.\r\n");
     break;
   case POS_FIGHTING:
-    send_to_char(ch, "Rest while fighting?  Are you MAD?\r\n");
+    send_to_char(ch, "싸우는 중에는 휴식할 수 없습니다.\r\n");
     break;
   default:
-    send_to_char(ch, "You stop floating around, and stop to rest your tired bones.\r\n");
-    act("$n stops floating around, and rests.", FALSE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신이 떠다니다가 휴식을 취합니다.\r\n");
+    act("$n$j 떠다니다가 휴식을 취합니다.", FALSE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_RESTING;
     break;
   }
@@ -868,19 +878,19 @@ ACMD(do_sleep)
   case POS_STANDING:
   case POS_SITTING:
   case POS_RESTING:
-    send_to_char(ch, "You go to sleep.\r\n");
-    act("$n lies down and falls asleep.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "잠을 자기 시작합니다.\r\n");
+    act("$n$j 누워서 잠을 자기 시작합니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_SLEEPING;
     break;
   case POS_SLEEPING:
-    send_to_char(ch, "You are already sound asleep.\r\n");
+    send_to_char(ch, "이미 잠을 자는 중입니다.\r\n");
     break;
   case POS_FIGHTING:
-    send_to_char(ch, "Sleep while fighting?  Are you MAD?\r\n");
+    send_to_char(ch, "싸우는 중에는 잠을 잘 수 없습니다.\r\n");
     break;
   default:
-    send_to_char(ch, "You stop floating around, and lie down to sleep.\r\n");
-    act("$n stops floating around, and lie down to sleep.",
+    send_to_char(ch, "당신이 떠다니다가 누워서 잠을 자기 시작합니다.\r\n");
+    act("$n$j 떠다니다가 누워서 잠을 자기 시작합니다.",
 	TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_SLEEPING;
     break;
@@ -896,32 +906,32 @@ ACMD(do_wake)
   one_argument(argument, arg);
   if (*arg) {
     if (GET_POS(ch) == POS_SLEEPING)
-      send_to_char(ch, "Maybe you should wake yourself up first.\r\n");
+      send_to_char(ch, "먼저 자신이 깨어나야 합니다.\r\n");
     else if ((vict = get_char_vis(ch, arg, NULL, FIND_CHAR_ROOM)) == NULL)
       send_to_char(ch, "%s", CONFIG_NOPERSON);
     else if (vict == ch)
       self = 1;
     else if (AWAKE(vict))
-      act("$E is already awake.", FALSE, ch, 0, vict, TO_CHAR);
+      act("$E님은 이미 깨어 있습니다.", FALSE, ch, 0, vict, TO_CHAR);
     else if (AFF_FLAGGED(vict, AFF_SLEEP))
-      act("You can't wake $M up!", FALSE, ch, 0, vict, TO_CHAR);
+      act("당신은 $M님을 깨울 수 없습니다!", FALSE, ch, 0, vict, TO_CHAR);
     else if (GET_POS(vict) < POS_SLEEPING)
-      act("$E's in pretty bad shape!", FALSE, ch, 0, vict, TO_CHAR);
+      act("$E님이 깰 수 없는 상태입니다!", FALSE, ch, 0, vict, TO_CHAR);
     else {
-      act("You wake $M up.", FALSE, ch, 0, vict, TO_CHAR);
-      act("You are awakened by $n.", FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
+      act("당신은 $M님을 깨웁니다.", FALSE, ch, 0, vict, TO_CHAR);
+      act("당신은 $n님에 의해 깨어납니다.", FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
       GET_POS(vict) = POS_SITTING;
     }
     if (!self)
       return;
   }
   if (AFF_FLAGGED(ch, AFF_SLEEP))
-    send_to_char(ch, "You can't wake up!\r\n");
+    send_to_char(ch, "잠에서 깨어날 수 없습니다!\r\n");
   else if (GET_POS(ch) > POS_SLEEPING)
-    send_to_char(ch, "You are already awake...\r\n");
+    send_to_char(ch, "당신은 이미 깨어 있습니다.\r\n");
   else {
-    send_to_char(ch, "You awaken, and sit up.\r\n");
-    act("$n awakens.", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "당신은 이미 깨어서 앉아 있습니다.\r\n");
+    act("$n$j 잠에서 깨어납니다.", TRUE, ch, 0, 0, TO_ROOM);
     GET_POS(ch) = POS_SITTING;
   }
 }
@@ -940,16 +950,16 @@ ACMD(do_follow)
     }
   } else {
     if (ch->master != (char_data*)  NULL) {
-      send_to_char(ch, "You are following %s.\r\n", 
+      send_to_char(ch, "당신은 이데 %s님을 따릅니다.\r\n", 
          GET_NAME(ch->master));
     } else {
-      send_to_char(ch, "Whom do you wish to follow?\r\n");
+    send_to_char(ch, "누구를 따를까요?\r\n");
     }
     return;
   }
 
   if (ch->master == leader) {
-    act("You are already following $M.", FALSE, ch, 0, leader, TO_CHAR);
+  act("당신은 이미 $M$J 따르고 있습니다.", FALSE, ch, 0, leader, TO_CHAR);
     return;
   }
   if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master)) {
@@ -957,13 +967,13 @@ ACMD(do_follow)
   } else {			/* Not Charmed follow person */
     if (leader == ch) {
       if (!ch->master) {
-        send_to_char(ch, "You are already following yourself.\r\n");
-        return;
+	send_to_char(ch, "자기 자신을 이미 따르고 있습니다.\r\n");
+	return;
       }
       stop_follower(ch);
     } else {
       if (circle_follow(ch, leader)) {
-        send_to_char(ch, "Sorry, but following in loops is not allowed.\r\n");
+		send_to_char(ch, "한번에 한명씩만 따를수 있습니다.\r\n");
         return;
       }
       if (ch->master)
@@ -978,13 +988,13 @@ ACMD(do_unfollow)
 {
   if (ch->master) {
     if (AFF_FLAGGED(ch, AFF_CHARM)) { 
-       send_to_char(ch, "You feel compelled to follow %s.\r\n",
+       send_to_char(ch, "당신은 이제 %s님을 따르지 않습니다.\r\n",
          GET_NAME(ch->master));
     } else {
       stop_follower(ch);
     }
   } else {
-    send_to_char(ch, "You are not following anyone.\r\n");
+    send_to_char(ch, "당신은 지금 아무도 따르고 있지 않습니다.\r\n");
   }
   return;
 }

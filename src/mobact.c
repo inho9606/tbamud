@@ -72,7 +72,7 @@ void mobile_activity(void)
 	if (best_obj != NULL) {
 	  obj_from_room(best_obj);
 	  obj_to_char(best_obj, ch);
-	  act("$n gets $p.", FALSE, ch, best_obj, 0, TO_ROOM);
+	  act("$n이(가) $p 물건을 줍습니다.", FALSE, ch, best_obj, 0, TO_ROOM);
 	}
       }
 
@@ -130,7 +130,7 @@ void mobile_activity(void)
             continue;
 
           found = TRUE;
-          act("'Hey!  You're the fiend that attacked me!!!', exclaims $n.", FALSE, ch, 0, 0, TO_ROOM);
+          act("$n이(가) '너가 나를 공격했던 악마구나!!!' 라고 소리칩니다.", FALSE, ch, 0, 0, TO_ROOM);
           hit(ch, vict, TYPE_UNDEFINED);
         }
       }
@@ -161,7 +161,7 @@ void mobile_activity(void)
 	      if (IS_NPC(FIGHTING(vict)) || ch == FIGHTING(vict))
           continue;
 
-	      act("$n jumps to the aid of $N!", FALSE, ch, 0, vict, TO_ROOM);
+	      act("$n이(가) $N 앞으로 뛰어듭니다!", FALSE, ch, 0, vict, TO_ROOM);
 	      hit(ch, FIGHTING(vict), TYPE_UNDEFINED);
 	      found = TRUE;
       }

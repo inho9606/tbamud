@@ -13,6 +13,7 @@
 #define _CONSTANTS_H_
 
 extern const char *tbamud_version;
+extern const char *han_dirs[];
 extern const char *dirs[];
 extern const char *autoexits[];
 extern const char *room_bits[];
