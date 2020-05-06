@@ -305,6 +305,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "saveall"  , "saveall" , POS_DEAD    , do_saveall  , LVL_BUILDER, 0},
   { "팔아"     , "sell"    , POS_STANDING, do_not_here , 0, 0 },
   { "상점편집"    , "sedit"   , POS_DEAD    , do_oasis_sedit, LVL_BUILDER, 0 },
+  { "상점목록"    , "slist"   , POS_SLEEPING, do_oasis_list, LVL_BUILDER, SCMD_OASIS_SLIST }, // slist
   { "send"     , "send"    , POS_SLEEPING, do_send     , LVL_GOD, 0 },
   { "셋팅"      , "set"     , POS_DEAD    , do_set      , LVL_IMMORT, 0 },
   { "외쳐"    , "sho"     , POS_RESTING , do_gen_comm , 0, SCMD_SHOUT },
@@ -314,7 +315,6 @@ cpp_extern const struct command_info cmd_info[] = {
   { "sip"      , "sip"     , POS_RESTING , do_drink    , 0, SCMD_SIP },
   { "기술셋팅" , "skillset", POS_SLEEPING, do_skillset , LVL_GRGOD, 0 }, // skillset
   { "자"    , "sl"      , POS_SLEEPING, do_sleep    , 0, 0 }, // sleep
-  { "slist"    , "slist"   , POS_SLEEPING, do_oasis_list, LVL_BUILDER, SCMD_OASIS_SLIST },
   { "sneak"    , "sneak"   , POS_STANDING, do_sneak    , 1, 0 },
   { "snoop"    , "snoop"   , POS_DEAD    , do_snoop    , LVL_GOD, 0 },
   { "socials"  , "socials" , POS_DEAD    , do_commands , 0, SCMD_SOCIALS },

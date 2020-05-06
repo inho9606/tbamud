@@ -49,7 +49,7 @@ ACMD(do_oasis_redit)
   if (!*buf1)
     number = GET_ROOM_VNUM(IN_ROOM(ch));
   else if (!isdigit(*buf1)) {
-    if (str_cmp("save", buf1) != 0) {
+    if (str_cmp("저장", buf1) != 0) {
       send_to_char(ch, "앗!  누군가가 다칠 일을 멈추세요!\r\n");
       return;
     }

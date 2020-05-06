@@ -59,7 +59,7 @@ ACMD(do_oasis_medit)
     send_to_char(ch, "편집할 맙 번호를 입력해 주세요.\r\n");
     return;
   } else if (!isdigit(*buf1)) {
-    if (str_cmp("save", buf1) != 0) {
+    if (str_cmp("저장", buf1) != 0) {
       send_to_char(ch, "앗!  누군가 다칠지도 모르는 일을 그만 두세요!\r\n");
       return;
     }

@@ -64,11 +64,11 @@ ACMD(do_oasis_qedit)
   two_arguments(argument, buf1, buf2);
 
   if (!*buf1) {
-    send_to_char(ch, "Specify a quest VNUM to edit.\r\n");
+    send_to_char(ch, "편집할 임무 번호를 입력해 주세요.\r\n");
     return;
   } else if (!isdigit(*buf1)) {
-    if (str_cmp("save", buf1) != 0) {
-      send_to_char(ch, "Yikes!  Stop that, someone will get hurt!\r\n");
+    if (str_cmp("저장", buf1) != 0) {
+      send_to_char(ch, "앗!  누군가 다칠 일을 멈추세요!\r\n");
       return;
     }
 
@@ -86,7 +86,7 @@ ACMD(do_oasis_qedit)
     }
 
     if (number == NOWHERE) {
-      send_to_char(ch, "Save which zone?\r\n");
+      send_to_char(ch, "몇 번 존을 저장하시겠습니까?\r\n");
       return;
     }
   }
@@ -98,7 +98,7 @@ ACMD(do_oasis_qedit)
     number = atoi(buf1);
 
   if (number < IDXTYPE_MIN || number > IDXTYPE_MAX) {
-    send_to_char(ch, "That quest VNUM can't exist.\r\n");
+    send_to_char(ch, "그 임무 번호는 존재하지 않습니다.\r\n");
     return;
   }
 
@@ -108,7 +108,7 @@ ACMD(do_oasis_qedit)
   for (d = descriptor_list; d; d = d->next) {
     if (STATE(d) == CON_QEDIT) {
       if (d->olc && OLC_NUM(d) == number) {
-        send_to_char(ch, "That quest is currently being edited by %s.\r\n",
+        send_to_char(ch, "그 임무는 현재 %s님이 편집중입니다.\r\n",
           PERS(d->character, ch));
         return;
       }
@@ -135,7 +135,7 @@ ACMD(do_oasis_qedit)
   /** Find the zone.                                                         **/
   /****************************************************************************/
   if ((OLC_ZNUM(d) = real_zone_by_thing(number)) == NOWHERE) {
-    send_to_char(ch, "Sorry, there is no zone for that number!\r\n");
+    send_to_char(ch, "그 번호에 해당하는 존이 없습니다!\r\n");
     free(d->olc);
     d->olc = NULL;
     return;
@@ -145,7 +145,7 @@ ACMD(do_oasis_qedit)
   /** Everyone but IMPLs can only edit zones they have been assigned.        **/
   /****************************************************************************/
   if (!can_edit_zone(ch, OLC_ZNUM(d))) {
-    send_to_char(ch, "You do not have permission to edit this zone.\r\n");
+    send_to_char(ch, "이 존의 편집 권한이 없습니다.\r\n");
 
     /**************************************************************************/
     /** Free the OLC structure.                                              **/
@@ -156,7 +156,7 @@ ACMD(do_oasis_qedit)
   }
 
   if (save) {
-    send_to_char(ch, "Saving all quests in zone %d.\r\n",
+    send_to_char(ch, "%d 존의 모든 임무 정보를 저장합니다.\r\n",
       zone_table[OLC_ZNUM(d)].number);
     mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE,
       "OLC: %s saves quest info for zone %d.",
@@ -184,7 +184,7 @@ ACMD(do_oasis_qedit)
 
   STATE(d) = CON_QEDIT;
 
-  act("$n starts using OLC.", TRUE, d->character, 0, 0, TO_ROOM);
+  act("$n님이 임무 편집을 시작합니다.", TRUE, d->character, 0, 0, TO_ROOM);
   SET_BIT_AR(PLR_FLAGS(ch), PLR_WRITING);
 
   mudlog(BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE,
@@ -296,30 +296,30 @@ static void qedit_disp_menu(struct descriptor_data *d)
       break;
   }
   write_to_output(d,
-    "-- Quest Number    : \tn[\tc%6d\tn]\r\n"
-    "\tg 1\tn) Quest Name     : \ty%s\r\n"
-    "\tg 2\tn) Description    : \ty%s\r\n"
-    "\tg 3\tn) Accept Message\r\n\ty%s"
-    "\tg 4\tn) Completion Message\r\n\ty%s"
-    "\tg 5\tn) Quit Message\r\n\ty%s"
-    "\tg 6\tn) Quest Flags    : \tc%s\r\n"
-    "\tg 7\tn) Quest Type     : \tc%s %s\r\n"
-    "\tg 8\tn) Quest Master   : [\tc%6d\tn] \ty%s\r\n"
-    "\tg 9\tn) Quest Target   : [\tc%6d\tn] \ty%s\r\n"
-    "\tg A\tn) Quantity       : [\tc%6d\tn]\r\n"
-    "\tn    Quest Point Rewards\r\n"
-    "\tg B\tn) Completed      : [\tc%6d\tn] \tg C\tn) Abandoned   : [\tc%6d\tn]\r\n"
-    "\tn    Other Rewards Rewards\r\n"
-    "\tg G\tn) Gold Coins     : [\tc%6d\tn] \tg T\tn) Exp Points  : [\tc%6d\tn] \tg O\tn) Object : [\tc%6d\tn]\r\n"
-    "\tn    Level Limits to Accept Quest\r\n"
-    "\tg D\tn) Lower Level    : [\tc%6d\tn] \tg E\tn) Upper Level : [\tc%6d\tn]\r\n"
-    "\tg F\tn) Prerequisite   : [\tc%6d\tn] \ty%s\r\n"
-    "\tg L\tn) Time Limit     : [\tc%6d\tn]\r\n"
-    "\tg N\tn) Next Quest     : [\tc%6d\tn] \ty%s\r\n"
-    "\tg P\tn) Previous Quest : [\tc%6d\tn] \ty%s\r\n"
-    "\tg X\tn) Delete Quest\r\n"
-    "\tg Q\tn) Quit\r\n"
-    "Enter Choice : ",
+    "-- 퀘스트 번호: [%d]\r\n"
+    "\tg 1\tn) 퀘스트 이름: \ty%s\r\n"
+    "\tg 2\tn) 설명: \ty%s\r\n"
+    "\tg 3\tn) 퀘스트 시작 메시지\r\n\ty%s"
+    "\tg 4\tn) 퀘스트 완료 메시지\r\n\ty%s"
+    "\tg 5\tn) 퀘스트 포기 메시지\r\n\ty%s"
+    "\tg 6\tn) 퀘스트 속성: \tc%s\r\n"
+    "\tg 7\tn) 퀘스트 유형: \tc%s %s\r\n"
+    "\tg 8\tn) 퀘스트 관리자: [\tc%d\tn] \ty%s\r\n"
+    "\tg 9\tn) 퀘스트 목표: [\tc%d\tn] \ty%s\r\n"
+    "\tg A\tn) 수량: [\tc%d\tn]\r\n"
+    "\tn    임무 점수 보상\r\n"
+    "\tg B\tn) 완료할 경우: [\tc%d\tn] \tg C\tn) 포기할 경우: [\tc%d\tn]\r\n"
+    "\tn    기타 보상\r\n"
+    "\tg G\tn) 돈: [\tc%d\tn] \tg T\tn) 경험치: [\tc%d\tn] \tg O\tn) 물건: [\tc%d\tn]\r\n"
+    "\tn    수행 가능 레벨\r\n"
+    "\tg D\tn) 최소 레벨: [\tc%d\tn] \tg E\tn) 최대 레벨: [\tc%d\tn]\r\n"
+    "\tg F\tn) 선행 필요 퀘스트: [\tc%d\tn] \ty%s\r\n"
+    "\tg L\tn) 시간 제한: [\tc%d\tn]\r\n"
+    "\tg N\tn) 다음 퀘스트: [\tc%d\tn] \ty%s\r\n"
+    "\tg P\tn) 이전 퀘스트: [\tc%d\tn] \ty%s\r\n"
+    "\tg X\tn) 퀘스트 삭제\r\n"
+    "\tg Q\tn) 종료\r\n"
+    "선택하세요:",
     quest->vnum,
     quest->name,
     quest->desc,
@@ -341,7 +341,7 @@ static void qedit_disp_menu(struct descriptor_data *d)
     quest->value[2], quest->value[3],
     quest->prereq     == NOTHING ? -1 : quest->prereq,
     quest->prereq     == NOTHING ? "" :
-      real_object(quest->prereq) == NOTHING ? "an unknown object" :
+      real_object(quest->prereq) == NOTHING ? "알 수 없는 물건" :
                   obj_proto[real_object(quest->prereq)].short_description,
     quest->value[4],
     quest->next_quest == NOTHING ? -1 : quest->next_quest,
@@ -355,7 +355,7 @@ static void qedit_disp_type_menu(struct descriptor_data *d)
 {
   clear_screen(d);
   column_list(d->character, 0, quest_types, NUM_AQ_TYPES, TRUE);
-  write_to_output(d, "\r\nEnter Quest type : ");
+  write_to_output(d, "\r\n퀘스트 유형 입력:");
   OLC_MODE(d) = QEDIT_TYPES;
 }
 /* For quest flags.  */
@@ -367,8 +367,8 @@ static void qedit_disp_flag_menu(struct descriptor_data *d)
   clear_screen(d);
   column_list(d->character, 0, aq_flags, NUM_AQ_FLAGS, TRUE);
   sprintbit(OLC_QUEST(d)->flags, aq_flags, bits, sizeof(bits));
-  write_to_output(d, "\r\nQuest flags: \tc%s\tn\r\n"
-          "Enter quest flags, 0 to quit : ", bits);
+  write_to_output(d, "\r\n퀘스트 속성: \tc%s\tn\r\n"
+          "퀘스트 속성을 입력하세요, 0 ~ q :", bits);
   OLC_MODE(d) = QEDIT_FLAGS;
 }
 /**************************************************************************
@@ -386,15 +386,15 @@ void qedit_parse(struct descriptor_data *d, char *arg)
       switch (*arg) {
         case 'y':
         case 'Y':
-          send_to_char(d->character, "Saving Quest to memory.\r\n");
+          send_to_char(d->character, "임무 정보를 메모리에 저장합니다.\r\n");
           qedit_save_internally(d);
           mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), TRUE,
      "OLC: %s edits quest %d", GET_NAME(d->character), OLC_NUM(d));
           if (CONFIG_OLC_SAVE) {
             qedit_save_to_disk(real_zone_by_thing(OLC_NUM(d)));
-            write_to_output(d, "Quest %d saved to disk.\r\n", OLC_NUM(d));
+            write_to_output(d, "%d번 임무정보를 디스크에 저장했습니다.\r\n", OLC_NUM(d));
           } else
-            write_to_output(d, "Quest %d saved to memory.\r\n", OLC_NUM(d));
+            write_to_output(d, "%d번 임무 정보를 메모리에 저장했습니다.\r\n", OLC_NUM(d));
           cleanup_olc(d, CLEANUP_STRUCTS);
    return;
         case 'n':
@@ -403,7 +403,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
           return;
         default:
           write_to_output(d,
-            "Invalid choice!\r\nDo you wish to save the quest? : ");
+            "잘못 입력하셨습니다!\r\n임무 정보를 저장하시겠습니까?");
           return;
       }
     /*-------------------------------------------------------------------*/
@@ -412,14 +412,14 @@ void qedit_parse(struct descriptor_data *d, char *arg)
         case 'y':
         case 'Y':
           if (delete_quest(real_quest(OLC_NUM(d))))
-            write_to_output(d, "Quest deleted.\r\n");
+            write_to_output(d, "임무 삭제 완료.\r\n");
    else
-            write_to_output(d, "Couldn't delete the quest!\r\n");
+            write_to_output(d, "삭제할 수 없는 임무입니다!\r\n");
           if (CONFIG_OLC_SAVE) {
             qedit_save_to_disk(real_zone_by_thing(OLC_NUM(d)));
-            write_to_output(d, "Quest file saved to disk.\r\n");
+            write_to_output(d, "퀘스트 파일이 디스크에 저장되었습니다.\r\n");
           } else
-            write_to_output(d, "Quest file saved to memory.\r\n");
+            write_to_output(d, "퀘스트 파일이 메모리에 저장되었습니다.\r\n");
           cleanup_olc(d, CLEANUP_ALL);
    return;
         case 'n':
@@ -428,7 +428,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
           return;
         default:
           write_to_output(d,
-            "Invalid choice!\r\nDo you wish to delete the quest? : ");
+            "잘못 입력하셨습니다!\r\n정말로 이 임무를 삭제하시겠습니까?");
           return;
       }
 
@@ -439,7 +439,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
  case 'Q':
    if (OLC_VAL(d)) {   /*. Anything been changed? . */
             write_to_output(d,
-              "Do you wish to save the changes to the Quest? (y/n) : ");
+              "변경 내용을 저장하시겠습니까?(y/n) :");
             OLC_MODE(d) = QEDIT_CONFIRM_SAVESTRING;
           } else
             cleanup_olc(d, CLEANUP_ALL);
@@ -447,21 +447,21 @@ void qedit_parse(struct descriptor_data *d, char *arg)
  case 'x':
  case 'X':
           OLC_MODE(d) = QEDIT_CONFIRM_DELETE;
-   write_to_output(d, "Do you wish to delete the Quest? (y/n) : ");
+   write_to_output(d, "정말로 이 임무를 삭제하시겠습니까? (y/n) :");
    break;
  case '1':
    OLC_MODE(d) = QEDIT_NAME;
-   write_to_output(d, "Enter the quest name : ");
+   write_to_output(d, "퀘스트 이름 :");
    break;
         case '2':
    OLC_MODE(d) = QEDIT_DESC;
-   write_to_output(d, "Enter the quest description :-\r\n] ");
+   write_to_output(d, "퀘스트 설명을 입력하세요\r\n");
    break;
         case '3':
           OLC_MODE(d) = QEDIT_INFO;
           clear_screen(d);
           send_editor_help(d);
-          write_to_output(d, "Enter quest acceptance message:\r\n\r\n");
+          write_to_output(d, "퀘스트 시작 메시지를 입력하세요:\r\n\r\n");
 
           if (OLC_QUEST(d)->info) {
             write_to_output(d, "%s", OLC_QUEST(d)->info);
@@ -474,7 +474,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
           OLC_MODE(d) = QEDIT_COMPLETE;
           clear_screen(d);
           send_editor_help(d);
-          write_to_output(d, "Enter quest completion message:\r\n\r\n");
+          write_to_output(d, "퀘스트 완료 메시지를 입력하세요:\r\n\r\n");
 
           if (OLC_QUEST(d)->done) {
             write_to_output(d, "%s", OLC_QUEST(d)->done);
@@ -487,7 +487,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
           OLC_MODE(d) = QEDIT_ABANDON;
           clear_screen(d);
           send_editor_help(d);
-          write_to_output(d, "Enter quest quit message:\r\n\r\n");
+          write_to_output(d, "퀘스트 포기 메시지를 입력하세요:\r\n\r\n");
 
           if (OLC_QUEST(d)->quit) {
             write_to_output(d, "%s", OLC_QUEST(d)->quit);
@@ -506,74 +506,74 @@ void qedit_parse(struct descriptor_data *d, char *arg)
           break;
         case '8':
           OLC_MODE(d) = QEDIT_QUESTMASTER;
-          write_to_output(d, "Enter vnum of quest master : ");
+          write_to_output(d, "퀘스트 관리자 맙 번호를 입력하세요 :");
           break;
         case '9':
           OLC_MODE(d) = QEDIT_TARGET;
-          write_to_output(d, "Enter target vnum : ");
+          write_to_output(d, "퀘스트 완료 조건을 만족하는 물건이나 맙 번호를 입력하세요 :");
           break;
  case 'a':
  case 'A':
    OLC_MODE(d) = QEDIT_QUANTITY;
-   write_to_output(d, "Enter quantity of target : ");
+   write_to_output(d, "퀘스트 달성을 위해 필요한 목표 개수를 입력하세요 :");
    break;
         case 'b':
         case 'B':
    OLC_MODE(d) = QEDIT_POINTSCOMP;
-          write_to_output(d, "Enter points for completing the quest : " );
+          write_to_output(d, "퀘스트 완료 시 획득 임무점수 :" );
           break;
  case 'c':
         case 'C':
    OLC_MODE(d) = QEDIT_POINTSQUIT;
-          write_to_output(d, "Enter points for quitting the quest : " );
+          write_to_output(d, "퀘스트 포기 시 획득 임무점수 :" );
           break;
  case 'd':
         case 'D':
    OLC_MODE(d) = QEDIT_LEVELMIN;
-          write_to_output(d, "Enter minimum level to accept the quest : " );
+          write_to_output(d, "퀘스트 수행 가능 최소 레벨 :" );
           break;
  case 'e':
         case 'E':
    OLC_MODE(d) = QEDIT_LEVELMAX;
-          write_to_output(d, "Enter maximum level to accept the quest : " );
+          write_to_output(d, "퀘스트 수행 가능 최고 레벨 :" );
           break;
  case 'f':
  case 'F':
    OLC_MODE(d) = QEDIT_PREREQ;
-   write_to_output(d, "Enter a prerequisite object vnum (-1 for none) : ");
+   write_to_output(d, "이 퀘스트를 수행하기 위한 선행 퀘스트 번호 (-1은 없음) :");
    break;
  case 'g':
  case 'G':
    OLC_MODE(d) = QEDIT_GOLD;
-   write_to_output(d, "Enter the number of gold coins (0 for none) : ");
+   write_to_output(d, "보상으로 주어지는 돈 (0은 없음) :");
    break;
  case 't':
  case 'T':
    OLC_MODE(d) = QEDIT_EXP;
-   write_to_output(d, "Enter a number of experience points (0 for none) : ");
+   write_to_output(d, "보상으로 주어지는 경험치 (0은 없음) :");
    break;
  case 'o':
  case 'O':
    OLC_MODE(d) = QEDIT_OBJ;
-   write_to_output(d, "Enter the prize object vnum (-1 for none) : ");
+   write_to_output(d, "보상으로 주어지는 물건 번호 (-1은 없음) :");
    break;
  case 'l':
         case 'L':
    OLC_MODE(d) = QEDIT_TIMELIMIT;
-          write_to_output(d, "Enter time limit to complete (-1 for none) : " );
+          write_to_output(d, "시간제한 (-1은 없음) :");
           break;
  case 'n':
  case 'N':
           OLC_MODE(d) = QEDIT_NEXTQUEST;
-          write_to_output(d, "Enter vnum of next quest (-1 for none) : ");
+          write_to_output(d, "다음 퀘스트 번호 (-1은 없음) :");
           break;
    case 'p':
  case 'P':
           OLC_MODE(d) = QEDIT_PREVQUEST;
-          write_to_output(d, "Enter vnum of previous quest (-1 for none) : ");
+          write_to_output(d, "이전 퀘스트 번호 (-1은 없음) :");
           break;
         default:
-   write_to_output(d, "Invalid choice!\r\n");
+   write_to_output(d, "잘못 입력하셨습니다!\r\n");
    qedit_disp_menu(d);
    break;
       }
@@ -598,7 +598,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
     case QEDIT_QUESTMASTER:
       if (number != -1)
         if (real_mobile(number) == NOBODY) {
-          write_to_output(d, "That mobile does not exist, try again : ");
+          write_to_output(d, "그 번호의 맙은 존재하지 않습니다, 다시 시도 :");
           return;
         }
       OLC_QUEST(d)->qm = number;
@@ -606,20 +606,20 @@ void qedit_parse(struct descriptor_data *d, char *arg)
     case QEDIT_TYPES:
       number--;
       if (number < 0 || number >= NUM_AQ_TYPES) {
-        write_to_output(d, "Invalid choice!\r\n");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n");
         qedit_disp_type_menu(d);
         return;
       }
       OLC_QUEST(d)->type = number;
       if (number == AQ_OBJ_RETURN) {
         OLC_MODE(d) = QEDIT_RETURNMOB;
-        write_to_output(d, "Enter mob vnum to return object to : ");
+        write_to_output(d, "물건을 전달받을 맙 번호 :");
         return;
       }
       break;
     case QEDIT_FLAGS:
       if (number < 0 || number > NUM_AQ_FLAGS) {
-        write_to_output(d, "That is not a valid choice!\r\n");
+        write_to_output(d, "잘못 입력하셨습니다!\r\n");
         qedit_disp_flag_menu(d);
       } else if (number == 0)
         break;
@@ -640,19 +640,19 @@ void qedit_parse(struct descriptor_data *d, char *arg)
     case QEDIT_PREREQ:
       if ((number = atoi(arg)) != -1)
         if (real_object(number) == NOTHING) {
-          write_to_output(d, "That object does not exist, try again : ");
+          write_to_output(d, "그 번호의 물건은 존재하지 않습니다, 다시 시도 :");
           return;
         }
       OLC_QUEST(d)->prereq = number;
       break;
     case QEDIT_LEVELMIN:
       if (number < 0 || number > LVL_IMPL) {
-        write_to_output(d, "Level must be between 0 and %d!\r\n", LVL_IMPL);
- write_to_output(d, "Enter minimum level to accept the quest : " );
+        write_to_output(d, "레벨은 0에서 %d 사이의 값이어야 합니다!\r\n", LVL_IMPL);
+ write_to_output(d, "퀘스트 수행 가능 최소 레벨 :" );
         return;
       }  else if (number > OLC_QUEST(d)->value[3]) {
- write_to_output(d, "Minimum level can't be above maximum level!\r\n");
- write_to_output(d, "Enter minimum level to accept the quest : " );
+ write_to_output(d, "최소 레벨은 최고 레벨보다 작아야 합니다!\r\n");
+ write_to_output(d, "퀘스트 수행 가능 최소 레벨 :" );
         return;
       } else {
         OLC_QUEST(d)->value[2] = number;
@@ -660,12 +660,12 @@ void qedit_parse(struct descriptor_data *d, char *arg)
       }
     case QEDIT_LEVELMAX:
       if (number < 0 || number > LVL_IMPL) {
-        write_to_output(d, "Level must be between 0 and %d!\r\n", LVL_IMPL);
- write_to_output(d, "Enter maximum level to accept the quest : " );
+        write_to_output(d, "레벨은 0에서 %d 사이의 값이어야 합니다!\r\n", LVL_IMPL);
+ write_to_output(d, "퀘스트 수행 가능 최고 레벨 :");
         return;
       } else if (number < OLC_QUEST(d)->value[2]) {
- write_to_output(d, "Maximum level can't be below minimum level!\r\n");
- write_to_output(d, "Enter maximum level to accept the quest : " );
+ write_to_output(d, "최고 레벨은 최소 레벨보다 높아야 합니다!\r\n");
+ write_to_output(d, "퀘스트 수행 가능 최고 레벨 :");
         return;
       } else {
         OLC_QUEST(d)->value[3] = number;
@@ -677,7 +677,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
     case QEDIT_RETURNMOB:
       if ((number = atoi(arg)) != -1)
         if (real_mobile(number) == NOBODY) {
-          write_to_output(d, "That mobile does not exist, try again : ");
+          write_to_output(d, "그 번호의 맙은 존재하지 않습니다, 다시 시도 :");
           return;
         }
       OLC_QUEST(d)->value[5] = number;
@@ -688,7 +688,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
     case QEDIT_NEXTQUEST:
       if ((number = atoi(arg)) != -1) {
         if (real_quest(number) == NOTHING) {
-          write_to_output(d, "That is not a valid quest, try again (-1 for none) : ");
+          write_to_output(d, "잘못 입력하셨습니다, 다시 시도 (-1은 없음) :");
           return;
         }
       }
@@ -697,7 +697,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
     case QEDIT_PREVQUEST:
       if ((number = atoi(arg)) != -1) {
         if (real_quest(number) == NOTHING) {
-          write_to_output(d, "That is not a valid quest, try again (-1 for none) : ");
+          write_to_output(d, "올바른 퀘스트 번호가 아닙니다, 다시 시도 (-1은 없음) :");
           return;
         }
       }
@@ -712,7 +712,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
     case QEDIT_OBJ:
       if ((number = atoi(arg)) != -1)
         if (real_object(number) == NOTHING) {
-          write_to_output(d, "That object does not exist, try again : ");
+          write_to_output(d, "그 번호의 물건은 존재하지 않습니다, 다시 시도 :");
           return;
         }
       OLC_QUEST(d)->obj_reward = number;
@@ -722,7 +722,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
       cleanup_olc(d, CLEANUP_ALL);
       mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: qedit_parse(): "
         "Reached default case!");
-      write_to_output(d, "Oops...\r\n");
+      write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
       break;
   }
   /*-------------------------------------------------------------------*/

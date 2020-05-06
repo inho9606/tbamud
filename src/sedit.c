@@ -61,11 +61,11 @@ ACMD(do_oasis_sedit)
   two_arguments(argument, buf1, buf2);
 
   if (!*buf1) {
-    send_to_char(ch, "Specify a shop VNUM to edit.\r\n");
+    send_to_char(ch, "편집할 상점 번호를 입력해 주세요.\r\n");
     return;
   } else if (!isdigit(*buf1)) {
-    if (str_cmp("save", buf1) != 0) {
-      send_to_char(ch, "Yikes!  Stop that, someone will get hurt!\r\n");
+    if (str_cmp("저장", buf1) != 0) {
+      send_to_char(ch, "앗!  누군가 다칠 일을 그만 두세요!\r\n");
       return;
     }
 
@@ -83,7 +83,7 @@ ACMD(do_oasis_sedit)
     }
 
     if (number == NOWHERE) {
-      send_to_char(ch, "Save which zone?\r\n");
+      send_to_char(ch, "몇 번 존을 저장하시겠습니까?\r\n");
       return;
     }
   }
@@ -93,7 +93,7 @@ ACMD(do_oasis_sedit)
     number = atoi(buf1);
 
   if (number < IDXTYPE_MIN || number > IDXTYPE_MAX) {
-    send_to_char(ch, "That shop VNUM can't exist.\r\n");
+    send_to_char(ch, "그 상점 번호는 존재할 수 없습니다.\r\n");
     return;
   }
 
@@ -101,7 +101,7 @@ ACMD(do_oasis_sedit)
   for (d = descriptor_list; d; d = d->next) {
     if (STATE(d) == CON_SEDIT) {
       if (d->olc && OLC_NUM(d) == number) {
-        send_to_char(ch, "That shop is currently being edited by %s.\r\n",
+        send_to_char(ch, "그 상점은 현재 %s님이 편집중입니다.\r\n",
           PERS(d->character, ch));
         return;
       }
@@ -123,7 +123,7 @@ ACMD(do_oasis_sedit)
   /* Find the zone. */
   OLC_ZNUM(d) = save ? real_zone(number) : real_zone_by_thing(number);
   if (OLC_ZNUM(d) == NOWHERE) {
-    send_to_char(ch, "Sorry, there is no zone for that number!\r\n");
+    send_to_char(ch, "그 번호에 해당하는 존이 없습니다!\r\n");
     free(d->olc);
     d->olc = NULL;
     return;
@@ -139,7 +139,7 @@ ACMD(do_oasis_sedit)
   }
 
   if (save) {
-    send_to_char(ch, "Saving all shops in zone %d.\r\n",
+    send_to_char(ch, "%d 존의 모든 상점 정보를 저장합니다.\r\n",
       zone_table[OLC_ZNUM(d)].number);
     mudlog(CMP, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), TRUE,
       "OLC: %s saves shop info for zone %d.",
@@ -164,7 +164,7 @@ ACMD(do_oasis_sedit)
   sedit_disp_menu(d);
   STATE(d) = CON_SEDIT;
 
-  act("$n starts using OLC.", TRUE, d->character, 0, 0, TO_ROOM);
+  act("$n님이 상점 편집을 시작합니다.", TRUE, d->character, 0, 0, TO_ROOM);
   SET_BIT_AR(PLR_FLAGS(ch), PLR_WRITING);
 
   mudlog(CMP, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE, "OLC: %s starts editing zone %d allowed zone %d",
@@ -185,13 +185,13 @@ static void sedit_setup_new(struct descriptor_data *d)
   S_SELLPROFIT(shop) = 1.0;
   S_NOTRADE(shop) = 0;
   /* Add a spice of default strings. */
-  S_NOITEM1(shop) = strdup("%s Sorry, I don't stock that item.");
-  S_NOITEM2(shop) = strdup("%s You don't seem to have that.");
-  S_NOCASH1(shop) = strdup("%s I can't afford that!");
-  S_NOCASH2(shop) = strdup("%s You are too poor!");
-  S_NOBUY(shop) = strdup("%s I don't trade in such items.");
-  S_BUY(shop) = strdup("%s That'll be %d coins, thanks.");
-  S_SELL(shop) = strdup("%s I'll give you %d coins for that.");
+  S_NOITEM1(shop) = strdup("%s 죄송합니다, 그런 물건은 팔지 않습니다.");
+  S_NOITEM2(shop) = strdup("%s 그런 물건을 가지고 계신것 같지 않은데요.");
+  S_NOCASH1(shop) = strdup("%s 제가 사기에는 너무 비싸네요!");
+  S_NOCASH2(shop) = strdup("%s 손님 좀만 더 쓰시죠!");
+  S_NOBUY(shop) = strdup("%s 그런 물건은 취급하지 않습니다.");
+  S_BUY(shop) = strdup("%s %d 골드입니다, 감사합니다.");
+  S_SELL(shop) = strdup("%s 그 물건 값으로 %d 골드를 드리겠습니다.");
   /* Stir the lists lightly. */
   CREATE(S_PRODUCTS(shop), obj_vnum, 1);
 
@@ -226,17 +226,17 @@ static void sedit_products_menu(struct descriptor_data *d)
   get_char_colors(d->character);
 
   clear_screen(d);
-  write_to_output(d, "##     VNUM     Product\r\n");
+  write_to_output(d, "##     번호     상품\r\n");
   for (i = 0; S_PRODUCT(shop, i) != NOTHING; i++) {
     write_to_output(d, "%2d - [%s%5d%s] - %s%s%s\r\n", i,
 	    cyn, obj_index[S_PRODUCT(shop, i)].vnum, nrm,
 	    yel, obj_proto[S_PRODUCT(shop, i)].short_description, nrm);
   }
   write_to_output(d, "\r\n"
-	  "%sA%s) Add a new product.\r\n"
-	  "%sD%s) Delete a product.\r\n"
-	  "%sQ%s) Quit\r\n"
-	  "Enter choice : ", grn, nrm, grn, nrm, grn, nrm);
+	  "%sA%s) 새로운 상품 추가\r\n"
+	  "%sD%s) 상품 삭제.\r\n"
+	  "%sQ%s) 종료\r\n"
+	  "선택하세요 : ", grn, nrm, grn, nrm, grn, nrm);
 
   OLC_MODE(d) = SEDIT_PRODUCTS_MENU;
 }
@@ -254,15 +254,15 @@ static void sedit_compact_rooms_menu(struct descriptor_data *d)
     if (real_room(S_ROOM(shop, i)) != NOWHERE) {
       write_to_output(d, "%2d - [@\t%5d\tn] - \ty%s\tn\r\n", i, S_ROOM(shop, i), world[real_room(S_ROOM(shop, i))].name);
     } else {
-      write_to_output(d, "%2d - [\tR!Removed Room!\tn]\r\n", i);
+      write_to_output(d, "%2d - [\tR!삭제된 방!\tn]\r\n", i);
     }
   }
   write_to_output(d, "\r\n"
-	  "%sA%s) Add a new room.\r\n"
-	  "%sD%s) Delete a room.\r\n"
-	  "%sL%s) Long display.\r\n"
-	  "%sQ%s) Quit\r\n"
-	  "Enter choice : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+	  "%sA%s) 새로운 방 추가.\r\n"
+	  "%sD%s) 방 삭제.\r\n"
+	  "%sL%s) 긴 화면.\r\n"
+	  "%sQ%s) 종료\r\n"
+	  "선택하세요 : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 
   OLC_MODE(d) = SEDIT_ROOMS_MENU;
 }
@@ -277,7 +277,7 @@ static void sedit_rooms_menu(struct descriptor_data *d)
   get_char_colors(d->character);
 
   clear_screen(d);
-  write_to_output(d, "##     VNUM     Room\r\n\r\n");
+  write_to_output(d, "##     번호     방\r\n\r\n");
   for (i = 0; S_ROOM(shop, i) != NOWHERE; i++) {
     rnum = real_room(S_ROOM(shop, i));
     /* if the room has been deleted, this may crash us otherwise. */
@@ -289,11 +289,11 @@ static void sedit_rooms_menu(struct descriptor_data *d)
 	    yel, world[rnum].name, nrm);
   }
   write_to_output(d, "\r\n"
-	  "%sA%s) Add a new room.\r\n"
-	  "%sD%s) Delete a room.\r\n"
-	  "%sC%s) Compact Display.\r\n"
-	  "%sQ%s) Quit\r\n"
-	  "Enter choice : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+	  "%sA%s) 새로운 방 추가.\r\n"
+	  "%sD%s) 방 삭제.\r\n"
+	  "%sC%s) 콤팩트 화면.\r\n"
+	  "%sQ%s) 종료\r\n"
+	  "선택하세요 : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 
   OLC_MODE(d) = SEDIT_ROOMS_MENU;
 }
@@ -307,17 +307,17 @@ static void sedit_namelist_menu(struct descriptor_data *d)
   get_char_colors(d->character);
 
   clear_screen(d);
-  write_to_output(d, "##              Type   Namelist\r\n\r\n");
+  write_to_output(d, "##              종류   이름목록\r\n\r\n");
   for (i = 0; S_BUYTYPE(shop, i) != NOTHING; i++) {
     write_to_output(d, "%2d - %s%15s%s - %s%s%s\r\n", i, cyn,
 		item_types[S_BUYTYPE(shop, i)], nrm, yel,
 		S_BUYWORD(shop, i) ? S_BUYWORD(shop, i) : "<None>", nrm);
   }
   write_to_output(d, "\r\n"
-	  "%sA%s) Add a new entry.\r\n"
-	  "%sD%s) Delete an entry.\r\n"
-	  "%sQ%s) Quit\r\n"
-	  "Enter choice : ", grn, nrm, grn, nrm, grn, nrm);
+	  "%sA%s) 새로운 입력(entry) 추가.\r\n"
+	  "%sD%s) 입력 삭제.\r\n"
+	  "%sQ%s) 종료\r\n"
+	  "선택하세요 : ", grn, nrm, grn, nrm, grn, nrm);
 
   OLC_MODE(d) = SEDIT_NAMELIST_MENU;
 }
@@ -334,7 +334,7 @@ static void sedit_shop_flags_menu(struct descriptor_data *d)
 		!(++count % 2) ? "\r\n" : "");
   }
   sprintbit(S_BITVECTOR(OLC_SHOP(d)), shop_bits, bits, sizeof(bits));
-  write_to_output(d, "\r\nCurrent Shop Flags : %s%s%s\r\nEnter choice : ",
+  write_to_output(d, "\r\n현재 상점 속성 : %s%s%s\r\n선택하세요 : ",
 		cyn, bits, nrm);
   OLC_MODE(d) = SEDIT_SHOP_FLAGS;
 }
@@ -351,8 +351,8 @@ static void sedit_no_trade_menu(struct descriptor_data *d)
 		!(++count % 2) ? "\r\n" : "");
   }
   sprintbit(S_NOTRADE(OLC_SHOP(d)), trade_letters, bits, sizeof(bits));
-  write_to_output(d, "\r\nCurrently won't trade with: %s%s%s\r\n"
-	  "Enter choice : ", cyn, bits, nrm);
+  write_to_output(d, "\r\n현재 거래 불가: %s%s%s\r\n"
+	  "선택하세요 : ", cyn, bits, nrm);
   OLC_MODE(d) = SEDIT_NOTRADE;
 }
 
@@ -367,7 +367,7 @@ static void sedit_types_menu(struct descriptor_data *d)
     write_to_output(d, "%s%2d%s) %s%-20s%s  %s", grn, i, nrm, cyn, item_types[i],
 		nrm, !(++count % 3) ? "\r\n" : "");
   }
-  write_to_output(d, "%sEnter choice : ", nrm);
+  write_to_output(d, "%s선택하세요 : ", nrm);
   OLC_MODE(d) = SEDIT_TYPE_MENU;
 }
 
@@ -385,26 +385,26 @@ static void sedit_disp_menu(struct descriptor_data *d)
   sprintbit(S_NOTRADE(shop), trade_letters, buf1, sizeof(buf1));
   sprintbit(S_BITVECTOR(shop), shop_bits, buf2, sizeof(buf2));
   write_to_output(d,
-	  "-- Shop Number : [%s%d%s]\r\n"
-	  "%s0%s) Keeper      : [%s%d%s] %s%s\r\n"
-          "%s1%s) Open 1      : %s%4d%s          %s2%s) Close 1     : %s%4d\r\n"
-          "%s3%s) Open 2      : %s%4d%s          %s4%s) Close 2     : %s%4d\r\n"
-	  "%s5%s) Sell rate   : %s%1.2f%s          %s6%s) Buy rate    : %s%1.2f\r\n"
-	  "%s7%s) Keeper no item : %s%s\r\n"
-	  "%s8%s) Player no item : %s%s\r\n"
-	  "%s9%s) Keeper no cash : %s%s\r\n"
-	  "%sA%s) Player no cash : %s%s\r\n"
-	  "%sB%s) Keeper no buy  : %s%s\r\n"
-	  "%sC%s) Buy success    : %s%s\r\n"
-	  "%sD%s) Sell success   : %s%s\r\n"
-	  "%sE%s) No Trade With  : %s%s\r\n"
-	  "%sF%s) Shop flags     : %s%s\r\n"
-	  "%sR%s) Rooms Menu\r\n"
-	  "%sP%s) Products Menu\r\n"
-	  "%sT%s) Accept Types Menu\r\n"
-          "%sW%s) Copy Shop\r\n"
-	  "%sQ%s) Quit\r\n"
-	  "Enter Choice : ",
+	  "-- 상점 번호 : [%s%d%s]\r\n"
+	  "%s0%s) 상점 주인      : [%s%d%s] %s%s\r\n"
+          "%s1%s) 개장시간 1 : %s%4d%s          %s2%s) 폐장시간 1 : %s%4d\r\n"
+          "%s3%s) 개장시간 2 : %s%4d%s          %s4%s) 폐장시간 2 : %s%4d\r\n"
+	  "%s5%s) 판매율   : %s%1.2f%s          %s6%s) 구매율    : %s%1.2f\r\n"
+	  "%s7%s) 상점 주인이 아이템이 없을 때 : %s%s\r\n"
+	  "%s8%s) 사용자가 아이템이 없을 때 : %s%s\r\n"
+	  "%s9%s) 상점 주인이 돈이 없을 때 : %s%s\r\n"
+	  "%sA%s) 사용자가 돈이 없을 때 : %s%s\r\n"
+	  "%sB%s) 상점에서 물건을 안 살 때 : %s%s\r\n"
+	  "%sC%s) 상점에서 물건을 살 때 : %s%s\r\n"
+	  "%sD%s) 상점에서 물건을 팔 때 : %s%s\r\n"
+	  "%sE%s) 거래 불가 : %s%s\r\n"
+	  "%sF%s) 상점 속성     : %s%s\r\n"
+	  "%sR%s) 방 메뉴\r\n"
+	  "%sP%s) 상품 메뉴\r\n"
+	  "%sT%s) 거래 가능 물건 종류\r\n"
+          "%sW%s) 상점 복사\r\n"
+	  "%sQ%s) 종료\r\n"
+	  "선택하세요 : ",
 
 	  cyn, OLC_NUM(d), nrm,
 	  grn, nrm, cyn, S_KEEPER(shop) == NOBODY ? -1 : mob_index[S_KEEPER(shop)].vnum,
@@ -437,7 +437,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
 
   if (OLC_MODE(d) > SEDIT_NUMERICAL_RESPONSE) {
     if (!isdigit(arg[0]) && ((*arg == '-') && (!isdigit(arg[1])))) {
-      write_to_output(d, "Field must be numerical, try again : ");
+      write_to_output(d, "필드는 숫자여야 합니다, 다시 시도 : ");
       return;
     }
   }
@@ -452,9 +452,9 @@ void sedit_parse(struct descriptor_data *d, char *arg)
              OLC_NUM(d));
       if (CONFIG_OLC_SAVE) {
         sedit_save_to_disk(real_zone_by_thing(OLC_NUM(d)));
-        write_to_output(d, "Shop saved to disk.\r\n");
+        write_to_output(d, "상점 정보가 디스크에 저장되었습니다.\r\n");
       } else
-        write_to_output(d, "Shop saved to memory.\r\n");
+        write_to_output(d, "상점 정보가 메모리에 저장되었습니다.\r\n");
 
       cleanup_olc(d, CLEANUP_STRUCTS);
       return;
@@ -463,7 +463,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
       cleanup_olc(d, CLEANUP_ALL);
       return;
     default:
-     write_to_output(d, "Invalid choice!\r\nDo you wish to save your changes? : ");
+     write_to_output(d, "잘못 입력하셨습니다!\r\nDo you wish to save your changes? : ");
       return;
     }
 
@@ -472,20 +472,20 @@ void sedit_parse(struct descriptor_data *d, char *arg)
     switch (*arg) {
     case 'w':
     case 'W':
-      write_to_output(d, "Copy what shop? ");
+      write_to_output(d, "어떤 상점을 복사하시겠습니까? ");
       OLC_MODE(d) = SEDIT_COPY;
       return;
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) {		/* Anything been changed? */
-	write_to_output(d, "Do you wish to save your changes? : ");
+	write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
 	OLC_MODE(d) = SEDIT_CONFIRM_SAVESTRING;
       } else
 	cleanup_olc(d, CLEANUP_ALL);
       return;
     case '0':
       OLC_MODE(d) = SEDIT_KEEPER;
-      write_to_output(d, "Enter vnum number of shop keeper : ");
+      write_to_output(d, "상점을 관리할 맙 번호를 입력해 주세요 : ");
       return;
     case '1':
       OLC_MODE(d) = SEDIT_OPEN1;
@@ -571,11 +571,11 @@ void sedit_parse(struct descriptor_data *d, char *arg)
     if (i == 0)
       break;
     else if (i == 1)
-      write_to_output(d, "\r\nEnter new value : ");
+      write_to_output(d, "\r\n새로운 값 입력 : ");
     else if (i == -1)
-      write_to_output(d, "\r\nEnter new text :\r\n] ");
+      write_to_output(d, "\r\n내용 입력 :\r\n] ");
     else
-      write_to_output(d, "Oops...\r\n");
+      write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     return;
 
   case SEDIT_NAMELIST_MENU:
@@ -586,7 +586,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
       return;
     case 'd':
     case 'D':
-      write_to_output(d, "\r\nDelete which entry? : ");
+      write_to_output(d, "\r\n몇 번 입력을 삭제하시겠습니까? : ");
       OLC_MODE(d) = SEDIT_DELETE_TYPE;
       return;
     case 'q':
@@ -599,12 +599,12 @@ void sedit_parse(struct descriptor_data *d, char *arg)
     switch (*arg) {
     case 'a':
     case 'A':
-      write_to_output(d, "\r\nEnter new product vnum number : ");
+      write_to_output(d, "\r\n상품으로 등록할 물건 번호를 입력하세요 : ");
       OLC_MODE(d) = SEDIT_NEW_PRODUCT;
       return;
     case 'd':
     case 'D':
-      write_to_output(d, "\r\nDelete which product? : ");
+      write_to_output(d, "\r\n몇 번 상품을 삭제하시겠습니까? : ");
       OLC_MODE(d) = SEDIT_DELETE_PRODUCT;
       return;
     case 'q':
@@ -617,7 +617,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
     switch (*arg) {
     case 'a':
     case 'A':
-      write_to_output(d, "\r\nEnter new room vnum number : ");
+      write_to_output(d, "\r\n상점으로 지정할 방 번호를 입력하세요 : ");
       OLC_MODE(d) = SEDIT_NEW_ROOM;
       return;
     case 'c':
@@ -630,7 +630,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
       return;
     case 'd':
     case 'D':
-      write_to_output(d, "\r\nDelete which room? : ");
+      write_to_output(d, "\r\n몇 번 방을 삭제하시겠습니까? : ");
       OLC_MODE(d) = SEDIT_DELETE_ROOM;
       return;
     case 'q':
@@ -713,7 +713,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
     break;
   case SEDIT_TYPE_MENU:
     OLC_VAL(d) = LIMIT(atoi(arg), 0, NUM_ITEM_TYPES - 1);
-    write_to_output(d, "Enter namelist (return for none) :-\r\n] ");
+    write_to_output(d, "이름 목록 입력 (엔터는 없음) :-\r\n] ");
     OLC_MODE(d) = SEDIT_NAMELIST;
     return;
   case SEDIT_DELETE_TYPE:
@@ -723,7 +723,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
   case SEDIT_NEW_PRODUCT:
     if ((i = atoi(arg)) != -1)
       if ((i = real_object(i)) == NOTHING) {
-	write_to_output(d, "That object does not exist, try again : ");
+	write_to_output(d, "그 물건은 존재하지 않습니다, 다시 시도 : ");
 	return;
       }
     if (i > 0)
@@ -737,7 +737,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
   case SEDIT_NEW_ROOM:
     if ((i = atoi(arg)) != -1)
       if ((i = real_room(i)) == NOWHERE) {
-	write_to_output(d, "That room does not exist, try again : ");
+	write_to_output(d, "그 방은 존재하지 않습니다, 다시 시도 : ");
 	return;
       }
     if (i >= 0)
@@ -766,14 +766,14 @@ void sedit_parse(struct descriptor_data *d, char *arg)
     if ((i = real_shop(atoi(arg))) != NOWHERE) {
       sedit_setup_existing(d, i);
     } else
-      write_to_output(d, "That shop does not exist.\r\n");
+      write_to_output(d, "그 상점은 존재하지 않습니다.\r\n");
     break;
 
   default:
     /* We should never get here. */
     cleanup_olc(d, CLEANUP_ALL);
     mudlog(BRF, LVL_BUILDER, TRUE, "SYSERR: OLC: sedit_parse(): Reached default case!");
-    write_to_output(d, "Oops...\r\n");
+    write_to_output(d, "이런... 개발자에게 문의하세요\r\n");
     break;
   }
 

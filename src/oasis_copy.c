@@ -164,8 +164,8 @@ ACMD(do_dig)
 
   /* Can't dig if we don't know where to go. */
   if (!*sdir || !*sroom) {
-    send_to_char(ch, "Format: dig <direction> <room> - to create an exit\r\n"
-                     "        dig <direction> -1     - to delete an exit\r\n");
+    send_to_char(ch, "형식: <방향> <방 번호> 방연결 - 새로운 출구 생성\r\n"
+                     "             <방향> -1 방연결    - 출구 삭제\r\n");
     return;
   }
 
@@ -179,12 +179,12 @@ ACMD(do_dig)
   zone = world[IN_ROOM(ch)].zone;
 
   if (dir < 0) {
-    send_to_char(ch, "You cannot create an exit to the '%s'.\r\n", sdir);
+    send_to_char(ch, "'%s' 쪽으로는 출구를 생성할 수 없습니다.\r\n", sdir);
     return;
   }
   /* Make sure that the builder has access to the zone he's in. */
   if ((zone == NOWHERE) || !can_edit_zone(ch, zone)) {
-    send_to_char(ch, "You do not have permission to edit this zone.\r\n");
+    send_to_char(ch, "이 존을 편집할 권한이 없습니다.\r\n");
     return;
   }
   /* Lets not allow digging to limbo. After all, it'd just get us more errors 
@@ -204,27 +204,27 @@ ACMD(do_dig)
       free(W_EXIT(IN_ROOM(ch), dir));
       W_EXIT(IN_ROOM(ch), dir) = NULL;
       add_to_save_list(zone_table[world[IN_ROOM(ch)].zone].number, SL_WLD);
-      send_to_char(ch, "You remove the exit to the %s.\r\n", dirs[dir]);
+      send_to_char(ch, "%s쪽 출구를 삭제했습니다.\r\n", dirs[dir]);
       return;
     }
-    send_to_char(ch, "There is no exit to the %s.\r\n"
+    send_to_char(ch, "%s쪽에는 출구가 없습니다.\r\n"
                      "No exit removed.\r\n", dirs[dir]);
     return;
   }
   /* Can't dig in a direction, if it's already a door. */
   if (W_EXIT(IN_ROOM(ch), dir)) {
-      send_to_char(ch, "There already is an exit to the %s.\r\n", dirs[dir]);
+      send_to_char(ch, "%s쪽에는 이미 출구가 있습니다.\r\n", dirs[dir]);
       return;
   }
 
   /* Make sure that the builder has access to the zone he's linking to. */
   zone = real_zone_by_thing(rvnum);
   if (zone == NOWHERE) {
-    send_to_char(ch, "You cannot link to a non-existing zone!\r\n");
+    send_to_char(ch, "존재하지 않는 존으로는 연결할 수 없습니다!\r\n");
     return;
   }
   if (!can_edit_zone(ch, zone)) {
-    send_to_char(ch, "You do not have permission to edit room #%d.\r\n", rvnum);
+    send_to_char(ch, "#%d번 방을 편집할 권한이 없습니다.\r\n", rvnum);
     return;
   }
   /* Now we know the builder is allowed to make the link. */

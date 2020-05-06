@@ -29,20 +29,20 @@
 /* Global variables definitions used externally */
 /* Constant list for printing out who we sell to */
 const char *trade_letters[] = {
-        "Good",                 /* First, the alignment based ones */
-        "Evil",
-        "Neutral",
-        "Magic User",           /* Then the class based ones */
-        "Cleric",
-        "Thief",
-        "Warrior",
+        "선",                 /* First, the alignment based ones */
+        "악",
+        "평범",
+        "마법사",           /* Then the class based ones */
+        "성직자",
+        "도둑",
+        "워리어",
         "\n"
 };
 
 const char *shop_bits[] = {
-        "WILL_FIGHT",
-        "USES_BANK",
-        "UNLIMITED_CASH",
+        "전투 가능",
+        "은행 사용",
+        "무제한 돈",
         "\n"
 };
 

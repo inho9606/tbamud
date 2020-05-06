@@ -47,13 +47,13 @@ const char *aq_flags[] = {
 static int cmd_tell;
 
 static const char *quest_cmd[] = {
-  "list", "history", "join", "leave", "progress", "status", "\n"};
+  "목록", "기록", "수행", "취소", "진행중", "상태", "\n"};
 
 static const char *quest_mort_usage =
-  "Usage: quest list | history | progress | join <nn> | leave";
+  "사용법: 목록 | 기록 | 진행중 | 수행 <nn> | 취소 임무";
 
 static const char *quest_imm_usage =
-  "Usage: quest list | history | progress | join <nn> | leave | status <vnum>";
+  "사용법: 목록 | 기록 | 진행중 | 수행 <nn> | 취소 | 상태 <vnum> 임무";
 
 /*--------------------------------------------------------------------------*/
 /* Utility Functions                                                        */
@@ -300,12 +300,12 @@ void generic_complete_quest(struct char_data *ch)
       happy_qp = MAX(happy_qp, 0);
       GET_QUESTPOINTS(ch) += happy_qp;
       send_to_char(ch,
-          "%s\r\nYou have been awarded %d quest points for your service.\r\n",
+          "%s\r\n퀘스트 수행 대가로 %d 만큼의 임무점수를 얻었습니다.\r\n",
           QST_DONE(rnum), happy_qp);
 	} else {
       GET_QUESTPOINTS(ch) += QST_POINTS(rnum);
       send_to_char(ch,
-          "%s\r\nYou have been awarded %d quest points for your service.\r\n",
+          "%s\r\n퀘스트 수행 대가로 %d 만큼의 임무점수를 얻었습니다.\r\n",
           QST_DONE(rnum), QST_POINTS(rnum));
     }
     if (QST_GOLD(rnum)) {
@@ -314,12 +314,12 @@ void generic_complete_quest(struct char_data *ch)
         happy_gold = MAX(happy_gold, 0);
         increase_gold(ch, happy_gold);
         send_to_char(ch,
-              "You have been awarded %d gold coins for your service.\r\n",
+              "퀘스트 수행 대가로 %d 골드를 받았습니다.\r\n",
               happy_gold);
 	  } else {
         increase_gold(ch, QST_GOLD(rnum));
         send_to_char(ch,
-              "You have been awarded %d gold coins for your service.\r\n",
+              "퀘스트 수행 대가로 %d 골드를 받았습니다.\r\n",
               QST_GOLD(rnum));
       }
     }
@@ -329,11 +329,11 @@ void generic_complete_quest(struct char_data *ch)
         happy_exp = (int)(QST_EXP(rnum) * (((float)(100+HAPPY_EXP))/(float)100));
         happy_exp = MAX(happy_exp, 0);
         send_to_char(ch,
-              "You have been awarded %d experience for your service.\r\n",
+              "퀘스트 수행 대가로 %d 만큼의 경험치를 획득합니다.\r\n",
               happy_exp);
       } else {
         send_to_char(ch,
-              "You have been awarded %d experience points for your service.\r\n",
+              "퀘스트 수행 대가로 %d 만큼의 경험치를 획득합니다.\r\n",
               QST_EXP(rnum));
       }
     }
@@ -355,7 +355,7 @@ void generic_complete_quest(struct char_data *ch)
       rnum = real_quest(QST_NEXT(rnum));
       set_quest(ch, rnum);
       send_to_char(ch,
-          "The next stage of your quest awaits:\r\n%s",
+          "다음 퀘스트로 진행합니다:\r\n%s",
           QST_INFO(rnum));
     }
   }
@@ -432,7 +432,7 @@ void quest_timeout(struct char_data *ch)
 {
   if ((GET_QUEST(ch) != NOTHING) && (GET_QUEST_TIME(ch) != -1)) {
     clear_quest(ch);
-    send_to_char(ch, "You have run out of time to complete the quest.\r\n");
+    send_to_char(ch, "타임아웃! 퀘스트 수행에 실패했습니다.\r\n");
   }
 }
 
@@ -465,15 +465,15 @@ void list_quests(struct char_data *ch, zone_rnum zone, qst_vnum vmin, qst_vnum v
   }
   /* Print the header for the quest listing. */
   send_to_char (ch,
-  "Index VNum    Description                                  Questmaster\r\n"
+  "순번   임무번호   설명   퀘스트관리자\r\n"
   "----- ------- -------------------------------------------- -----------\r\n");
   for (rnum = 0; rnum < total_quests ; rnum++)
     if (QST_NUM(rnum) >= bottom && QST_NUM(rnum) <= top)
-      send_to_char(ch, "\tg%4d\tn) [\tg%-5d\tn] \tc%-44.44s\tn \ty[%5d]\tn\r\n",
+      send_to_char(ch, "\tg%d\tn) [\tg%d\tn] \tc%s\tn \ty[%d]\tn\r\n",
           ++counter, QST_NUM(rnum), QST_NAME(rnum),
           QST_MASTER(rnum) == NOBODY ? 0 : QST_MASTER(rnum));
   if (!counter)
-    send_to_char(ch, "None found.\r\n");
+    send_to_char(ch, "발견된 임무 없음.\r\n");
 }
 
 static void quest_hist(struct char_data *ch)
@@ -481,19 +481,19 @@ static void quest_hist(struct char_data *ch)
   int i = 0, counter = 0;
   qst_rnum rnum = NOTHING;
 
-  send_to_char(ch, "Quests that you have completed:\r\n"
-    "Index Description                                          Questmaster\r\n"
+  send_to_char(ch, "현재까지 완료한 임무:\r\n"
+    "순번   설명   퀘스트관리자\r\n"
     "----- ---------------------------------------------------- -----------\r\n");
   for (i = 0; i < GET_NUM_QUESTS(ch); i++) {
     if ((rnum = real_quest(ch->player_specials->saved.completed_quests[i])) != NOTHING)
-      send_to_char(ch, "\tg%4d\tn) \tc%-52.52s\tn \ty%s\tn\r\n",
+      send_to_char(ch, "\tg%d\tn) \tc%s\tn \ty%s\tn\r\n",
  ++counter, QST_DESC(rnum), (real_mobile(QST_MASTER(rnum)) == NOBODY) ? "Unknown" : GET_NAME(&mob_proto[(real_mobile(QST_MASTER(rnum)))]));
     else
       send_to_char(ch,
-        "\tg%4d\tn) \tcUnknown Quest (it no longer exists)\tn\r\n", ++counter);
+        "\tg%d\tn) \tc알 수 없는 퀘스트 (현재 존재하지 않음)\tn\r\n", ++counter);
   }
   if (!counter)
-    send_to_char(ch, "You haven't completed any quests yet.\r\n");
+    send_to_char(ch, "아직 완료한 임무가 없습니다.\r\n");
 }
 
 static void quest_join(struct char_data *ch, struct char_data *qm, char argument[MAX_INPUT_LENGTH])
@@ -504,47 +504,47 @@ static void quest_join(struct char_data *ch, struct char_data *qm, char argument
 
   if (!*argument)
     snprintf(buf, sizeof(buf),
-             "%s What quest did you wish to join?", GET_NAME(ch));
+             "%s 몇 번 임무를 수행하시겠습니까?", GET_NAME(ch));
   else if (GET_QUEST(ch) != NOTHING)
     snprintf(buf, sizeof(buf),
-             "%s But you are already part of a quest!", GET_NAME(ch));
+             "%s 이미 다른 임무를 수행중입니다!", GET_NAME(ch));
   else if((vnum = find_quest_by_qmnum(ch, GET_MOB_VNUM(qm), atoi(argument))) == NOTHING)
     snprintf(buf, sizeof(buf),
-             "%s I don't know of such a quest!", GET_NAME(ch));
+             "%s 그런 퀘스트는 모르겠습니다!", GET_NAME(ch));
   else if ((rnum = real_quest(vnum)) == NOTHING)
     snprintf(buf, sizeof(buf),
-             "%s I don't know of such a quest!", GET_NAME(ch));
+             "%s 그런 퀘스트는 모르겠습니다!", GET_NAME(ch));
   else if (GET_LEVEL(ch) < QST_MINLEVEL(rnum))
     snprintf(buf, sizeof(buf),
-             "%s You are not experienced enough for that quest!", GET_NAME(ch));
+             "%s 그 임무를 수행하기에는 경험이 부족합니다!", GET_NAME(ch));
   else if (GET_LEVEL(ch) > QST_MAXLEVEL(rnum))
     snprintf(buf, sizeof(buf),
-             "%s You are too experienced for that quest!", GET_NAME(ch));
+             "%s 그 임무는 당신이 수행하기에 너무 쉽습니다!", GET_NAME(ch));
   else if (is_complete(ch, vnum))
     snprintf(buf, sizeof(buf),
-             "%s You have already completed that quest!", GET_NAME(ch));
+             "%s 이미 완료한 퀘스트입니다!", GET_NAME(ch));
   else if ((QST_PREV(rnum) != NOTHING) && !is_complete(ch, QST_PREV(rnum)))
     snprintf(buf, sizeof(buf),
-             "%s That quest is not available to you yet!", GET_NAME(ch));
+             "%s 아직 수행 가능한 퀘스트가 아닙니다!", GET_NAME(ch));
   else if ((QST_PREREQ(rnum) != NOTHING) &&
            (real_object(QST_PREREQ(rnum)) != NOTHING) &&
            (get_obj_in_list_num(real_object(QST_PREREQ(rnum)),
        ch->carrying) == NULL))
     snprintf(buf, sizeof(buf),
-             "%s You need to have %s first!", GET_NAME(ch),
+             "%s 먼저 %s가 필요합니다!", GET_NAME(ch),
       obj_proto[real_object(QST_PREREQ(rnum))].short_description);
   else {
-    act("You join the quest.",    TRUE, ch, NULL, NULL, TO_CHAR);
-    act("$n has joined a quest.", TRUE, ch, NULL, NULL, TO_ROOM);
+    act("좋아요, 행운을 빕니다.",    TRUE, ch, NULL, NULL, TO_CHAR);
+    act("$n님이 퀘스트를 수행하기 시작합니다.", TRUE, ch, NULL, NULL, TO_ROOM);
     snprintf(buf, sizeof(buf),
-             "%s Listen carefully to the instructions.", GET_NAME(ch));
+             "%s 설명을 잘 들어주세요.", GET_NAME(ch));
     do_tell(qm, buf, cmd_tell, 0);
     set_quest(ch, rnum);
     send_to_char(ch, "%s", QST_INFO(rnum));
     if (QST_TIME(rnum) != -1)
       snprintf(buf, sizeof(buf),
-        "%s You have a time limit of %d turn%s to complete the quest.",
-        GET_NAME(ch), QST_TIME(rnum), QST_TIME(rnum) == 1 ? "" : "s");
+        "%s 이 임무에는 %d분의 시간제한이 있습니다.",
+        GET_NAME(ch), QST_TIME(rnum));
     else
       snprintf(buf, sizeof(buf),
         "%s You can take however long you want to complete the quest.",
@@ -560,9 +560,9 @@ void quest_list(struct char_data *ch, struct char_data *qm, char argument[MAX_IN
   qst_rnum rnum;
 
   if ((vnum = find_quest_by_qmnum(ch, GET_MOB_VNUM(qm), atoi(argument))) == NOTHING)
-    send_to_char(ch, "That is not a valid quest!\r\n");
+    send_to_char(ch, "유효하지 않은 퀘스트입니다!\r\n");
   else if ((rnum = real_quest(vnum)) == NOTHING)
-    send_to_char(ch, "That is not a valid quest!\r\n");
+    send_to_char(ch, "유효한 퀘스트가 아닙니다!\r\n");
   else if (QST_INFO(rnum)) {
     send_to_char(ch,"Complete Details on Quest %d \tc%s\tn:\r\n%s",
                       vnum,
@@ -806,7 +806,7 @@ SPECIAL(questmaster)
     return FALSE; /* No quests for this mob */
   else if (QST_FUNC(rnum) && (QST_FUNC(rnum) (ch, me, cmd, argument)))
     return TRUE;  /* The secondary spec proc handled this command */
-  else if (CMD_IS("quest")) {
+  else if (CMD_IS("임무")) {
     two_arguments(argument, arg1, arg2);
     if (!*arg1)
       return FALSE;
