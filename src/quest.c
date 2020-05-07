@@ -26,17 +26,17 @@
  * Exported global variables
  *--------------------------------------------------------------------------*/
 const char *quest_types[] = {
-  "Object",
-  "Room",
-  "Find mob",
-  "Kill mob",
-  "Save mob",
-  "Return object",
-  "Clear room",
+  "물건 찾기",
+  "방 찾기",
+  "맙 찾기",
+  "맙 죽이기",
+  "맙 구출하기",
+  "물건 전달하기",
+  "방 안 모든 맙 죽이기",
   "\n"
 };
 const char *aq_flags[] = {
-  "REPEATABLE",
+  "반복 가능",
   "\n"
 };
 
@@ -547,7 +547,7 @@ static void quest_join(struct char_data *ch, struct char_data *qm, char argument
         GET_NAME(ch), QST_TIME(rnum));
     else
       snprintf(buf, sizeof(buf),
-        "%s You can take however long you want to complete the quest.",
+        "%s 이 임무는 시간 제한이 없습니다.",
  GET_NAME(ch));
   }
   do_tell(qm, buf, cmd_tell, 0);
@@ -564,20 +564,19 @@ void quest_list(struct char_data *ch, struct char_data *qm, char argument[MAX_IN
   else if ((rnum = real_quest(vnum)) == NOTHING)
     send_to_char(ch, "유효한 퀘스트가 아닙니다!\r\n");
   else if (QST_INFO(rnum)) {
-    send_to_char(ch,"Complete Details on Quest %d \tc%s\tn:\r\n%s",
+    send_to_char(ch,"%d번 퀘스트의 상세 내용을 완성하세요 \tc%s\tn:\r\n%s",
                       vnum,
          QST_DESC(rnum),
          QST_INFO(rnum));
     if (QST_PREV(rnum) != NOTHING)
-      send_to_char(ch, "You have to have completed quest %s first.\r\n",
+      send_to_char(ch, "%s 퀘스트를 먼저 수행해야 합니다.\r\n",
           QST_NAME(real_quest(QST_PREV(rnum))));
     if (QST_TIME(rnum) != -1)
       send_to_char(ch,
-         "There is a time limit of %d turn%s to complete the quest.\r\n",
-          QST_TIME(rnum),
-          QST_TIME(rnum) == 1 ? "" : "s");
+         "이 임무는 %d분의 시간제한이 있습니다.\r\n",
+          QST_TIME(rnum));
   } else
-    send_to_char(ch, "There is no further information on that quest.\r\n");
+    send_to_char(ch, "이 임무에 대한 추가 정보가 없습니다.\r\n");
 }
 
 static void quest_quit(struct char_data *ch)
@@ -585,21 +584,21 @@ static void quest_quit(struct char_data *ch)
   qst_rnum rnum;
 
   if (GET_QUEST(ch) == NOTHING)
-    send_to_char(ch, "But you currently aren't on a quest!\r\n");
+    send_to_char(ch, "현재 임무 수행중이 아닙니다!\r\n");
   else if ((rnum = real_quest(GET_QUEST(ch))) == NOTHING) {
     clear_quest(ch);
-    send_to_char(ch, "You are now no longer part of the quest.\r\n");
+    send_to_char(ch, "수행중인 퀘스트를 취소합니다.\r\n");
     save_char(ch);
   } else {
     clear_quest(ch);
     if (QST_QUIT(rnum) && (str_cmp(QST_QUIT(rnum), "undefined") != 0))
       send_to_char(ch, "%s", QST_QUIT(rnum));
     else
-      send_to_char(ch, "You are now no longer part of the quest.\r\n");
+      send_to_char(ch, "수행중인 퀘스트를 취소합니다.\r\n");
     if (QST_PENALTY(rnum)) {
       GET_QUESTPOINTS(ch) -= QST_PENALTY(rnum);
       send_to_char(ch,
-        "You have lost %d quest points for your cowardice.\r\n",
+        "퀘스트를 취소하여 %d점의 임무점수를 잃었습니다.\r\n",
         QST_PENALTY(rnum));
     }
     save_char(ch);
@@ -611,22 +610,21 @@ static void quest_progress(struct char_data *ch)
   qst_rnum rnum;
 
   if (GET_QUEST(ch) == NOTHING)
-    send_to_char(ch, "But you currently aren't on a quest!\r\n");
+    send_to_char(ch, "현재 수행중인 임무가 없습니다!\r\n");
   else if ((rnum = real_quest(GET_QUEST(ch))) == NOTHING) {
     clear_quest(ch);
-    send_to_char(ch, "Your quest seems to no longer exist.\r\n");
+    send_to_char(ch, "진행중이던 퀘스트가 지금은 존재하지 않습니다.\r\n");
   } else {
-    send_to_char(ch, "You are on the following quest:\r\n%s\r\n%s",
+    send_to_char(ch, "현재 진행중인 퀘스트는 다음과 같습니다:\r\n%s\r\n%s",
         QST_DESC(rnum), QST_INFO(rnum));
     if (QST_QUANTITY(rnum) > 1)
       send_to_char(ch,
-          "You still have to achieve %d out of %d goals for the quest.\r\n",
-   GET_QUEST_COUNTER(ch), QST_QUANTITY(rnum));
+          "퀘스트 완료까지 남은 개수: %d\r\n",
+   GET_QUEST_COUNTER(ch));
     if (GET_QUEST_TIME(ch) > 0)
       send_to_char(ch,
-          "You have %d turn%s remaining to complete the quest.\r\n",
-   GET_QUEST_TIME(ch),
-   GET_QUEST_TIME(ch) == 1 ? "" : "s");
+          "퀘스트 종료까지 남은시간: %d분\r\n",
+   GET_QUEST_TIME(ch));
   }
 }
 
@@ -636,16 +634,16 @@ static void quest_show(struct char_data *ch, mob_vnum qm)
   int counter = 0;
 
   send_to_char(ch,
-  "The following quests are available:\r\n"
-  "Index Description                                          ( Vnum) Done?\r\n"
+  "수행 가능한 퀘스트:\r\n"
+  "순번   설명   (번호)   완료여부?\r\n"
   "----- ---------------------------------------------------- ------- -----\r\n");
   for (rnum = 0; rnum < total_quests; rnum++)
     if (qm == QST_MASTER(rnum))
-      send_to_char(ch, "\tg%4d\tn) \tc%-52.52s\tn \ty(%5d)\tn \ty(%s)\tn\r\n",
+      send_to_char(ch, "\tg%d\tn) \tc%s\tn \ty(%d)\tn \ty(%s)\tn\r\n",
         ++counter, QST_DESC(rnum), QST_NUM(rnum),
-        (is_complete(ch, QST_NUM(rnum)) ? "Yes" : "No "));
+        (is_complete(ch, QST_NUM(rnum)) ? "완료" : "미완료"));
   if (!counter)
-    send_to_char(ch, "There are no quests available here at the moment.\r\n");
+    send_to_char(ch, "지금은 수행 가능한 임무가 없습니다.\r\n");
 }
 
 static void quest_stat(struct char_data *ch, char argument[MAX_STRING_LENGTH])
@@ -658,7 +656,7 @@ static void quest_stat(struct char_data *ch, char argument[MAX_STRING_LENGTH])
   if (!*argument)
     send_to_char(ch, "%s\r\n", quest_imm_usage);
   else if ((rnum = real_quest(atoi(argument))) == NOTHING )
-    send_to_char(ch, "That quest does not exist.\r\n");
+    send_to_char(ch, "존재하지 않는 임무입니다.\r\n");
   else {
     sprintbit(QST_FLAGS(rnum), aq_flags, buf, sizeof(buf));
     switch (QST_TYPE(rnum)) {
@@ -666,14 +664,14 @@ static void quest_stat(struct char_data *ch, char argument[MAX_STRING_LENGTH])
       case AQ_OBJ_RETURN:
         snprintf(targetname, sizeof(targetname), "%s",
                  real_object(QST_TARGET(rnum)) == NOTHING ?
-                 "An unknown object" :
+                 "알 수 없는 물건" :
     obj_proto[real_object(QST_TARGET(rnum))].short_description);
  break;
       case AQ_ROOM_FIND:
       case AQ_ROOM_CLEAR:
         snprintf(targetname, sizeof(targetname), "%s",
           real_room(QST_TARGET(rnum)) == NOWHERE ?
-                 "An unknown room" :
+                 "알 수 없는 방" :
     world[real_room(QST_TARGET(rnum))].name);
         break;
       case AQ_MOB_FIND:
@@ -681,25 +679,25 @@ static void quest_stat(struct char_data *ch, char argument[MAX_STRING_LENGTH])
       case AQ_MOB_SAVE:
  snprintf(targetname, sizeof(targetname), "%s",
                  real_mobile(QST_TARGET(rnum)) == NOBODY ?
-    "An unknown mobile" :
+    "알 수 없는 맙" :
     GET_NAME(&mob_proto[real_mobile(QST_TARGET(rnum))]));
  break;
       default:
- snprintf(targetname, sizeof(targetname), "Unknown");
+ snprintf(targetname, sizeof(targetname), "알 수 없음");
  break;
     }
     qmrnum = real_mobile(QST_MASTER(rnum));
     send_to_char(ch,
-        "VNum  : [\ty%5d\tn], RNum: [\ty%5d\tn] -- Questmaster: [\ty%5d\tn] \ty%s\tn\r\n"
-        "Name  : \ty%s\tn\r\n"
- "Desc  : \ty%s\tn\r\n"
- "Accept Message:\r\n\tc%s\tn"
- "Completion Message:\r\n\tc%s\tn"
- "Quit Message:\r\n\tc%s\tn"
- "Type  : \ty%s\tn\r\n"
-        "Target: \ty%d\tn \ty%s\tn, Quantity: \ty%d\tn\r\n"
- "Value : \ty%d\tn, Penalty: \ty%d\tn, Min Level: \ty%2d\tn, Max Level: \ty%2d\tn\r\n"
- "Flags : \tc%s\tn\r\n",
+        "임무번호 : [\ty%d\tn], RNum: [\ty%d\tn] -- 퀘스트관리자: [\ty%d\tn] \ty%s\tn\r\n"
+        "이름: \ty%s\tn\r\n"
+ "설명: \ty%s\tn\r\n"
+ "시작 메시지:\r\n\tc%s\tn"
+ "완료 메시지:\r\n\tc%s\tn"
+ "취소 메시지:\r\n\tc%s\tn"
+ "유형: \ty%s\tn\r\n"
+        "대상: \ty%d\tn \ty%s\tn, 횟수: \ty%d\tn\r\n"
+ "보상 임무점수: \ty%d\tn, 실패 임무점수 삭감: \ty%d\tn, 최소레벨: \ty%d\tn, 최고레벨: \ty%d\tn\r\n"
+ "속성: \tc%s\tn\r\n",
      QST_NUM(rnum), rnum,
  QST_MASTER(rnum) == NOBODY ? -1 : QST_MASTER(rnum),
  (qmrnum == NOBODY) ? "(Invalid vnum)" : GET_NAME(&mob_proto[(qmrnum)]),
@@ -715,33 +713,30 @@ static void quest_stat(struct char_data *ch, char argument[MAX_STRING_LENGTH])
      QST_POINTS(rnum), QST_PENALTY(rnum), QST_MINLEVEL(rnum),
  QST_MAXLEVEL(rnum), buf);
     if (QST_PREREQ(rnum) != NOTHING)
-      send_to_char(ch, "Preq  : [\ty%5d\tn] \ty%s\tn\r\n",
+      send_to_char(ch, "선행 퀘스트: [\ty%d\tn] \ty%s\tn\r\n",
         QST_PREREQ(rnum) == NOTHING ? -1 : QST_PREREQ(rnum),
         QST_PREREQ(rnum) == NOTHING ? "" :
-   real_object(QST_PREREQ(rnum)) == NOTHING ? "an unknown object" :
+   real_object(QST_PREREQ(rnum)) == NOTHING ? "알 수 없는 물건" :
        obj_proto[real_object(QST_PREREQ(rnum))].short_description);
     if (QST_TYPE(rnum) == AQ_OBJ_RETURN)
-      send_to_char(ch, "Mob   : [\ty%5d\tn] \ty%s\tn\r\n",
+      send_to_char(ch, "맙: [\ty%d\tn] \ty%s\tn\r\n",
         QST_RETURNMOB(rnum),
- real_mobile(QST_RETURNMOB(rnum)) == NOBODY ? "an unknown mob" :
+ real_mobile(QST_RETURNMOB(rnum)) == NOBODY ? "알 수 없는 맙" :
            mob_proto[real_mobile(QST_RETURNMOB(rnum))].player.short_descr);
     if (QST_TIME(rnum) != -1)
-      send_to_char(ch, "Limit : There is a time limit of %d turn%s to complete.\r\n",
-   QST_TIME(rnum),
-   QST_TIME(rnum) == 1 ? "" : "s");
+      send_to_char(ch, "시간제한: %d분\r\n",
+   QST_TIME(rnum));
     else
-      send_to_char(ch, "Limit : There is no time limit on this quest.\r\n");
-    send_to_char(ch, "Prior :");
+      send_to_char(ch, "시간제한: 없음\r\n");
     if (QST_PREV(rnum) == NOTHING)
-      send_to_char(ch, " \tyNone.\tn\r\n");
+      send_to_char(ch, "이전 퀘스트: \ty없음.\tn\r\n");
     else
-      send_to_char(ch, " [\ty%5d\tn] \tc%s\tn\r\n",
+      send_to_char(ch, "이전 퀘스트: [\ty%d\tn] \tc%s\tn\r\n",
         QST_PREV(rnum), QST_DESC(real_quest(QST_PREV(rnum))));
-    send_to_char(ch, "Next  :");
     if (QST_NEXT(rnum) == NOTHING)
-      send_to_char(ch, " \tyNone.\tn\r\n");
+      send_to_char(ch, "다음 퀘스트: \tyNone.\tn\r\n");
     else
-      send_to_char(ch, " [\ty%5d\tn] \tc%s\tn\r\n",
+      send_to_char(ch, "다음 퀘스트: [\ty%d\tn] \tc%s\tn\r\n",
         QST_NEXT(rnum), QST_DESC(real_quest(QST_NEXT(rnum))));
   }
 }
@@ -767,7 +762,7 @@ ACMD(do_quest)
       case SCMD_QUEST_LIST:
       case SCMD_QUEST_JOIN:
         /* list, join should hve been handled by questmaster spec proc */
-        send_to_char(ch, "Sorry, but you cannot do that here!\r\n");
+        send_to_char(ch, "여기서는 사용할 수 없는 명령입니다!\r\n");
         break;
       case SCMD_QUEST_HISTORY:
         quest_hist(ch);

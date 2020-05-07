@@ -268,10 +268,10 @@ cpp_extern const struct command_info cmd_info[] = {
   { "prefedit" , "pre"     , POS_DEAD    , do_oasis_prefedit , 0, 0 },
   { "없애"    , "purge"   , POS_DEAD    , do_purge    , LVL_BUILDER, 0 }, // purge
 
-  { "qedit"    , "qedit"   , POS_DEAD    , do_oasis_qedit, LVL_BUILDER, 0 },
   { "임무"    , "que"     , POS_DEAD    , do_quest    , 0, 0 }, // quest
   { "임무말"     , "qsay"    , POS_RESTING , do_qcomm    , 0, SCMD_QSAY }, // qsay
   { "임무목록"    , "qlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_QLIST }, // qlist
+  { "임무편집"    , "qedit"   , POS_DEAD    , do_oasis_qedit, LVL_BUILDER, 0 },
   { "복용"    , "qua"     , POS_RESTING , do_use      , 0, SCMD_QUAFF }, // quaff
   { "임무공지"    , "qec"     , POS_DEAD    , do_qcomm    , LVL_GOD, SCMD_QECHO }, // qecho
   { "끝"     , "quit"    , POS_DEAD    , do_quit     , 0, SCMD_QUIT },
