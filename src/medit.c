@@ -567,7 +567,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
       return;
     default:
       write_to_output(d, "잘못 입력하셨습니다!\r\n");
-      write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
+      write_to_output(d, "변경 내용을 저장하시겠습니까?");
       return;
     }
 
@@ -577,7 +577,7 @@ void medit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) {	/* Anything been changed? */
-	write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
+	write_to_output(d, "변경 내용을 저장하시겠습니까?");
 	OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
       } else
 	cleanup_olc(d, CLEANUP_ALL);

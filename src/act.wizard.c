@@ -380,12 +380,12 @@ ACMD(do_vnum)
   half_chop(argument, buf, buf2);
 
   if (!*buf || !*buf2) {
-    send_to_char(ch, "사용법: { 몹 | 물건 | 방 | 트리거 } <이름> 번호조회\r\n");
+    send_to_char(ch, "사용법: { 맙 | 물건 | 방 | 트리거 } <이름> 번호조회\r\n");
     return;
   }
-  if (is_abbrev(buf, "몹") && (good_arg = 1))
+  if (is_abbrev(buf, "맙") && (good_arg = 1))
     if (!vnum_mobile(buf2, ch))
-      send_to_char(ch, "그런 이름의 몹은 없습니다.\r\n");
+      send_to_char(ch, "그런 이름의 맙은 없습니다.\r\n");
 
   if (is_abbrev(buf, "물건") && (good_arg =1 ))
     if (!vnum_object(buf2, ch))
@@ -400,7 +400,7 @@ ACMD(do_vnum)
       send_to_char(ch, "그런 이름의 트리거는 없습니다.\r\n");
 
   if (!good_arg)
-     send_to_char(ch, "사용법: { 몹 | 물건 | 방 | 트리거 } <이름> 번호조회\r\n");
+     send_to_char(ch, "사용법: { 맙 | 물건 | 방 | 트리거 } <이름> 번호조회\r\n");
  }
 
 #define ZOCMD zone_table[zrnum].cmd[subcmd]
@@ -786,7 +786,7 @@ static void do_stat_character(struct char_data *ch, struct char_data *k)
 
   sprinttype(k->player.chclass, pc_class_types, buf, sizeof(buf));
   send_to_char(ch, "%s%s, 레벨: [%s%2d%s], 경험치: [%s%7d%s], 성향: [%4d]\r\n",
-	IS_NPC(k) ? "몹직업" : "직업: ", IS_NPC(k) ? "" : buf, CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM),
+	IS_NPC(k) ? "맙직업" : "직업: ", IS_NPC(k) ? "" : buf, CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM),
 	CCYEL(ch, C_NRM), GET_EXP(k), CCNRM(ch, C_NRM), GET_ALIGNMENT(k));
 
   if (!IS_NPC(k)) {
@@ -993,7 +993,7 @@ ACMD(do_stat)
   half_chop(argument, buf1, buf2);
 
   if (!*buf1) {
-    send_to_char(ch, "[사용법] 방번호|몹이나 사용자 이름|파일 조회\r\n");
+    send_to_char(ch, "[사용법] 방번호|맙이나 사용자 이름|파일 조회\r\n");
     return;
   } else if (is_abbrev(buf1, "방")) {
     if (!*buf2)
@@ -1007,14 +1007,14 @@ ACMD(do_stat)
       room = &world[rnum];
     }
     do_stat_room(ch, room);
-  } else if (is_abbrev(buf1, "몹")) {
+  } else if (is_abbrev(buf1, "맙")) {
     if (!*buf2)
-      send_to_char(ch, "어느 몹의 정보 조회 할까요?\r\n");
+      send_to_char(ch, "어느 맙의 정보 조회 할까요?\r\n");
     else {
       if ((victim = get_char_vis(ch, buf2, NULL, FIND_CHAR_WORLD)) != NULL)
 	do_stat_character(ch, victim);
       else
-	send_to_char(ch, "그런 몹은 없습니다.\r\n");
+	send_to_char(ch, "그런 맙은 없습니다.\r\n");
     }
   } else if (is_abbrev(buf1, "사용자")) {
     if (!*buf2) {
@@ -1311,7 +1311,7 @@ ACMD(do_load)
     n = 1;
   }
 
-  if (is_abbrev(buf, "몹")) {
+  if (is_abbrev(buf, "맙")) {
       struct char_data *mob=NULL;
     mob_rnum r_num;
 
@@ -1345,7 +1345,7 @@ ACMD(do_load)
       load_otrigger(obj);
     }
   } else
-    send_to_char(ch, "몹이나 물건만 창조할 수 있습니다.\r\n");
+    send_to_char(ch, "맙이나 물건만 창조할 수 있습니다.\r\n");
 }
 
 ACMD(do_vstat)

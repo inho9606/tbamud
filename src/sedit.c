@@ -83,7 +83,7 @@ ACMD(do_oasis_sedit)
     }
 
     if (number == NOWHERE) {
-      send_to_char(ch, "몇 번 존을 저장하시겠습니까?\r\n");
+      send_to_char(ch, "몇 번 존 상점을 저장하시겠습니까?\r\n");
       return;
     }
   }
@@ -472,13 +472,13 @@ void sedit_parse(struct descriptor_data *d, char *arg)
     switch (*arg) {
     case 'w':
     case 'W':
-      write_to_output(d, "어떤 상점을 복사하시겠습니까? ");
+      write_to_output(d, "어떤 상점을 복사하시겠습니까?");
       OLC_MODE(d) = SEDIT_COPY;
       return;
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) {		/* Anything been changed? */
-	write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
+	write_to_output(d, "변경 내용을 저장하시겠습니까?");
 	OLC_MODE(d) = SEDIT_CONFIRM_SAVESTRING;
       } else
 	cleanup_olc(d, CLEANUP_ALL);
@@ -586,7 +586,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
       return;
     case 'd':
     case 'D':
-      write_to_output(d, "\r\n몇 번 입력을 삭제하시겠습니까? : ");
+      write_to_output(d, "\r\n몇 번 입력을 삭제하시겠습니까?");
       OLC_MODE(d) = SEDIT_DELETE_TYPE;
       return;
     case 'q':
@@ -604,7 +604,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
       return;
     case 'd':
     case 'D':
-      write_to_output(d, "\r\n몇 번 상품을 삭제하시겠습니까? : ");
+      write_to_output(d, "\r\n몇 번 상품을 삭제하시겠습니까?");
       OLC_MODE(d) = SEDIT_DELETE_PRODUCT;
       return;
     case 'q':
@@ -630,7 +630,7 @@ void sedit_parse(struct descriptor_data *d, char *arg)
       return;
     case 'd':
     case 'D':
-      write_to_output(d, "\r\n몇 번 방을 삭제하시겠습니까? : ");
+      write_to_output(d, "\r\n몇 번 방을 삭제하시겠습니까?");
       OLC_MODE(d) = SEDIT_DELETE_ROOM;
       return;
     case 'q':

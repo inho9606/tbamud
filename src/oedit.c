@@ -733,7 +733,7 @@ void oedit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) {	/* Something has been modified. */
-	write_to_output(d, "변경 내용을 저장하시겠습니까? : ");
+	write_to_output(d, "변경 내용을 저장하시겠습니까?");
 	OLC_MODE(d) = OEDIT_CONFIRM_SAVESTRING;
       } else
 	cleanup_olc(d, CLEANUP_ALL);
@@ -837,7 +837,7 @@ void oedit_parse(struct descriptor_data *d, char *arg)
       break;
     case 'x':
     case 'X':
-      write_to_output(d, "이 물건을 정말로 삭제하시겠습니까? ");
+      write_to_output(d, "이 물건을 정말로 삭제하시겠습니까?");
       OLC_MODE(d) = OEDIT_DELETE;
       break;
     default:

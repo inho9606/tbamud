@@ -156,8 +156,8 @@ static void redit_setup_new(struct descriptor_data *d)
 {
   CREATE(OLC_ROOM(d), struct room_data, 1);
 
-  OLC_ROOM(d)->name = strdup("An unfinished room");
-  OLC_ROOM(d)->description = strdup("You are in an unfinished room.\r\n");
+  OLC_ROOM(d)->name = strdup("미제작 방");
+  OLC_ROOM(d)->description = strdup("제작중인 방입니다.\r\n");
   OLC_ROOM(d)->number = NOWHERE;
   OLC_ITEM_TYPE(d) = WLD_TRIGGER;
   OLC_ROOM(d)->proto_script = OLC_SCRIPT(d) = NULL;
@@ -168,7 +168,7 @@ static void redit_setup_new(struct descriptor_data *d)
 void redit_setup_existing(struct descriptor_data *d, int real_num)
 {
   struct room_data *room;
-  int counter;
+  int counter, cur_num=OLC_NUM(d);
 
   /* Build a copy of the room for editing. */
   CREATE(room, struct room_data, 1);
@@ -544,7 +544,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
       cleanup_olc(d, CLEANUP_ALL);
       break;
     default:
-      write_to_output(d, "잘못 입력하셨습니다!\r\n변경 내용을 저장하시겠습니까? : (y / n)");
+      write_to_output(d, "잘못 입력하셨습니다!\r\n변경 내용을 저장하시겠습니까?(y/n) :");
       break;
     }
     return;
@@ -554,7 +554,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_VAL(d)) { /* Something has been modified. */
-        write_to_output(d, "변경 내용을 저장하시겠습니까? : (y / n)");
+        write_to_output(d, "변경 내용을 저장하시겠습니까?(y/n) :");
         OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
       } else
         cleanup_olc(d, CLEANUP_ALL);
@@ -663,7 +663,7 @@ void redit_parse(struct descriptor_data *d, char *arg)
     case 'x':
     case 'X':
       /* Delete the room, prompt first. */
-      write_to_output(d, "정말로 이 방을 삭제하시겠습니까? (y / n)");
+      write_to_output(d, "정말로 이 방을 삭제하시겠습니까?");
       OLC_MODE(d) = REDIT_DELETE;
       break;
 

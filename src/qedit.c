@@ -313,7 +313,7 @@ static void qedit_disp_menu(struct descriptor_data *d)
     "\tg G\tn) 돈: [\tc%d\tn] \tg T\tn) 경험치: [\tc%d\tn] \tg O\tn) 물건: [\tc%d\tn]\r\n"
     "\tn    수행 가능 레벨\r\n"
     "\tg D\tn) 최소 레벨: [\tc%d\tn] \tg E\tn) 최대 레벨: [\tc%d\tn]\r\n"
-    "\tg F\tn) 선행 필요 퀘스트: [\tc%d\tn] \ty%s\r\n"
+    "\tg F\tn) 수행 필요 물건: [\tc%d\tn] \ty%s\r\n"
     "\tg L\tn) 시간 제한: [\tc%d\tn]\r\n"
     "\tg N\tn) 다음 퀘스트: [\tc%d\tn] \ty%s\r\n"
     "\tg P\tn) 이전 퀘스트: [\tc%d\tn] \ty%s\r\n"
@@ -510,7 +510,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
           break;
         case '9':
           OLC_MODE(d) = QEDIT_TARGET;
-          write_to_output(d, "퀘스트 완료 조건을 만족하는 물건이나 맙 번호를 입력하세요 :");
+          write_to_output(d, "퀘스트 조건이 되는 물건이나 맙, 방 번호를 입력하세요 :");
           break;
  case 'a':
  case 'A':
@@ -540,7 +540,7 @@ void qedit_parse(struct descriptor_data *d, char *arg)
  case 'f':
  case 'F':
    OLC_MODE(d) = QEDIT_PREREQ;
-   write_to_output(d, "이 퀘스트를 수행하기 위한 선행 퀘스트 번호 (-1은 없음) :");
+   write_to_output(d, "이 퀘스트를 수행하기 위해 필요한 물건 번호 (-1은 없음) :");
    break;
  case 'g':
  case 'G':

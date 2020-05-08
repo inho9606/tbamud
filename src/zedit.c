@@ -561,7 +561,7 @@ static void zedit_disp_comtype(struct descriptor_data *d)
 	"%sR%s) 방에서 물건 제거\r\n"
         "%sT%s) 트리거 할당                %sV%s) 전역 변수 설정\r\n"
 	"\r\n"
-	"어떤 작업을 하시겠습니까? : ",
+	"어떤 작업을 하시겠습니까?",
 	grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm,
 	grn, nrm, grn, nrm, grn, nrm, grn, nrm
 	);
@@ -735,7 +735,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
       break;
     default:
       write_to_output(d, "잘못 입력하셨습니다! (Y / N)\r\n");
-      write_to_output(d, "변경 내용을 저장하시겠습니까? : (Y / N)");
+      write_to_output(d, "변경 내용을 저장하시겠습니까?(y/n) :");
       break;
     }
     break;
@@ -746,7 +746,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
     case 'q':
     case 'Q':
       if (OLC_ZONE(d)->age || OLC_ZONE(d)->number) {
-	write_to_output(d, "변경 내용을 저장하시겠습니까? : (Y / N)");
+	write_to_output(d, "변경 내용을 저장하시겠습니까?(y/n) :");
 	OLC_MODE(d) = ZEDIT_CONFIRM_SAVESTRING;
       } else {
 	write_to_output(d, "변경 내용이 없습니다.\r\n");
@@ -764,19 +764,19 @@ void zedit_parse(struct descriptor_data *d, char *arg)
           break;
 	}
       }
-      write_to_output(d, "새로운 작업의 우선순위는 목록에서 몇 번째입니까? : ");
+      write_to_output(d, "새로운 작업의 우선순위는 목록에서 몇 번째입니까?");
       OLC_MODE(d) = ZEDIT_NEW_ENTRY;
       break;
     case 'e':
     case 'E':
       /* Change an entry. */
-      write_to_output(d, "몇 번 작업을 변경하시겠습니까? : ");
+      write_to_output(d, "몇 번 작업을 변경하시겠습니까?:");
       OLC_MODE(d) = ZEDIT_CHANGE_ENTRY;
       break;
     case 'd':
     case 'D':
       /* Delete an entry. */
-      write_to_output(d, "몇 번 작업을 삭제하시겠습니까? : ");
+      write_to_output(d, "몇 번 작업을 삭제하시겠습니까?");
       OLC_MODE(d) = ZEDIT_DELETE_ENTRY;
       break;
     case 'z':
@@ -940,7 +940,7 @@ void zedit_parse(struct descriptor_data *d, char *arg)
           OLC_CMD(d).if_flag = 1;
           zedit_disp_arg1(d);
         } else {
-	  write_to_output(d, "이 작업은 이전 작업 결과에 영향을 받습니까? (y/n)\r\n");
+	  write_to_output(d, "이 작업은 이전 작업 결과에 영향을 받습니까?(y/n)\r\n");
 	  OLC_MODE(d) = ZEDIT_IF_FLAG;
         }
       } else {	/* 'if-flag' not appropriate. */

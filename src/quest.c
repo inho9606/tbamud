@@ -47,7 +47,7 @@ const char *aq_flags[] = {
 static int cmd_tell;
 
 static const char *quest_cmd[] = {
-  "목록", "기록", "수행", "취소", "진행중", "상태", "\n"};
+  "목록", "완료", "수행", "취소", "진행중", "상태", "\n"};
 
 static const char *quest_mort_usage =
   "사용법: 목록 | 기록 | 진행중 | 수행 <nn> | 취소 임무";
@@ -713,7 +713,7 @@ static void quest_stat(struct char_data *ch, char argument[MAX_STRING_LENGTH])
      QST_POINTS(rnum), QST_PENALTY(rnum), QST_MINLEVEL(rnum),
  QST_MAXLEVEL(rnum), buf);
     if (QST_PREREQ(rnum) != NOTHING)
-      send_to_char(ch, "선행 퀘스트: [\ty%d\tn] \ty%s\tn\r\n",
+      send_to_char(ch, "수행 필요 물건: [\ty%d\tn] \ty%s\tn\r\n",
         QST_PREREQ(rnum) == NOTHING ? -1 : QST_PREREQ(rnum),
         QST_PREREQ(rnum) == NOTHING ? "" :
    real_object(QST_PREREQ(rnum)) == NOTHING ? "알 수 없는 물건" :

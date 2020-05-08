@@ -320,9 +320,9 @@ int buildwalk(struct char_data *ch, int dir)
     get_char_colors(ch);
 
     if (!can_edit_zone(ch, world[IN_ROOM(ch)].zone)) {
-      send_to_char(ch, "You do not have build permissions in this zone.\r\n");
+      send_to_char(ch, "이 존의 제작 권한이 없습니다.\r\n");
     } else if ((vnum = redit_find_new_vnum(world[IN_ROOM(ch)].zone)) == NOWHERE) {
-      send_to_char(ch, "No free vnums are available in this zone!\r\n");
+      send_to_char(ch, "이 존에는 더이상 사용 가능한 방이 없습니다!\r\n");
     } else {
       struct descriptor_data *d = ch->desc;
       /* Give the descriptor an olc struct. This way we can let 
@@ -336,13 +336,12 @@ int buildwalk(struct char_data *ch, int dir)
       OLC_NUM(d) = vnum;
       CREATE(OLC_ROOM(d), struct room_data, 1);
 
-      OLC_ROOM(d)->name = strdup("New BuildWalk Room");
+      OLC_ROOM(d)->name = strdup(world[IN_ROOM(ch)].name); // 이전 방 이름 복사
 
-      sprintf(buf, "This unfinished room was created by %s.\r\n", GET_NAME(ch));
-      OLC_ROOM(d)->description = strdup(buf);
+      OLC_ROOM(d)->description = strdup(world[IN_ROOM(ch)].description); // 이전 방 묘사 복사
       OLC_ROOM(d)->zone = OLC_ZNUM(d);
       OLC_ROOM(d)->number = NOWHERE;
-	  OLC_ROOM(d)->sector_type = GET_BUILDWALK_SECTOR(ch);
+	  OLC_ROOM(d)->sector_type = world[IN_ROOM(ch)].sector_type; // 이전 방 유형 복사
 	  
       /* Save the new room to memory. redit_save_internally handles adding the 
        * room in the right place, etc. */
@@ -357,7 +356,7 @@ int buildwalk(struct char_data *ch, int dir)
       world[rnum].dir_option[rev_dir[dir]]->to_room = IN_ROOM(ch);
 
       /* Report room creation to user */
-      send_to_char(ch, "%sRoom #%d created by BuildWalk.%s\r\n", yel, vnum, nrm);
+      send_to_char(ch, "%s#존제작 모드로 %d번 방이 만들어졌습니다.%s\r\n", yel, vnum, nrm);
       cleanup_olc(d, CLEANUP_STRUCTS);
 
       return (1);

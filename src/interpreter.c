@@ -126,7 +126,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "backstab" , "ba"      , POS_STANDING, do_backstab , 1, 0 },
   { "접속금지"      , "ban"     , POS_DEAD    , do_ban      , LVL_GRGOD, 0 },
   { "bandage"  , "band"    , POS_RESTING , do_bandage  , 1, 0 },
-  { "벨런스"  , "bal"     , POS_STANDING, do_not_here , 1, 0 },
+  { "잔액"  , "bal"     , POS_STANDING, do_not_here , 1, 0 },
   { "bash"     , "bas"     , POS_FIGHTING, do_bash     , 1, 0 },
   { "간략"    , "br"      , POS_DEAD    , do_gen_tog  , 0, SCMD_BRIEF },
   { "존제작", "buildwalk", POS_STANDING, do_gen_tog , LVL_BUILDER, SCMD_BUILDWALK },
@@ -151,7 +151,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "업데이트" , "copyover", POS_DEAD    , do_copyover , LVL_GRGOD, 0 },
   { "credits"  , "cred"    , POS_DEAD    , do_gen_ps   , 0, SCMD_CREDITS },
 
-  { "시간"     , "da"      , POS_DEAD    , do_date     , LVL_IMMORT, SCMD_DATE },
+  { "실제시간"     , "da"      , POS_DEAD    , do_date     , LVL_IMMORT, SCMD_DATE }, // date
   { "접속끊기"       , "dc"      , POS_DEAD    , do_dc       , LVL_GOD, 0 },
   { "입어"     , "wea"     , POS_RESTING , do_wear     , 0, 0 },
   { "입금"  , "depo"    , POS_STANDING, do_not_here , 1, 0 },
@@ -243,6 +243,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "외침거부"  , "noshout" , POS_SLEEPING, do_gen_tog  , 1, SCMD_NOSHOUT },
   { "소환거부" , "nosummon", POS_DEAD    , do_gen_tog  , 1, SCMD_NOSUMMON },
   { "귓말거부"   , "notell"  , POS_DEAD    , do_gen_tog  , 1, SCMD_NOTELL },
+  { "칭호"    , "title"   , POS_DEAD    , do_title    , 0, 0 }, // title
   { "칭호고정"  , "notitle" , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_NOTITLE }, // notitle
   { "신채널거부"    , "nowiz"   , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOWIZ },
 
@@ -315,24 +316,23 @@ cpp_extern const struct command_info cmd_info[] = {
   { "sip"      , "sip"     , POS_RESTING , do_drink    , 0, SCMD_SIP },
   { "기술셋팅" , "skillset", POS_SLEEPING, do_skillset , LVL_GRGOD, 0 }, // skillset
   { "자"    , "sl"      , POS_SLEEPING, do_sleep    , 0, 0 }, // sleep
-  { "sneak"    , "sneak"   , POS_STANDING, do_sneak    , 1, 0 },
-  { "snoop"    , "snoop"   , POS_DEAD    , do_snoop    , LVL_GOD, 0 },
+  { "잠행"    , "sneak"   , POS_STANDING, do_sneak    , 1, 0 }, // sneak
+  { "감시"    , "snoop"   , POS_DEAD    , do_snoop    , LVL_GOD, 0 }, // snoop
   { "socials"  , "socials" , POS_DEAD    , do_commands , 0, SCMD_SOCIALS },
-  { "split"    , "split"   , POS_SITTING , do_split    , 1, 0 },
-  { "stand"    , "st"      , POS_RESTING , do_stand    , 0, 0 },
-  { "stat"     , "stat"    , POS_DEAD    , do_stat     , LVL_IMMORT, 0 },
-  { "steal"    , "ste"     , POS_STANDING, do_steal    , 1, 0 },
-  { "switch"   , "switch"  , POS_DEAD    , do_switch   , LVL_GOD, 0 },
+  { "분배"    , "split"   , POS_SITTING , do_split    , 1, 0 }, // split
+  { "일어나"    , "st"      , POS_RESTING , do_stand    , 0, 0 }, // stand
+  { "조회"     , "stat"    , POS_DEAD    , do_stat     , LVL_IMMORT, 0 }, // stat
+  { "훔쳐"    , "ste"     , POS_STANDING, do_steal    , 1, 0 }, // steal
+  { "몸바꿔"   , "switch"  , POS_DEAD    , do_switch   , LVL_GOD, 0 }, // switch
 
   { "tell"     , "t"       , POS_DEAD    , do_tell     , 0, 0 },
   { "take"     , "ta"      , POS_RESTING , do_get      , 0, 0 },
-  { "taste"    , "tas"     , POS_RESTING , do_eat      , 0, SCMD_TASTE },
-  { "teleport" , "tele"    , POS_DEAD    , do_teleport , LVL_BUILDER, 0 },
+  { "맛봐"    , "tas"     , POS_RESTING , do_eat      , 0, SCMD_TASTE }, // taste
+  { "공간이동" , "tele"    , POS_DEAD    , do_teleport , LVL_BUILDER, 0 }, // teleport
   { "tedit"    , "tedit"   , POS_DEAD    , do_tedit    , LVL_GOD, 0 },  /* XXX: Oasisify */
-  { "thaw"     , "thaw"    , POS_DEAD    , do_wizutil  , LVL_GRGOD, SCMD_THAW },
-  { "title"    , "title"   , POS_DEAD    , do_title    , 0, 0 },
-  { "time"     , "time"    , POS_DEAD    , do_time     , 0, 0 },
-  { "toggle"   , "toggle"  , POS_DEAD    , do_toggle   , 0, 0 },
+  { "해동"     , "thaw"    , POS_DEAD    , do_wizutil  , LVL_GRGOD, SCMD_THAW }, // thaw
+  { "시간"     , "time"    , POS_DEAD    , do_time     , 0, 0 }, // time
+  { "설정"   , "toggle"  , POS_DEAD    , do_toggle   , 0, 0 }, // toggle
   { "track"    , "track"   , POS_STANDING, do_track    , 0, 0 },
   { "transfer" , "transfer", POS_SLEEPING, do_trans    , LVL_GOD, 0 },
   { "trigedit" , "trigedit", POS_DEAD    , do_oasis_trigedit, LVL_BUILDER, 0 },
@@ -375,7 +375,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "write"    , "write"   , POS_STANDING, do_write    , 1, 0 },
 
   { "zoneresets", "zoner" ,  POS_DEAD    , do_gen_tog , LVL_IMPL, SCMD_ZONERESETS },
-  { "zreset"   , "zreset"  , POS_DEAD    , do_zreset   , LVL_BUILDER, 0 },
+  { "존리셋"   , "zreset"  , POS_DEAD    , do_zreset   , LVL_BUILDER, 0 }, // zreset
   { "존편집"    , "zedit"   , POS_DEAD    , do_oasis_zedit, LVL_BUILDER, 0 },
   { "존목록"    , "zlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_ZLIST },
   { "zlock"    , "zlock"   , POS_DEAD    , do_zlock    , LVL_GOD, 0 },
