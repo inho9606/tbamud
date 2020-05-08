@@ -287,18 +287,19 @@ cpp_extern const struct command_info cmd_info[] = {
   { "rent"     , "rent"    , POS_STANDING, do_not_here , 1, 0 },
   { "report"   , "repo"    , POS_RESTING , do_report   , 0, 0 },
   { "reroll"   , "rero"    , POS_DEAD    , do_wizutil  , LVL_GRGOD, SCMD_REROLL },
-  { "rescue"   , "resc"    , POS_FIGHTING, do_rescue   , 1, 0 },
-  { "restore"  , "resto"   , POS_DEAD    , do_restore  , LVL_GOD, 0 },
-  { "return"   , "retu"    , POS_DEAD    , do_return   , 0, 0 },
+  { "구조"   , "resc"    , POS_FIGHTING, do_rescue   , 1, 0 }, // rescue
+  { "완치"  , "resto"   , POS_DEAD    , do_restore  , LVL_GOD, 0 }, // restore
+  { "빙의"   , "switch"  , POS_DEAD    , do_switch   , LVL_GOD, 0 }, // switch
+  { "빙의해제"   , "retu"    , POS_DEAD    , do_return   , 0, 0 },
   { "방편집"    , "redit"   , POS_DEAD    , do_oasis_redit, LVL_BUILDER, 0 },
   { "방목록"    , "rlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_RLIST },
   { "방복사"    , "rcopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_REDIT },
   { "방속성", "roomflags", POS_DEAD   , do_gen_tog  , LVL_IMMORT, SCMD_SHOWVNUMS },
 
-  { "sacrifice", "sac"     , POS_RESTING , do_sac      , 0, 0 },
+  { "제물", "sac"     , POS_RESTING , do_sac      , 0, 0 }, // sacrifice
   { "말"      , "s"       , POS_RESTING , do_say      , 0, 0 },
   { "점수"    , "sc"      , POS_DEAD    , do_score    , 0, 0 },
-  { "scan"     , "sca"     , POS_RESTING , do_scan     , 0, 0 },
+  { "스캔"     , "sca"     , POS_RESTING , do_scan     , 0, 0 }, // scan
   { "scopy"    , "scopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_SEDIT },
   { "앉아"      , "si"      , POS_RESTING , do_sit      , 0, 0 },
   { "'"        , "'"       , POS_RESTING , do_say      , 0, 0 },
@@ -323,7 +324,6 @@ cpp_extern const struct command_info cmd_info[] = {
   { "일어나"    , "st"      , POS_RESTING , do_stand    , 0, 0 }, // stand
   { "조회"     , "stat"    , POS_DEAD    , do_stat     , LVL_IMMORT, 0 }, // stat
   { "훔쳐"    , "ste"     , POS_STANDING, do_steal    , 1, 0 }, // steal
-  { "몸바꿔"   , "switch"  , POS_DEAD    , do_switch   , LVL_GOD, 0 }, // switch
 
   { "tell"     , "t"       , POS_DEAD    , do_tell     , 0, 0 },
   { "take"     , "ta"      , POS_RESTING , do_get      , 0, 0 },
