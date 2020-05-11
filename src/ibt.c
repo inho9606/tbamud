@@ -467,12 +467,12 @@ ACMD(do_ibt)
 
   if ((!*arg)){
     if (GET_LEVEL(ch) >= LVL_GRGOD){
-      send_to_char(ch, "Usage: %s%s submit <header>%s\r\n"
-                       "       %s%s list%s\r\n"
-                       "       %s%s show <num>%s\r\n"
-                       "       %s%s remove <num>%s\r\n"
-                       "       %s%s edit <num>%s\r\n"
-                       "       %s%s resolve <num>%s\r\n",
+      send_to_char(ch, "사용법: %s 신고 <제목> %s%s\r\n"
+                       "       %s 목록 %s%s\r\n"
+                       "       %s 조회 <번호> %s%s\r\n"
+                       "       %s 삭제 <번호> %s%s\r\n"
+                       "       %s 편집 <번호> %s%s\r\n"
+                       "       %s 처리 <번호> %s%s\r\n",
                                QYEL, CMD_NAME, QNRM,
                                QYEL, CMD_NAME, QNRM,
                                QYEL, CMD_NAME, QNRM,
@@ -481,76 +481,76 @@ ACMD(do_ibt)
                                QYEL, CMD_NAME, QNRM);
       return;
     } else if (GET_LEVEL(ch) >= LVL_IMMORT) {
-      send_to_char(ch, "Usage: %s%s submit <header>%s\r\n"
-                       "       %s%s list%s\r\n"
-                       "       %s%s show <num>%s\r\n",
+      send_to_char(ch, "사용법: %s 신고 <제목> %s%s\r\n"
+                       "       %s 목록 %s%s\r\n"
+                       "       %s 읽기 <번호> %s%s\r\n",
                                QYEL, CMD_NAME, QNRM,
                                QYEL, CMD_NAME, QNRM,
                                QYEL, CMD_NAME, QNRM);
       return;
     } else {
-      send_to_char(ch, "Usage: %s%s submit <header>%s\r\n"
-                       "       %s%s list%s\r\n"
-                       "       %s%s show <num>%s\r\n",
+      send_to_char(ch, "사용법: %s%s 신고 <제목>%s\r\n"
+                       "       %s%s 목록%s\r\n"
+                       "       %s%s 읽기 <번호>%s\r\n",
                                QYEL, CMD_NAME, QNRM,
                                QYEL, CMD_NAME, QNRM,
                                QYEL, CMD_NAME, QNRM);
-      send_to_char(ch, "Note: Only %ss logged by you will be listed or shown.\r\n", CMD_NAME);
+      send_to_char(ch, "주의: 본인이 신고한 버그만 표시됩니다.\r\n");
       return;
     }
   }
-  else if(is_abbrev(arg,"show"))
+  else if(is_abbrev(arg,"조회"))
   {
     if (!is_number(arg2)) {
-      send_to_char(ch, "Show which %s?\r\n", CMD_NAME);
+      send_to_char(ch, "몇 번 버그를 읽으시겠습니까?\r\n");
       return;
     }
     ano = atoi(arg2);
 
     if ((ibtData = get_ibt_by_num(subcmd, ano)) == NULL) {
-      send_to_char(ch, "That %s doesn't exist.\r\n", CMD_NAME);
+      send_to_char(ch, "그 번호로 신고된 버그가 없습니다.\r\n");
       return;
     } else {
       if ((GET_LEVEL(ch) < LVL_IMMORT) && (!is_ibt_logger(ibtData, ch))) {
-        send_to_char(ch, "Sorry but you may only view %ss you have posted yourself.\n\r", ibt_types[subcmd]);
+        send_to_char(ch, "본인이 신고한 %s만 열람할 수 있습니다.\n\r", ibt_types[subcmd]);
       } else {
-        send_to_char(ch, "%s%s by %s%s\r\n",QCYN, ibt_types[subcmd], QYEL, ibtData->name);
+        send_to_char(ch, "%s%s 작성자: %s%s\r\n",QCYN, ibt_types[subcmd], QYEL, ibtData->name);
         if (ibtData->dated != 0) {
           strftime(timestr, sizeof(timestr), "%c", localtime(&(ibtData->dated)));
         } else {
-          strcpy(timestr, "Unknown");
+          strcpy(timestr, "알 수 없음");
         }
-        send_to_char(ch, "%sSubmitted: %s%s\r\n", QCYN, QYEL, timestr);
+        send_to_char(ch, "%s작성시간: %s%s\r\n", QCYN, QYEL, timestr);
         if (GET_LEVEL(ch) >= LVL_IMMORT) {
-          send_to_char(ch, "%sLevel: %s%d\r\n",QCYN, QYEL, ibtData->level);
-          send_to_char(ch, "%sRoom : %s%d\r\n",QCYN, QYEL, ibtData->room);
+          send_to_char(ch, "%s레벨: %s%d\r\n",QCYN, QYEL, ibtData->level);
+          send_to_char(ch, "%s방번호 : %s%d\r\n",QCYN, QYEL, ibtData->room);
         }
-        send_to_char(ch, "%sTitle: %s%s\r\n",QCYN, QYEL, ibtData->text);
-        send_to_char(ch, "%s%s Details%s\r\n%s\r\n",QCYN, ibt_types[subcmd], QYEL, ibtData->body);
+        send_to_char(ch, "%s제목: %s%s\r\n",QCYN, QYEL, ibtData->text);
+        send_to_char(ch, "%s 내용%s\r\n%s\r\n",QCYN, QYEL, ibtData->body);
         if (ibtData->notes && *(ibtData->notes))
-          send_to_char(ch, "%s%s Notes%s\r\n%s\r\n",QCYN, ibt_types[subcmd], QYEL, ibtData->notes);
-        send_to_char(ch, "%s%s Status: %s%s%s%s\r\n",QCYN, ibt_types[subcmd],
+          send_to_char(ch, "%s%s 참고사항%s\r\n%s\r\n",QCYN, ibt_types[subcmd], QYEL, ibtData->notes);
+        send_to_char(ch, "%s 처리 상태: %s%s%s%s\r\n",QCYN,
                                        IBT_FLAGGED(ibtData, IBT_RESOLVED) ? QBGRN : QBRED,
-                                       IBT_FLAGGED(ibtData, IBT_RESOLVED) ? "Resolved" : "Unresolved",
-                                       IBT_FLAGGED(ibtData, IBT_INPROGRESS) ? " (In Progress)" : "",
+                                       IBT_FLAGGED(ibtData, IBT_RESOLVED) ? "처리됨" : "처리되지 않음",
+                                       IBT_FLAGGED(ibtData, IBT_INPROGRESS) ? " (처리중)" : "",
                                        QNRM);
       }
     }
 
     return;
   }
-  else if(is_abbrev(arg,"list"))
+  else if(is_abbrev(arg,"목록"))
   {
     if (first_ibt)
     {
       if (GET_LEVEL(ch) < LVL_IMMORT) {
         len = snprintf(buf, sizeof(buf),
-               "%s No %s|%s Description\r\n"
+               "%s 번호 %s|%s 제목\r\n"
                "%s ---|-------------------------------------------------%s\r\n",
                QCYN, QGRN, QCYN, QGRN, QNRM);
       } else {
         len = snprintf(buf, sizeof(buf),
-               "%s No %s|%sName        %s|%sRoom  %s|%sLevel%s|%s Description\r\n"
+               "%s 번호 %s|%s작성자        %s|%s작성위치  %s|%s레벨%s|%s 제목\r\n"
                "%s ---|------------|------|-----|-------------------------------------------------%s\r\n",
                QCYN, QGRN, QCYN, QGRN, QCYN, QGRN, QCYN, QGRN, QCYN, QGRN, QNRM);
       }
@@ -615,32 +615,32 @@ ACMD(do_ibt)
       }
       if ((num_res + num_unres) > 0) {
         len += snprintf(buf + len, sizeof(buf) - len,
-                "\n\r%s%d %ss in file. %s%d%s resolved, %s%d%s unresolved%s\r\n"
-                "%s%ss in %sRED%s are unresolved %ss.\r\n"
-                "%s%ss in %sYELLOW%s are in-progress %ss.\r\n"
-                "%s%ss in %sGREEN%s are resolved %ss.\r\n",
+                "\n\r%s%d개 %s 저장됨. %s%d%s개 처리됨, %s%d%s개 처리 안 됨%s\r\n"
+                "%s%ss in %s빨간색%s: 처리되지 않은 %s.\r\n"
+                "%s%ss in %s노란색%s: 처리중인 %s.\r\n"
+                "%s%ss in %s초록색%s: 처리된 %s.\r\n",
                 QCYN, i, CMD_NAME, QBGRN, num_res, QCYN, QBRED, num_unres, QCYN, QNRM,
                 QCYN, ibt_types[subcmd], QRED, QCYN, CMD_NAME,
                 QCYN, ibt_types[subcmd], QYEL, QCYN, CMD_NAME,
                 QCYN, ibt_types[subcmd], QGRN, QCYN, CMD_NAME);
       } else {
-        len += snprintf(buf + len, sizeof(buf) - len, "No %ss have been found that were reported by you!\r\n", CMD_NAME);
+        len += snprintf(buf + len, sizeof(buf) - len, "버그 신고 내역이 없습니다.\r\n");
       }
       if (GET_LEVEL(ch) >= LVL_GRGOD) {
-        len += snprintf(buf + len, sizeof(buf) - len, "%sYou may use %s remove, resolve or edit to change the list..%s\r\n", QCYN, CMD_NAME, QNRM);
+        len += snprintf(buf + len, sizeof(buf) - len, "%s삭제, 처리, 편집, %s로 목록을 변경할 수 있습니다..%s\r\n", QCYN, CMD_NAME, QNRM);
       }
-      snprintf(buf + len, sizeof(buf) - len, "%sYou may use %s%s show <number>%s to see more indepth about the %s.%s\r\n", QCYN, QYEL, CMD_NAME, QCYN, CMD_NAME, QNRM);
+      snprintf(buf + len, sizeof(buf) - len, "%s %s조회 <번호>%s %s로 %s에 대한 더 많은 정보를 확인할 수 있습니다.%s\r\n", QCYN, QYEL, QCYN, CMD_NAME, CMD_NAME, QNRM);
     } else {
-      snprintf(buf + len, sizeof(buf) - len, "No %ss have been reported!\r\n", CMD_NAME);
+      snprintf(buf + len, sizeof(buf) - len, "신고된 버그가 없습니다!\r\n");
     }
 
     page_string(ch->desc, buf, TRUE);
     return;
   }
-  else if (is_abbrev(arg,"submit"))
+  else if (is_abbrev(arg,"신고"))
   {
     if (!*arg_text) {
-      send_to_char(ch, "You need to add a heading!\r\n");
+      send_to_char(ch, "제목이 필요합니다!\r\n");
       return;
     }
     switch (subcmd) {
@@ -656,10 +656,10 @@ ACMD(do_ibt)
     SET_BIT_AR(PLR_FLAGS(ch), PLR_WRITING);
 
     ibtData = new_ibt();
-    send_to_char(ch, "Write your %s.\r\n", CMD_NAME);
+    send_to_char(ch, "버그 상세 내용을 입력하세요.\r\n");
     send_editor_help(ch->desc);
 
-    sprintf(buf, "$n starts to give %s %s.", TANA(CMD_NAME), CMD_NAME);
+    sprintf(buf, "$n님이 버그를 신고합니다.");
     act(buf, TRUE, ch, 0, 0, TO_ROOM);
 
     string_write(ch->desc, &(ibtData->body),MAX_IBT_LENGTH, 0, NULL);
@@ -683,27 +683,27 @@ ACMD(do_ibt)
       FALSE, "%s has posted %s %s!", GET_NAME(ch), TANA(CMD_NAME), CMD_NAME);
     return;
   }
-  else if (is_abbrev(arg,"resolve"))
+  else if (is_abbrev(arg,"처리"))
   {
     if (GET_LEVEL(ch) < LVL_GRGOD){
-      send_to_char(ch, "%s what?\r\n", ibt_types[subcmd]);
+      send_to_char(ch, "사용법을 보려면 <버그> 하십시오.\r\n");
       return;
     }
 
     if (!is_number(arg2)) {
-      send_to_char(ch, "Resolve which %s?\r\n", CMD_NAME);
+      send_to_char(ch, "몇 번 버그를 처리됨으로 표시하시겠습니까?\r\n");
       return;
     }
     ano = atoi(arg2);
 
     if ((ibtData = get_ibt_by_num(subcmd, ano)) == NULL) {
-      send_to_char(ch, "%s not found\r\n", ibt_types[subcmd]);
+      send_to_char(ch, "그 번호로 신고된 버그가 없습니다!\r\n");
       return;
     } else {
       if (IBT_FLAGGED(ibtData, IBT_RESOLVED)){
-        send_to_char(ch, "That %s has already been resolved!\r\n", CMD_NAME);
+        send_to_char(ch, "그 버그는 이미 처리되었습니다!\r\n");
       } else {
-        send_to_char(ch,"%s %d resolved!\r\n", ibt_types[subcmd], ano);
+        send_to_char(ch, "%d번 버그를 처리됨으로 표시하였습니다!\r\n", ano);
         SET_BIT_AR(IBT_FLAGS(ibtData), IBT_RESOLVED);
         if (CONFIG_IBT_AUTOSAVE) {
 		  save_ibt_file(subcmd);
@@ -711,53 +711,52 @@ ACMD(do_ibt)
       }
     }
     return;
-  } else if (is_abbrev(arg,"remove")) {
+  } else if (is_abbrev(arg,"삭제")) {
     if (GET_LEVEL(ch) < LVL_GRGOD){
-      send_to_char(ch, "%s what?\r\n", ibt_types[subcmd]);
+      send_to_char(ch, "사용법을 보려면 <버그> 하십시오.\r\n");
       return;
     }
 
     if (!is_number(arg2)) {
-      send_to_char(ch, "Remove which %s?\r\n", CMD_NAME);
+      send_to_char(ch, "몇 번 버그를 삭제하시겠습니까?\r\n");
       return;
     }
     ano = atoi(arg2);
 
     if ((ibtData = get_ibt_by_num(subcmd, ano)) == NULL) {
-      send_to_char(ch, "%s not found\r\n", ibt_types[subcmd]);
+      send_to_char(ch, "그 번호로 신고된 버그가 없습니다.\r\n");
       return;
     } else {
       if (free_ibt(subcmd, ibtData)) {
-        send_to_char(ch,"%s%s Number %d removed.%s\r\n", QCYN, ibt_types[subcmd], ano, QNRM);
+        send_to_char(ch,"%s%d번 버그가 삭제되었습니다.%s\r\n", QCYN, ano, QNRM);
         if (CONFIG_IBT_AUTOSAVE) {
 		  save_ibt_file(subcmd);
 		}
       } else {
-        send_to_char(ch,"%sUnable to remove %s %d!%s\r\n", QRED, CMD_NAME, ano, QNRM);
+        send_to_char(ch,"%s 삭제할 수 없는 버그입니다!%s\r\n", QRED, QNRM);
       }
     }
     return;
-  } else if (is_abbrev(arg,"save")) {
+  } else if (is_abbrev(arg,"저장")) {
     if (GET_LEVEL(ch) < LVL_GRGOD){
-      send_to_char(ch, "%s what?\r\n", ibt_types[subcmd]);
+      send_to_char(ch, "사용법을 보려면 <버그> 하십시오.\r\n");
       return;
     }
     save_ibt_file(subcmd);
-    send_to_char(ch,"%s list saved.\r\n", ibt_types[subcmd]);
-  } else if (is_abbrev(arg,"edit")) {
+    send_to_char(ch, "버그 목록을 저장했습니다.\r\n");
+  } else if (is_abbrev(arg,"편집")) {
     if (GET_LEVEL(ch) < LVL_GRGOD){
-      send_to_char(ch, "%s what?\r\n", ibt_types[subcmd]);
+      send_to_char(ch, "사용법을 보려면 <버그> 하십시오\r\n");
       return;
     }
     /* Pass control to the OLC without the 'edit' arg */
     do_oasis_ibtedit(ch, arg_text, cmd, subcmd);
   } else {
     if (GET_LEVEL(ch) < LVL_GRGOD){
-      send_to_char(ch, "%s what?\r\n", ibt_types[subcmd]);
-      send_to_char(ch, "Usage: %s submit <text>\r\n", ibt_types[subcmd]);
+      send_to_char(ch, "사용법을 보려면 <버그> 하십시오.\r\n");
       return;
     } else {
-      send_to_char(ch, "Usage:  %s (submit/list/show/remove/resolve)\r\n", CMD_NAME);
+      send_to_char(ch, "사용법:  (신고/목록/조회/삭제/처리) 버그\r\n");
       return;
     }
   }

@@ -1400,9 +1400,9 @@ int generic_find(char *arg, bitvector_t bitvector, struct char_data *ch,
 /* a function to scan for "all" or "all.x" */
 int find_all_dots(char *arg)
 {
-  if (!strcmp(arg, "all"))
+  if (!strcmp(arg, "모두"))
     return (FIND_ALL);
-  else if (!strncmp(arg, "all.", 4)) {
+  else if (!strncmp(arg, "모든.", 4)) {
     strcpy(arg, arg + 4);	/* strcpy: OK (always less) */
     return (FIND_ALLDOT);
   } else

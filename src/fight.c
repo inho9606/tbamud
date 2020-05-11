@@ -172,12 +172,12 @@ static void make_corpse(struct char_data *ch)
 
   corpse->item_number = NOTHING;
   IN_ROOM(corpse) = NOWHERE;
-  corpse->name = strdup("corpse");
+  corpse->name = strdup("시체");
 
-  snprintf(buf2, sizeof(buf2), "The corpse of %s is lying here.", GET_NAME(ch));
+  snprintf(buf2, sizeof(buf2), "%s의 시체가 놓여 있습니다.", GET_NAME(ch));
   corpse->description = strdup(buf2);
 
-  snprintf(buf2, sizeof(buf2), "the corpse of %s", GET_NAME(ch));
+  snprintf(buf2, sizeof(buf2), "%s의 시체", GET_NAME(ch));
   corpse->short_description = strdup(buf2);
 
   GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
@@ -770,13 +770,13 @@ int damage(struct char_data *ch, struct char_data *victim, int dam, int attackty
       }
       /* need to remove the gold from the corpse */
     } else if (!IS_NPC(ch) && (ch != victim) && PRF_FLAGGED(ch, PRF_AUTOGOLD)) {
-      do_get(ch, "all.coin corpse", 0, 0);
+      do_get(ch, "시체 coin", 0, 0);
     }
     if (!IS_NPC(ch) && (ch != victim) && PRF_FLAGGED(ch, PRF_AUTOLOOT)) {
-      do_get(ch, "all corpse", 0, 0);
+      do_get(ch, "시체 모두", 0, 0);
     }
     if (IS_NPC(victim) && !IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOSAC)) {
-      do_sac(ch,"corpse",0,0);
+      do_sac(ch,"시체",0,0);
     }
     return (-1);
   }

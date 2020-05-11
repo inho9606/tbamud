@@ -341,7 +341,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "tcopy"    , "tcopy"   , POS_DEAD    , do_oasis_copy, LVL_GOD, CON_TRIGEDIT },
   { "tstat"    , "tstat"   , POS_DEAD    , do_tstat    , LVL_BUILDER, 0 },
 
-  { "unlock"   , "unlock"  , POS_SITTING , do_gen_door , 0, SCMD_UNLOCK },
+  { "Ç®¾î"   , "unlock"  , POS_SITTING , do_gen_door , 0, SCMD_UNLOCK }, // unlock
   { "unban"    , "unban"   , POS_DEAD    , do_unban    , LVL_GRGOD, 0 },
   { "unaffect" , "unaffect", POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_UNAFFECT },
   { "unfollow" , "unf"     , POS_RESTING , do_unfollow , 0, 0 },

@@ -355,8 +355,8 @@ int perform_move(struct char_data *ch, int dir, int need_specials_check)
     send_to_char(ch, "그쪽으로는 길이 없습니다.\r\n");
   else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED) && (GET_LEVEL(ch) < LVL_IMMORT || (!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE)))) {
     if (EXIT(ch, dir)->keyword)
-      send_to_char(ch, "%s%s 잠겨 있습니다.\r\n",
-		fname(EXIT(ch, dir)->keyword), check_josa(fname(EXIT(ch, dir)->keyword), 0));
+      send_to_char(ch, "%s 문이 닫혀있습니다.\r\n",
+		EXIT(ch, dir)->keyword);
     else
       send_to_char(ch, "잠겨 있는것 같습니다.\r\n");
   } else {
@@ -402,7 +402,7 @@ static int find_door(struct char_data *ch, const char *type, char *dir, const ch
         if (is_name(type, EXIT(ch, door)->keyword))
           return (door);
         else {
-	  send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", type, check_josa(type, 1));
+	  send_to_char(ch, "%s 찾을 수 없습니다.\r\n", type);
           return (-1);
         }
       } else
@@ -585,9 +585,8 @@ static void do_doorcmd(struct char_data *ch, struct obj_data *obj, int door, int
 
   /* Notify the other room */
   if (back && (scmd == SCMD_OPEN || scmd == SCMD_CLOSE))
-      send_to_room(EXIT(ch, door)->to_room, "%s%s 반대 방향에서 %s.\r\n",
-		back->keyword ? fname(back->keyword) : "문",
- check_josa(back->keyword ? fname(back->keyword) : "문", 0), cmd_door[scmd]);
+      send_to_room(EXIT(ch, door)->to_room, "%s 문이 반대 방향에서 %s.\r\n",
+		back->keyword ? back->keyword : "", scmd==SCMD_OPEN ? "열립니다" : " 닫힙니다");
 }
 
 static int ok_pick(struct char_data *ch, obj_vnum keynum, int pickproof, int scmd)
@@ -674,10 +673,10 @@ ACMD(do_gen_door)
     else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) &&
 	     IS_SET(flags_door[subcmd], NEED_UNLOCKED) &&
              (GET_LEVEL(ch) < LVL_IMMORT || !PRF_FLAGGED(ch, PRF_NOHASSLE)))
-      send_to_char(ch, "잠겨 있는것 처럼 보입니다.\r\n");
+      send_to_char(ch, "잠겨서 꿈쩍도 하지 않습니다.\r\n");
     else if (!has_key(ch, keynum) && (GET_LEVEL(ch) < LVL_GOD) &&
 	     ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
-      send_to_char(ch, "맞는 열쇠를 가지고 있지 않은 것 같습니다.\r\n");
+      send_to_char(ch, "맞는 열쇠가 없습니다.\r\n");
     else if (ok_pick(ch, keynum, DOOR_IS_PICKPROOF(ch, obj, door), subcmd))
       do_doorcmd(ch, obj, door, subcmd);
   }

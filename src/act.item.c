@@ -118,7 +118,7 @@ ACMD(do_put)
   } else {
     generic_find(thecont, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &tmp_char, &cont);
     if (!cont)
-      send_to_char(ch, "%s%s 찾을수 없습니다.\r\n", thecont, check_josa(thecont, 1));
+      send_to_char(ch, "%s 찾을수 없습니다.\r\n", thecont);
     else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
 		act("$p$k 물건을 담을만한게 아닙니다.", FALSE, ch, cont, 0, TO_CHAR);
     else if (OBJVAL_FLAGGED(cont, CONT_CLOSED) && (GET_LEVEL(ch) < LVL_IMMORT || !PRF_FLAGGED(ch, PRF_NOHASSLE)))
@@ -126,7 +126,7 @@ ACMD(do_put)
     else {
       if (obj_dotmode == FIND_INDIV) {	/* <물건> <넣을곳> 넣어 */
 	if (!(obj = get_obj_in_list_vis(ch, theobj, NULL, ch->carrying)))
-	  send_to_char(ch, "당신은 %s%s 가지고 있지 않습니다.\r\n", theobj, check_josa(theobj, 1));
+	  send_to_char(ch, "당신은 %s 가지고 있지 않습니다.\r\n", theobj);
 	else if (obj == cont && howmany == 1)
 	  send_to_char(ch, "억지로 밀어넣어 보지만 실패했습니다.\r\n");
 	else {
@@ -152,7 +152,7 @@ ACMD(do_put)
 	  if (obj_dotmode == FIND_ALL)
 	    send_to_char(ch, "그것을 넣을만한 것을 가지고 있지 않습니다.\r\n");
 	  else
-	    send_to_char(ch, "당신은 %s%s 가지고 있지 않습니다.\r\n", theobj, check_josa(theobj, 1));
+	    send_to_char(ch, "당신은 %s 가지고 있지 않습니다.\r\n", theobj);
 	}
       }
     }
@@ -231,7 +231,7 @@ void get_from_container(struct char_data *ch, struct obj_data *cont,
     if (!(obj = get_obj_in_list_vis(ch, arg, NULL, cont->contains))) {
       char buf[MAX_STRING_LENGTH];
 
-      snprintf(buf, sizeof(buf), "$p 안에 %s%s 찾을 수 없습니다.", arg, check_josa(arg, 1));
+      snprintf(buf, sizeof(buf), "$p 안에 %s 찾을 수 없습니다.", arg);
       act(buf, FALSE, ch, cont, 0, TO_CHAR);
     } else {
       struct obj_data *obj_next;
@@ -260,7 +260,7 @@ void get_from_container(struct char_data *ch, struct obj_data *cont,
       else {
         char buf[MAX_STRING_LENGTH];
 
-	snprintf(buf, sizeof(buf), "$p 안에서 %s%s 찾을 수 없습니다.", arg, check_josa(arg, 1));
+	snprintf(buf, sizeof(buf), "$p 안에서 %s 찾을 수 없습니다.", arg);
 	act(buf, FALSE, ch, cont, 0, TO_CHAR);
       }
     }
@@ -291,10 +291,10 @@ static void get_from_room(struct char_data *ch, char *arg, int howmany)
     if (!(obj = get_obj_in_list_vis(ch, arg, NULL, world[IN_ROOM(ch)].contents))) {
         /* Are they trying to take something in a room extra description? */
         if (find_exdesc(arg, world[IN_ROOM(ch)].ex_description) != NULL) {
-           send_to_char(ch, "%s%s 가질 수 없습니다.\r\n", arg, check_josa(arg, 1));
+           send_to_char(ch, "%s 가질 수 없습니다.\r\n", arg);
             return;
         }
-      send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
+      send_to_char(ch, "%s 찾을 수 없습니다.\r\n", arg);
     } else {
       struct obj_data *obj_next;
       while(obj && howmany--) {
@@ -320,7 +320,7 @@ static void get_from_room(struct char_data *ch, char *arg, int howmany)
       if (dotmode == FIND_ALL)
 	send_to_char(ch, "그런 물건이 없습니다.\r\n");
       else
-	send_to_char(ch, "이곳에 %s%s 없습니다.\r\n", arg, check_josa(arg, 4));
+	send_to_char(ch, "이곳에 %s 없습니다.\r\n", arg);
     }
   }
 }
@@ -354,7 +354,7 @@ ACMD(do_get)
     if (cont_dotmode == FIND_INDIV) {
       mode = generic_find(arg2, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &tmp_char, &cont);
       if (!cont)
-		send_to_char(ch, "당신은 %s%s 가지고 있지 않습니다.\r\n", arg2, check_josa(arg2, 1));
+		send_to_char(ch, "당신은 %s 가지고 있지 않습니다.\r\n", arg2);
       else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
 		act("$p$k 물건을 담을만한게 아닙니다.", FALSE, ch, cont, 0, TO_CHAR);
       else
@@ -390,7 +390,7 @@ ACMD(do_get)
 	if (cont_dotmode == FIND_ALL)
 	  send_to_char(ch, "당신은 물건을 담을만한걸 가지고 있지 않습니다.\r\n");
 	else
-	  send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg2, check_josa(arg2, 1));
+	  send_to_char(ch, "%s 찾을 수 없습니다.\r\n", arg2);
       }
     }
   }
@@ -423,7 +423,7 @@ static void perform_drop_gold(struct char_data *ch, int amount, byte mode, room_
         }
 
 
-	snprintf(buf, sizeof(buf), "$n$j %s%s 버립니다.", money_desc(amount), check_josa(money_desc(amount), 1));
+	snprintf(buf, sizeof(buf), "$n$j %s 버립니다.", money_desc(amount));
 	act(buf, TRUE, ch, 0, 0, TO_ROOM);
 
 	send_to_char(ch, "당신은 약간의 돈을 버립니다.\r\n");
