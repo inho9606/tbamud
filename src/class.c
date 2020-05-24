@@ -26,10 +26,11 @@
 
 /* Names first */
 const char *class_abbrevs[] = {
-  "Mu",
-  "Cl",
-  "Th",
-  "Wa",
+  "마법사",
+  "클래릭",
+  "도둑",
+  "워리어",
+  "무",
   "\n"
 };
 
@@ -38,17 +39,19 @@ const char *pc_class_types[] = {
   "Cleric",
   "Thief",
   "Warrior",
+  "undecided",
   "\n"
 };
 
 /* The menu for choosing a class in interpreter.c: */
 const char *class_menu =
 "\r\n"
-"Select a class:\r\n"
+"직업을 선택하세요:\r\n"
 "  [\t(C\t)]leric\r\n"
 "  [\t(T\t)]hief\r\n"
 "  [\t(W\t)]arrior\r\n"
-"  [\t(M\t)]agic-user\r\n";
+"  [\t(M\t)]agic-user\r\n"
+"  [\t(무\t)]직\r\n";
 
 /* The code to interpret a class letter -- used in interpreter.c when a new
  * character is selecting a class and by 'set class' in act.wizard.c. */
@@ -61,6 +64,7 @@ int parse_class(char arg)
   case 'c': return CLASS_CLERIC;
   case 'w': return CLASS_WARRIOR;
   case 't': return CLASS_THIEF;
+  case 'u': return CLASS_UNDECIDED;
   default:  return CLASS_UNDEFINED;
   }
 }
@@ -1405,8 +1409,18 @@ void roll_real_abils(struct char_data *ch)
     if (ch->real_abils.str == 18)
       ch->real_abils.str_add = rand_number(0, 100);
     break;
+  case CLASS_UNDECIDED:
+    ch->real_abils.con = 10;
+    ch->real_abils.intel = 10;
+    ch->real_abils.dex = 10;
+    ch->real_abils.str = 10;
+    ch->real_abils.wis = 10;
+    ch->real_abils.cha = 10;
+    ch->real_abils.luck = 10;
+    ch->real_abils.point = 0;
+    break;
   }
-  ch->aff_abils = ch->real_abils;
+//  ch->aff_abils = ch->real_abils;
 }
 
 /* Some initializations for characters, including initial skills */
@@ -1418,9 +1432,9 @@ void do_start(struct char_data *ch)
   set_title(ch, NULL);
   roll_real_abils(ch);
 
-  GET_MAX_HIT(ch)  = 10;
-  GET_MAX_MANA(ch) = 100;
-  GET_MAX_MOVE(ch) = 82;
+  GET_MAX_HIT(ch)  = 0;
+  GET_MAX_MANA(ch) = 0;
+  GET_MAX_MOVE(ch) = 0;
 
   switch (GET_CLASS(ch)) {
 
@@ -1440,6 +1454,9 @@ void do_start(struct char_data *ch)
     break;
 
   case CLASS_WARRIOR:
+    break;
+
+  case CLASS_UNDECIDED:
     break;
   }
 
@@ -1492,14 +1509,18 @@ void advance_level(struct char_data *ch)
     add_mana = 0;
     add_move = rand_number(1, 3);
     break;
+
+  case CLASS_UNDECIDED:
+    add_hp = GET_CON(ch) * 10;
+    add_mana = GET_INT(ch) * 10;
+    add_move = GET_DEX(ch) * 10;
+    break;
   }
 
   ch->points.max_hit += MAX(1, add_hp);
   ch->points.max_move += MAX(1, add_move);
-
-  if (GET_LEVEL(ch) > 1)
-    ch->points.max_mana += add_mana;
-
+  ch->points.max_mana += add_mana;
+  ch->real_abils.point += 5;
   if (IS_MAGIC_USER(ch) || IS_CLERIC(ch))
     GET_PRACTICES(ch) += MAX(2, wis_app[GET_WIS(ch)].bonus);
   else
@@ -1806,6 +1827,44 @@ int level_exp(int chclass, int level)
       case 30: return 7400000;
       /* add new levels here */
       case LVL_IMMORT: return 8000000;
+    }
+    break;
+
+    case CLASS_UNDECIDED:
+    switch (level) {
+      case  0: return 0;
+      case  1: return 1;
+      case  2: return 1000;
+      case  3: return 2000;
+      case  4: return 4000;
+      case  5: return 8000;
+      case  6: return 16000;
+      case  7: return 32000;
+      case  8: return 60000;
+      case  9: return 100000;
+      case 10: return 150000;
+      case 11: return 200000;
+      case 12: return 400000;
+      case 13: return 650000;
+      case 14: return 900000;
+      case 15: return 1150000;
+      case 16: return 1600000;
+      case 17: return 2000000;
+      case 18: return 2500000;
+      case 19: return 3000000;
+      case 20: return 3500000;
+      case 21: return 3650000;
+      case 22: return 3800000;
+      case 23: return 4100000;
+      case 24: return 4400000;
+      case 25: return 4700000;
+      case 26: return 5100000;
+      case 27: return 5500000;
+      case 28: return 5900000;
+      case 29: return 6300000;
+      case 30: return 6650000;
+      /* add new levels here */
+      case LVL_IMMORT: return 7000000;
     }
     break;
   }

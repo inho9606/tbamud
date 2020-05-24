@@ -371,9 +371,9 @@ static void solo_gain(struct char_data *ch, struct char_data *victim)
   }
 
   if (exp > 1)
-    send_to_char(ch, "You receive %d experience points.\r\n", exp);
+    send_to_char(ch, "당신은 %d의 경험치를 받습니다.\r\n", exp);
   else
-    send_to_char(ch, "You receive one lousy experience point.\r\n");
+    send_to_char(ch, "당신은 경험치를 받지 못합니다.\r\n");
 
   gain_exp(ch, exp);
   change_alignment(ch, victim);

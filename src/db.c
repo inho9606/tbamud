@@ -3549,6 +3549,8 @@ void init_char(struct char_data *ch)
   ch->real_abils.str_add = 100;
   ch->real_abils.con = 25;
   ch->real_abils.cha = 25;
+  ch->real_abils.luck = 25;
+  ch->real_abils.point = 25;
 
   for (i = 0; i < 3; i++)
     GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : 24);

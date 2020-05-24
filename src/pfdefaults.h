@@ -43,6 +43,8 @@
 #define PFDEF_WIS		0
 #define PFDEF_CON		0
 #define PFDEF_CHA		0
+#define PFDEF_LUCK		0
+#define PFDEF_POINT		0
 #define PFDEF_HIT		0
 #define PFDEF_MAXHIT		0
 #define PFDEF_MANA		0

@@ -150,8 +150,9 @@
 #define CLASS_CLERIC      1    /**< PC Class Cleric */
 #define CLASS_THIEF       2    /**< PC Class Thief */
 #define CLASS_WARRIOR     3    /**< PC Class Warrior */
+#define CLASS_UNDECIDED     4    /**< PC Class Normal (not decided yet) */
 /** Total number of available PC Classes */
-#define NUM_CLASSES	  4
+#define NUM_CLASSES	  5
 
 /* NPC classes (currently unused - feel free to implement!) */
 #define CLASS_OTHER       0    /**< NPC Class Other (or undefined) */
@@ -876,13 +877,15 @@ struct char_player_data
  * player strength). */
 struct char_ability_data
 {
-  sbyte str;     /**< Strength.  */
-  sbyte str_add; /**< Strength multiplier if str = 18. Usually from 0 to 100 */
-  sbyte intel;   /**< Intelligence */
-  sbyte wis;     /**< Wisdom */
-  sbyte dex;     /**< Dexterity */
-  sbyte con;     /**< Constitution */
-  sbyte cha;     /**< Charisma */
+  ush_int str;     /**< Strength.  */
+  ush_int str_add; /**< Strength multiplier if str = 18. Usually from 0 to 100 */
+  ush_int intel;   /**< Intelligence */
+  ush_int wis;     /**< Wisdom */
+  ush_int dex;     /**< Dexterity */
+  ush_int con;     /**< Constitution */
+  ush_int cha;     /**< Charisma */
+  ush_int luck;     /**< Fortune */
+  ush_int point;     /**< Stat points */
 };
 
 /** Character 'points', or health statistics. */

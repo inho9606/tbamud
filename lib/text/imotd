@@ -1,11 +1,9 @@
-(lib/text/imotd)
-
-Welcome to tbaMUD!
-
-This is the immortal MOTD -- the file that immortals will see when they
-log in to the game.  You should change it to something more interesting
-when you get a chance (as well as most of the other files in lib/text.)
-
-If you need help, find a bug, or wish to contribute please stop by 
-The Builder Academy at: tbamud.com 9091 or @Chttp://tbamud.com@n.
-
+2020.05.10 업데이트
+1. 버그 기능 한글 번역 완료
+한글 번역에 문제가 있거나 편집기에 문제가 있으면 버그 기능으로 신고 바람.
+2.. 존제작 모드에서 방을 만들면 새 방을 만들기 직전에 있던 방의 제목, 묘사, 유형을 복사함.
+3. 편집기 사용 이후 저장 존번호 방편집/맙편집/물건편집/존편집 등으로 저장해야 리붓 이후에도 반영되도록 수정.
+4. 편집상태 엔터로 현재 저장되지 않은 존 번호 확인 가능
+5. 임무편집의 경우 존번호로 저장하면 안 되고 존 번호 자체로 저장해야함. 예) 저장 1300 임무편집
+6. 존리셋 명령어로 현재 있는 존 리셋 가능.
+7. 각종 명령 한글 번역 진행중. 운영명령으로 번역된 명령 확인 가능

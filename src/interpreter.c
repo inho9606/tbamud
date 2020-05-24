@@ -352,7 +352,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "가격"    , "val"     , POS_STANDING, do_not_here , 0, 0 }, // value
   { "version"  , "ver"     , POS_DEAD    , do_gen_ps   , 0, SCMD_VERSION },
   { "visible"  , "vis"     , POS_RESTING , do_visible  , 1, 0 },
-  { "vnum"     , "vnum"    , POS_DEAD    , do_vnum     , LVL_IMMORT, 0 },
+  { "번호조회"     , "vnum"    , POS_DEAD    , do_vnum     , LVL_IMMORT, 0 }, // vnum
   { "vstat"    , "vstat"   , POS_DEAD    , do_vstat    , LVL_IMMORT, 0 },
   { "vdelete"  , "vdelete" , POS_DEAD    , do_vdelete  , LVL_BUILDER, 0 },
 
@@ -378,10 +378,10 @@ cpp_extern const struct command_info cmd_info[] = {
   { "존리셋"   , "zreset"  , POS_DEAD    , do_zreset   , LVL_BUILDER, 0 }, // zreset
   { "존편집"    , "zedit"   , POS_DEAD    , do_oasis_zedit, LVL_BUILDER, 0 },
   { "존목록"    , "zlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_ZLIST },
+  { "존청소"   , "zpurge"  , POS_DEAD    , do_zpurge   , LVL_BUILDER, 0 }, // zpurge
   { "zlock"    , "zlock"   , POS_DEAD    , do_zlock    , LVL_GOD, 0 },
   { "zunlock"  , "zunlock" , POS_DEAD    , do_zunlock  , LVL_GOD, 0 },
   { "zcheck"   , "zcheck"  , POS_DEAD    , do_zcheck   , LVL_BUILDER, 0 },
-  { "zpurge"   , "zpurge"  , POS_DEAD    , do_zpurge   , LVL_BUILDER, 0 },
 
   { "\n", "zzzzzzz", 0, 0, 0, 0 } };    /* this must be last */
 
@@ -1492,7 +1492,7 @@ void nanny(struct descriptor_data *d, char *arg)
           CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
           strcpy(d->character->player.name, CAP(tmp_name));	/* strcpy: OK (size checked above) */
           GET_PFILEPOS(d->character) = player_i;
-          write_to_output(d, "Did I get that right, %s (\t(Y\t)/\t(N\t))? ", tmp_name);
+          write_to_output(d, "%s로 새로운 캐릭터를 생성하시겠습니까? (\t(네\t)/\t(아니요\t))?\r\n", tmp_name);
           STATE(d) = CON_NAME_CNFRM;
         } else {
           /* undo it just in case they are set */
@@ -1500,7 +1500,7 @@ void nanny(struct descriptor_data *d, char *arg)
           REMOVE_BIT_AR(PLR_FLAGS(d->character), PLR_MAILING);
           REMOVE_BIT_AR(PLR_FLAGS(d->character), PLR_CRYO);
           d->character->player.time.logon = time(0);
-          write_to_output(d, "Password: ");
+          write_to_output(d, "패스워드: ");
           echo_off(d);
           d->idle_tics = 0;
           STATE(d) = CON_PASSWORD;
@@ -1510,43 +1510,43 @@ void nanny(struct descriptor_data *d, char *arg)
 
         /* Check for multiple creations of a character. */
         if (!valid_name(tmp_name)) {
-          write_to_output(d, "Invalid name, please try another.\r\nName: ");
+          write_to_output(d, "사용할 수 없는 아이디입니다, 다른 아이디를 입력해주세요\r\n아이디: ");
           return;
         }
         CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
         strcpy(d->character->player.name, CAP(tmp_name));	/* strcpy: OK (size checked above) */
 
-        write_to_output(d, "Did I get that right, %s (\t(Y\t)/\t(N\t))? ", tmp_name);
+        write_to_output(d, "%s로 새로운 캐릭터를 생성하시겠습니까? (\t(네\t)/\t(아니요\t))?\r\n", tmp_name);
         STATE(d) = CON_NAME_CNFRM;
       }
     }
     break;
 
   case CON_NAME_CNFRM:		/* wait for conf. of new name    */
-    if (UPPER(*arg) == 'Y') {
+    if (!strcmp(arg, "네")) {
       if (isbanned(d->host) >= BAN_NEW) {
 	mudlog(NRM, LVL_GOD, TRUE, "Request for new char %s denied from [%s] (siteban)", GET_PC_NAME(d->character), d->host);
-	write_to_output(d, "Sorry, new characters are not allowed from your site!\r\n");
+	write_to_output(d, "현재 접속중인 곳에서는 캐릭터 생성이 불가능합니다.\r\n");
 	STATE(d) = CON_CLOSE;
 	return;
       }
       if (circle_restrict) {
-	write_to_output(d, "Sorry, new players can't be created at the moment.\r\n");
+	write_to_output(d, "죄송합니다, 현재는 가입할 수 없습니다.\r\n");
 	mudlog(NRM, LVL_GOD, TRUE, "Request for new char %s denied from [%s] (wizlock)", GET_PC_NAME(d->character), d->host);
 	STATE(d) = CON_CLOSE;
 	return;
       }
       perform_new_char_dupe_check(d);
-      write_to_output(d, "New character.\r\nGive me a password for %s: ", GET_PC_NAME(d->character));
+      write_to_output(d, "회원가입을 시작합니다.\r\n%s님의 패스워드를 입력해주세요: ", GET_PC_NAME(d->character));
       echo_off(d);
       STATE(d) = CON_NEWPASSWD;
-    } else if (*arg == 'n' || *arg == 'N') {
-      write_to_output(d, "Okay, what IS it, then? ");
+    } else if (!strcmp(arg, "아니요")) {
+      write_to_output(d, "어떤 이름을 사용하시겠습니까?\r\n");
       free(d->character->player.name);
       d->character->player.name = NULL;
       STATE(d) = CON_GET_NAME;
     } else
-      write_to_output(d, "Please type Yes or No: ");
+      write_to_output(d, "네 또는 아니요로 답해주세요:\r\n");
     break;
 
   case CON_PASSWORD:		/* get pwd for known player      */
@@ -1571,10 +1571,10 @@ void nanny(struct descriptor_data *d, char *arg)
 	GET_BAD_PWS(d->character)++;
 	save_char(d->character);
 	if (++(d->bad_pws) >= CONFIG_MAX_BAD_PWS) {	/* 3 strikes and you're out. */
-	  write_to_output(d, "Wrong password... disconnecting.\r\n");
+	  write_to_output(d, "패스워드 입력 제한을 초과하였습니다. 접속 해제!\r\n");
 	  STATE(d) = CON_CLOSE;
 	} else {
-	  write_to_output(d, "Wrong password.\r\nPassword: ");
+	  write_to_output(d, "패스워드가 맞지 않습니다.\r\n패스워드: ");
 	  echo_off(d);
 	}
 	return;
@@ -1587,13 +1587,13 @@ void nanny(struct descriptor_data *d, char *arg)
 
       if (isbanned(d->host) == BAN_SELECT &&
 	  !PLR_FLAGGED(d->character, PLR_SITEOK)) {
-	write_to_output(d, "Sorry, this char has not been cleared for login from your site!\r\n");
+	write_to_output(d, "죄송합니다, 현재 접속중인 환경에서는 로그인할 수 없습니다!\r\n");
 	STATE(d) = CON_CLOSE;
 	mudlog(NRM, LVL_GOD, TRUE, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
 	return;
       }
       if (GET_LEVEL(d->character) < circle_restrict) {
-	write_to_output(d, "The game is temporarily restricted.. try again later.\r\n");
+	write_to_output(d, "지금은 접속할 수 없습니다.. 나중에 다시 접속해 주십시오.\r\n");
 	STATE(d) = CON_CLOSE;
 	mudlog(NRM, LVL_GOD, TRUE, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
 	return;
@@ -1620,12 +1620,12 @@ void nanny(struct descriptor_data *d, char *arg)
 
       if (load_result) {
         write_to_output(d, "\r\n\r\n\007\007\007"
-		"%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
+		"%s마지막 접속으로부터 %d번의 잘못된 접속시도가 있었습니다.%s%s\r\n",
 		CCRED(d->character, C_SPR), load_result,
 		(load_result > 1) ? "S" : "", CCNRM(d->character, C_SPR));
 	GET_BAD_PWS(d->character) = 0;
       }
-      write_to_output(d, "\r\n*** PRESS RETURN: ");
+      write_to_output(d, "\r\n*** 엔터 키를 눌러주세요:");
       STATE(d) = CON_RMOTD;
     }
     break;
@@ -1634,31 +1634,31 @@ void nanny(struct descriptor_data *d, char *arg)
   case CON_CHPWD_GETNEW:
  /*   if (!*arg || strlen(arg) > MAX_PWD_LENGTH || strlen(arg) < 3 ||
 	!str_cmp(arg, GET_PC_NAME(d->character))) {
-      write_to_output(d, "\r\nIllegal password.\r\nPassword: ");
+      write_to_output(d, "\r\n사용할 수 없는 패스워드입니다.\r\n패스워드:");
       return;
     } */
 	
 		if (!*arg) {
-      write_to_output(d, "\r\n#1 Illegal password.\r\nPassword: ");
+      write_to_output(d, "\r\n#1 사용할 수 없는 패스워드입니다.\r\n패스워드:");
       return;
     }
 	  if (strlen(arg) > MAX_PWD_LENGTH) {
-      write_to_output(d, "\r\n#2 Illegal password.\r\nPassword: ");
+      write_to_output(d, "\r\n#2 사용할 수 없는 패스워드입니다.\r\n패스워드:");
       return;
     }
 	  if (strlen(arg) < 3) {
-      write_to_output(d, "\r\n#3 Illegal password.\r\nPassword: ");
+      write_to_output(d, "\r\n#3 사용할 수 없는 패스워드입니다.\r\n패스워드:");
       return;
     }
 	  if (!str_cmp(arg, GET_PC_NAME(d->character))) {
-      write_to_output(d, "\r\n#4 Illegal password.\r\nPassword: ");
+      write_to_output(d, "\r\n#4 사용할 수 없는 패스워드입니다.\r\n패스워드:");
       return;
     }
 	
     strncpy(GET_PASSWD(d->character), CRYPT(arg, GET_PC_NAME(d->character)), MAX_PWD_LENGTH);	/* strncpy: OK (G_P:MAX_PWD_LENGTH+1) */
     *(GET_PASSWD(d->character) + MAX_PWD_LENGTH) = '\0';
 
-    write_to_output(d, "\r\nPlease retype password: ");
+    write_to_output(d, "\r\n패스워드 확인:");
     if (STATE(d) == CON_NEWPASSWD)
       STATE(d) = CON_CNFPASSWD;
     else
@@ -1669,7 +1669,7 @@ void nanny(struct descriptor_data *d, char *arg)
   case CON_CHPWD_VRFY:
     if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character),
 		MAX_PWD_LENGTH)) {
-      write_to_output(d, "\r\nPasswords don't match... start over.\r\nPassword: ");
+      write_to_output(d, "\r\n패스워드가 일치하지 않습니다... 기존 정보를 초기화합니다.\r\n패스워드:");
       if (STATE(d) == CON_CNFPASSWD)
 	STATE(d) = CON_NEWPASSWD;
       else
@@ -1679,41 +1679,37 @@ void nanny(struct descriptor_data *d, char *arg)
     echo_on(d);
 
     if (STATE(d) == CON_CNFPASSWD) {
-      write_to_output(d, "\r\nWhat is your sex (\t(M\t)/\t(F\t))? ");
+      write_to_output(d, "\r\n캐릭터의 생물학적 성별은 무엇으로 하시겠습니까? (\t(남\t)/\t(여\t))? ");
       STATE(d) = CON_QSEX;
     } else {
       save_char(d->character);
-      write_to_output(d, "\r\nDone.\r\n%s", CONFIG_MENU);
+      write_to_output(d, "\r\n완료.\r\n%s", CONFIG_MENU);
       STATE(d) = CON_MENU;
     }
     break;
 
   case CON_QSEX:		/* query sex of new user         */
-    switch (*arg) {
-    case 'm':
-    case 'M':
+    if(!strcmp(arg, "남") || !strcmp(arg, "남성"))
       d->character->player.sex = SEX_MALE;
-      break;
-    case 'f':
-    case 'F':
+    else if(!strcmp(arg, "여") || !strcmp(arg, "여성"))
       d->character->player.sex = SEX_FEMALE;
-      break;
-    default:
-      write_to_output(d, "That is not a sex..\r\n"
-		"What IS your sex? ");
+    else {
+      write_to_output(d, "죄송합니다, 현재 지원되지 않는 성별입니다..\r\n"
+		"남성 또는 여성 중 가까운 성 정체성은 무엇입니까?");
       return;
     }
 
-    write_to_output(d, "%s\r\nClass: ", class_menu);
+    write_to_output(d, "회원가입이 완료되었습니다!\r\n직업 관련 안내사항\r\n초기 직업은 무직입니다. 게임 내에서 직업 퀘스트를 통해 원하는 직업으로 전직이 가능합니다.\r\n\r\n엔터키를 눌러주세요\r\n"); // class_menu
     STATE(d) = CON_QCLASS;
     break;
 
   case CON_QCLASS:
-    load_result = parse_class(*arg);
-    if (load_result == CLASS_UNDEFINED) {
-      write_to_output(d, "\r\nThat's not a class.\r\nClass: ");
-      return;
-    } else
+//    load_result = parse_class(*arg);
+    load_result = CLASS_UNDECIDED;
+//    if (load_result == CLASS_UNDEFINED) {
+//      write_to_output(d, "\r\n잘못 입력하셨습니다.\r\n직업:");
+//      return;
+//    } else
       GET_CLASS(d->character) = load_result;
 
       if (d->olc) {
@@ -1726,7 +1722,7 @@ void nanny(struct descriptor_data *d, char *arg)
     init_char(d->character);
     save_char(d->character);
     save_player_index();
-    write_to_output(d, "%s\r\n*** PRESS RETURN: ", motd);
+    write_to_output(d, "%s\r\n*** 엔터 키를 눌러주세요:", motd);
     STATE(d) = CON_RMOTD;
     /* make sure the last log is updated correctly. */
     GET_PREF(d->character)= rand_number(1, 128000);
@@ -1745,7 +1741,7 @@ void nanny(struct descriptor_data *d, char *arg)
     write_to_output(d, "%s", CONFIG_MENU);
     if (IS_HAPPYHOUR > 0){
       write_to_output(d, "\r\n");
-      write_to_output(d, "\tyThere is currently a Happyhour!\tn\r\n");
+      write_to_output(d, "\ty현재 행복시간 이벤트가 진행중입니다!\tn\r\n");
       write_to_output(d, "\r\n");
     }
     add_llog_entry(d->character, LAST_CONNECT);
@@ -1773,7 +1769,7 @@ void nanny(struct descriptor_data *d, char *arg)
       greet_mtrigger(d->character, -1);
       greet_memory_mtrigger(d->character);
 
-      act("$n has entered the game.", TRUE, d->character, 0, 0, TO_ROOM);
+      act("$n님이 접속하셨습니다.", TRUE, d->character, 0, 0, TO_ROOM);
 
       STATE(d) = CON_PLAYING;
       MXPSendTag( d, "<VERSION>" );
@@ -1783,7 +1779,7 @@ void nanny(struct descriptor_data *d, char *arg)
       }
       look_at_room(d->character, 0);
       if (has_mail(GET_IDNUM(d->character)))
-	send_to_char(d->character, "You have mail waiting.\r\n");
+	send_to_char(d->character, "편지가 도착했습니다.\r\n");
       if (load_result == 2) {	/* rented items lost */
 	send_to_char(d->character, "\r\n\007You could not afford your rent!\r\n"
 		"Your possesions have been donated to the Salvation Army!\r\n");

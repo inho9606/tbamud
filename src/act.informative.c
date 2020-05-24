@@ -808,8 +808,12 @@ ACMD(do_score)
    send_to_char(ch, "  ¿À´ÃÀº ´ç½ÅÀÌ ÅÂ¾î³­ ³¯ÀÔ´Ï´Ù.\r\n");
   else
     send_to_char(ch, "\r\n");
+  send_to_char(ch, "Èû: %d  ¹ÎÃ¸: %d  °Ç°­: %d  Áö½Ä: %d  ÁöÇý: %d  Åë¼Ö·Â: %d  Çà¿î: %d\r\n",
+	  GET_STR(ch), GET_DEX(ch), GET_CON(ch), GET_INT(ch),
+	  GET_WIS(ch), GET_CON(ch), GET_LUCK(ch));
+  send_to_char(ch, "³²Àº ½ºÅÈÆ÷ÀÎÆ®: %d\r\n", GET_POINT(ch));
 
-  send_to_char(ch, "´ç½ÅÀÇ ÇöÀç »óÅÂ´Â Ã¼·Â %d(%d), ¸¶³ª %d(%d), ÀÌµ¿·Â %d(%d) ÀÔ´Ï´Ù.\r\n",
+  send_to_char(ch, "Ã¼·Â: %d(%d), ¸¶¹ý·Â: %d(%d), ÀÌµ¿·Â: %d(%d)\r\n",
 	  GET_HIT(ch), GET_MAX_HIT(ch), GET_MANA(ch), GET_MAX_MANA(ch),
 	  GET_MOVE(ch), GET_MAX_MOVE(ch));
 
@@ -822,7 +826,6 @@ ACMD(do_score)
   if (GET_LEVEL(ch) < LVL_IMMORT)
     send_to_char(ch, "´ÙÀ½ ·¹º§ÀÌ µÇ±âÀ§ÇØ ÇÊ¿äÇÑ °æÇèÄ¡´Â %dÁ¡ ÀÔ´Ï´Ù.\r\n",
 	level_exp(GET_CLASS(ch), GET_LEVEL(ch) + 1) - GET_EXP(ch));
-
   send_to_char(ch, "´ç½ÅÀº %dÁ¡ÀÇ ÀÓ¹«Á¡¼ö¸¦ °¡Áö°í ÀÖÀ¸¸ç, ", GET_QUESTPOINTS(ch));
   send_to_char(ch, "´ç½ÅÀº ÇöÀç %d°³ÀÇ ÀÓ¹«¸¦ ¿Ï¼ö ÇÏ¿´½À´Ï´Ù.\r\n", GET_NUM_QUESTS(ch));
   if (GET_QUEST(ch) == NOTHING)
@@ -881,7 +884,6 @@ ACMD(do_score)
     send_to_char(ch, "´ç½ÅÀº À¯·ÉÃ³·³ ¶°´Ù´Õ´Ï´Ù.\r\n");
     break;
   }
-
   if (GET_COND(ch, DRUNK) > 10)
     send_to_char(ch, "¼ú¿¡ ÃëÇØÀÖ½À´Ï´Ù.\r\n");
 
@@ -1256,7 +1258,7 @@ ACMD(do_who)
             CCNRM(ch, C_SPR));
         
         if (GET_INVIS_LEV(tch))
-          send_to_char(ch, " (?¡þ—?)", GET_INVIS_LEV(tch));
+          send_to_char(ch, " (?¡þ?)", GET_INVIS_LEV(tch));
         else if (AFF_FLAGGED(tch, AFF_INVISIBLE))
           send_to_char(ch, " (Åõ¸í)");
 

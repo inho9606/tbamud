@@ -279,6 +279,8 @@ int load_char(const char *name, struct char_data *ch)
     ch->real_abils.wis = PFDEF_WIS;
     ch->real_abils.con = PFDEF_CON;
     ch->real_abils.cha = PFDEF_CHA;
+    ch->real_abils.luck = PFDEF_LUCK;
+    ch->real_abils.point = PFDEF_POINT;
     GET_HIT(ch) = PFDEF_HIT;
     GET_MAX_HIT(ch) = PFDEF_MAXHIT;
     GET_MANA(ch) = PFDEF_MANA;
@@ -388,6 +390,7 @@ int load_char(const char *name, struct char_data *ch)
 	else if (!strcmp(tag, "Levl"))	GET_LEVEL(ch)		= atoi(line);
         else if (!strcmp(tag, "Lmot"))   GET_LAST_MOTD(ch)   = atoi(line);
         else if (!strcmp(tag, "Lnew"))   GET_LAST_NEWS(ch)   = atoi(line);
+	else if (!strcmp(tag, "Luck "))	ch->real_abils.luck	= atoi(line);
 	break;
 
       case 'M':
@@ -437,6 +440,7 @@ int load_char(const char *name, struct char_data *ch)
   else if (!strcmp(tag, "ScrW"))  GET_SCREEN_WIDTH(ch) = atoi(line);
 	else if (!strcmp(tag, "Skil"))	load_skills(fl, ch);
 	else if (!strcmp(tag, "Str "))	load_HMVS(ch, line, LOAD_STRENGTH);
+	else if (!strcmp(tag, "SPoint "))	ch->real_abils.point	= atoi(line);
 	break;
 
       case 'T':
@@ -641,6 +645,8 @@ void save_char(struct char_data * ch)
   if (GET_DEX(ch)	   != PFDEF_DEX)	fprintf(fl, "Dex : %d\n", GET_DEX(ch));
   if (GET_CON(ch)	   != PFDEF_CON)	fprintf(fl, "Con : %d\n", GET_CON(ch));
   if (GET_CHA(ch)	   != PFDEF_CHA)	fprintf(fl, "Cha : %d\n", GET_CHA(ch));
+  if (GET_LUCK(ch)	   != PFDEF_LUCK)	fprintf(fl, "Luck : %d\n", GET_LUCK(ch));
+  if (GET_POINT(ch)	   != PFDEF_POINT)	fprintf(fl, "SPoint : %d\n", GET_POINT(ch));
 
   if (GET_AC(ch)	   != PFDEF_AC)		fprintf(fl, "Ac  : %d\n", GET_AC(ch));
   if (GET_GOLD(ch)	   != PFDEF_GOLD)	fprintf(fl, "Gold: %d\n", GET_GOLD(ch));

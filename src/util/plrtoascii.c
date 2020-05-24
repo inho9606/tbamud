@@ -25,13 +25,15 @@
 
 /* Char's abilities.  Used in char_file_u *DO*NOT*CHANGE* */
 struct char_ability_data_plrtoascii {
-   sbyte str;
-   sbyte str_add;      /* 000 - 100 if strength 18             */
-   sbyte intel;
-   sbyte wis;
-   sbyte dex;
-   sbyte con;
-   sbyte cha;
+   ush_int str;
+   ush_int str_add;      /* 000 - 100 if strength 18             */
+   ush_int intel;
+   ush_int wis;
+   ush_int dex;
+   ush_int con;
+   ush_int cha;
+    ush_int luck;
+    ush_int point;
 };
 
 
@@ -286,6 +288,10 @@ void convert(char *filename)
       fprintf(outfile, "Con : %d\n", cad->con);
     if (cad->cha != PFDEF_CHA)
       fprintf(outfile, "Cha : %d\n", cad->cha);
+    if (cad->luck != PFDEF_LUCK)
+      fprintf(outfile, "Luck : %d\n", cad->luck);
+    if (cad->point != PFDEF_POINT)
+      fprintf(outfile, "SPoint : %d\n", cad->point);
 
 /* char_point_data */
     cpd = &(player.points);
