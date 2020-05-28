@@ -493,21 +493,21 @@ do                                                              \
 #define GET_SEX(ch)	((ch)->player.sex)
 
 /** Current strength of ch. */
-#define GET_STR(ch)     ((ch)->real_abils.str)
+#define GET_STR(ch)     ((ch)->aff_abils.str)
 /** Current strength modifer of ch. */
-#define GET_ADD(ch)     ((ch)->real_abils.str_add)
+#define GET_ADD(ch)     ((ch)->aff_abils.str_add)
 /** Current dexterity of ch. */
-#define GET_DEX(ch)     ((ch)->real_abils.dex)
+#define GET_DEX(ch)     ((ch)->aff_abils.dex)
 /** Current intelligence of ch. */
-#define GET_INT(ch)     ((ch)->real_abils.intel)
+#define GET_INT(ch)     ((ch)->aff_abils.intel)
 /** Current wisdom of ch. */
-#define GET_WIS(ch)     ((ch)->real_abils.wis)
+#define GET_WIS(ch)     ((ch)->aff_abils.wis)
 /** Current constitution of ch. */
-#define GET_CON(ch)     ((ch)->real_abils.con)
+#define GET_CON(ch)     ((ch)->aff_abils.con)
 /** Current charisma of ch. */
-#define GET_CHA(ch)     ((ch)->real_abils.cha)
+#define GET_CHA(ch)     ((ch)->aff_abils.cha)
 /** Current fortune of ch. */
-#define GET_LUCK(ch)     ((ch)->real_abils.luck)
+#define GET_LUCK(ch)     ((ch)->aff_abils.luck)
 /** Current available statpoints of ch. */
 #define GET_POINT(ch)     ((ch)->aff_abils.point)
 /** Experience points of ch. */

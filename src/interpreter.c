@@ -311,6 +311,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "send"     , "send"    , POS_SLEEPING, do_send     , LVL_GOD, 0 },
   { "셋팅"      , "set"     , POS_DEAD    , do_set      , LVL_IMMORT, 0 },
   { "외쳐"    , "sho"     , POS_RESTING , do_gen_comm , 0, SCMD_SHOUT },
+  { "올려"    , "올"     , POS_DEAD , do_stat_plus , 0, 0 },
   { "show"     , "show"    , POS_DEAD    , do_show     , LVL_IMMORT, 0 },
   { "shutdow"  , "shutdow" , POS_DEAD    , do_shutdown , LVL_IMPL, 0 },
   { "셧다운" , "shutdown", POS_DEAD    , do_shutdown , LVL_IMPL, SCMD_SHUTDOWN },

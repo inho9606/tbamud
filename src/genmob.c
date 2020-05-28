@@ -343,6 +343,10 @@ int write_mobile_espec(mob_vnum mvnum, struct char_data *mob, FILE *fd)
     fprintf(fd, "Con: %d\n", GET_CON(mob));
   if (GET_CHA(mob) != 11)
     fprintf(fd, "Cha: %d\n", GET_CHA(mob));
+  if (GET_LUCK(mob) != 11)
+    fprintf(fd, "Luck: %d\n", GET_LUCK(mob));
+  if (GET_CLASS(mob) != 1)
+    fprintf(fd, "Class: %d\n", GET_CLASS(mob));
   if (GET_SAVE(mob, SAVING_PARA) != 0)
     fprintf(fd, "SavingPara: %d\n", GET_SAVE(mob, SAVING_PARA));
   if (GET_SAVE(mob, SAVING_ROD) != 0)

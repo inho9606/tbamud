@@ -34,16 +34,16 @@ cpp_extern const char *tbamud_version = "tbaMUD 2019";
  * Must end array with a single newline. */
 const char *dirs[] =
 {
-  "north",
-  "east",
-  "south",
-  "west",
-  "up",
-  "down",
-  "northwest", /* Diagonals only used if CONFIG_DIAGONAL_DIRS is set */
-  "northeast",
-  "southeast",
-  "southwest",
+  "북",
+  "동",
+  "남",
+  "서",
+  "위",
+  "밑",
+  "북서", /* Diagonals only used if CONFIG_DIAGONAL_DIRS is set */
+  "북동",
+  "남동",
+  "남서",
   "\n"
 };
 
@@ -106,10 +106,10 @@ const char *room_bits[] = {
  * Must end array with a single newline. */
 const char *zone_bits[] = {
   "닫힌",
-  "NO_IMMORT",
+  "운영자금지",
   "임무",
   "GRID",
-  "NOBUILD",
+  "제작금지",
   "!ASTRAL",
   "\n"
 };
@@ -186,7 +186,7 @@ const char *player_bits[] = {
   "삭제금지",
   "INVST",
   "CRYO",
-  "DEAD",    /* You should never see this flag on a character in game. */
+  "사망",    /* You should never see this flag on a character in game. */
   "UNUSED1",
   "UNUSED2",
   "UNUSED3",
@@ -276,7 +276,7 @@ const char *affected_bits[] =
   "생명감지",
   "물위걷기",
   "SANCT",
-  "무리",
+  "그룹",
   "CURSE",
   "INFRA",
   "독",
@@ -289,7 +289,7 @@ const char *affected_bits[] =
   "은신",
   "숨기",
   "UNUSED",
-  "CHARM",
+  "통솔",
   "\n"
 };
 
@@ -308,13 +308,13 @@ const char *connected_types[] = {
   "직업선택",
   "공지읽기",
   "메인메뉴",
-  "Get descript.",
+  "자기소개 입력",
   "Changing PW 1",
   "Changing PW 2",
   "Changing PW 3",
   "Self-Delete 1",
   "Self-Delete 2",
-  "Disconnecting",
+  "접속끊김",
   "물건편집",
   "방편집",
   "존편집",
@@ -334,10 +334,10 @@ const char *connected_types[] = {
  * Not used in sprinttype() so no \\n. */
 const char *wear_where[] = {
   "[광  원] : ",
-  "[손가락] : ",
-  "[손가락] : ",
-  "[목주위] : ",
-  "[목주위] : ",
+  "[왼쪽 약지] : ",
+  "[오른쪽 약지] : ",
+  "[목] : ",
+  "[목] : ",
   "[  몸  ] : ",
   "[ 머리 ] : ",
   "[ 다리 ] : ",
@@ -345,12 +345,12 @@ const char *wear_where[] = {
   "[  손  ] : ",
   "[  팔  ] : ",
   "[ 방패 ] : ",
-  "[몸주위] : ",
+  "[몸둘레] : ",
   "[ 허리 ] : ",
-  "[ 손목 ] : ",
-  "[ 손목 ] : "	,
-  "[ 무기 ] : ",
-  "[쥐는것] : "
+  "[왼쪽 손목] : ",
+  "[오른쪽 손목] : "	,
+  "[오른손] : ",
+  "[왼손] : "
 };
 
 /* Describes where an item can be worn.
@@ -358,10 +358,10 @@ const char *wear_where[] = {
  * Must end array with a single newline. */
 const char *equipment_types[] = {
   "광원",
-  "오른쪽 손가락",
-  "왼쪽 손가락",
-  "목주위",
-  "목주위",
+  "왼쪽 약지",
+  "오른쪽 약지",
+  "목",
+  "목",
   "몸",
   "머리",
   "다리",
@@ -369,12 +369,12 @@ const char *equipment_types[] = {
   "손",
   "팔",
   "방패",
-  "몸주위",
+  "몸둘레",
   "허리",
-  "오른쪽 손목",
   "왼쪽 손목",
-  "무기",
-  "쥐는것",
+  "오른쪽 손목",
+  "오른손",
+  "왼손",
   "\n"
 };
 
@@ -423,11 +423,11 @@ const char *wear_bits[] = {
   "손",
   "팔",
   "방패",
-  "몸주변",
+  "몸둘레",
   "허리",
   "손목",
-  "무기",
-  "쥐는것",
+  "오른손",
+  "왼손",
   "\n"
 };
 
@@ -461,30 +461,32 @@ const char *extra_bits[] = {
  * Must end array with a single newline. */
 const char *apply_types[] = {
   "없음",
-  "근력",
+  "힘",
   "민첩",
   "지식",
-  "인내",
-  "맺집",
-  "기술",
+  "지혜",
+  "건강",
+  "통솔력",
+  "행운",
+  "스탯포인트",
   "직업",
   "레벨",
   "나이",
   "체중",
   "키",
-  "최대마력",
+  "최대마법력",
   "최대체력",
   "최대이동력",
   "돈",
   "경험치",
   "방어",
-  "HITROLL",
-  "DAMROLL",
-  "SAVING_PARA",
+  "공격력",
+  "타격치",
+  "마비저항",
   "SAVING_ROD",
   "SAVING_PETRI",
   "SAVING_BREATH",
-  "SAVING_SPELL",
+  "마법저항",
   "\n"
 };
 
@@ -511,9 +513,9 @@ const char *drinks[] =
   "흑맥주",
   "위스키",
   "레모네이드",
-  "firebreather",
-  "local speciality",
-  "slime mold juice",
+  "화이어볼",
+  "지역 특산물",
+  "쥬스",
   "우유",
   "차",
   "커피",
@@ -535,15 +537,15 @@ const char *drinknames[] =
   "에일",
   "위스키",
   "레모네이드",
-  "firebreather",
-  "local",
-  "juice",
-  "milk",
-  "tea",
-  "coffee",
-  "blood",
-  "salt",
-  "water",
+  "화이어볼",
+  "지역",
+  "쥬스",
+  "우유",
+  "차",
+  "커피",
+  "피",
+  "소금",
+  "물",
   "\n"
 };
 

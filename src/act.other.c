@@ -170,7 +170,7 @@ ACMD(do_steal)
   }
 
   /* 101% is a complete failure */
-  percent = rand_number(1, 101) - dex_app_skill[GET_DEX(ch)].p_pocket;
+  percent = rand_number(1, 101-(GET_LUCK(ch)/20)) - (GET_DEX(ch)/5); // dex_app_skill[GET_DEX(ch)].p_pocket;
 
   if (GET_POS(vict) < POS_SLEEPING)
     percent = -1;		/* ALWAYS SUCCESS, unless heavy object. */
@@ -266,6 +266,64 @@ ACMD(do_steal)
     hit(vict, ch, TYPE_UNDEFINED);
 }
 
+ACMD(do_stat_plus) {
+	char stat[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
+	if(!(*argument)) {
+		send_to_char(ch, "사용법: <특성치> <값> 올려\r\n");
+		return;
+	}
+	two_arguments(argument, stat, value);
+	if(!(value) || !is_number(value)) {
+		send_to_char(ch, "사용법: <특성치> <값> 올려\r\n");
+		return;
+	}
+	if(atoi(value) > GET_POINT(ch)) {
+		send_to_char(ch, "스탯포인트가 부족합니다.\r\n");
+		return;
+	}
+	else {
+		if(!str_cmp(stat, "힘")) {
+			ch->real_abils.str += atoi(value);
+			ch->real_abils.point -= atoi(value);
+			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.str, ch->real_abils.point);
+		}
+		else if(!str_cmp(stat, "민첩")) {
+			ch->real_abils.dex += atoi(value);
+			ch->real_abils.point -= atoi(value);
+			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.dex, ch->real_abils.point);
+		}
+		else if(!str_cmp(stat, "지식")) {
+			ch->real_abils.intel += atoi(value);
+			ch->real_abils.point -= atoi(value);
+			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.intel, ch->real_abils.point);
+		}
+		else if(!str_cmp(stat, "지혜")) {
+			ch->real_abils.wis += atoi(value);
+			ch->real_abils.point -= atoi(value);
+			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.wis, ch->real_abils.point);
+		}
+		else if(!str_cmp(stat, "건강")) {
+			ch->real_abils.con += atoi(value);
+			ch->real_abils.point -= atoi(value);
+			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.con, ch->real_abils.point);
+		}
+		else if(!str_cmp(stat, "통솔력")) {
+			ch->real_abils.cha += atoi(value);
+			ch->real_abils.point -= atoi(value);
+			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.cha, ch->real_abils.point);
+		}
+		else if(!str_cmp(stat, "행운")) {
+			ch->real_abils.luck += atoi(value);
+			ch->real_abils.point -= atoi(value);
+			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.luck, ch->real_abils.point);
+		}
+		else {
+			send_to_char(ch, "그런 특성치는 없습니다.\r\n");
+			return;
+		}
+		save_char(ch);
+	}
+}
 ACMD(do_practice)
 {
   char arg[MAX_INPUT_LENGTH];
@@ -901,7 +959,7 @@ ACMD(do_happyhour)
   /* Only Imms get here, so check args */
   two_arguments(argument, arg, val);
 
-  if (is_abbrev(arg, "experience"))
+  if (is_abbrev(arg, "경험치"))
   {
     num = MIN(MAX((atoi(val)), 0), 1000);
     HAPPY_EXP = num;

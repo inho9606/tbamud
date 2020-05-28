@@ -455,8 +455,10 @@
 #define APPLY_SAVING_PETRI     22	/**< Apply to save throw: petrif	*/
 #define APPLY_SAVING_BREATH    23	/**< Apply to save throw: breath	*/
 #define APPLY_SAVING_SPELL     24	/**< Apply to save throw: spells	*/
+#define APPLY_LUCK 25 /**< Apply to luck */
+#define APPLY_POINT 26 /**< Apply to available points */
 /** Total number of applies */
-#define NUM_APPLIES   25
+#define NUM_APPLIES   27
 
 /* Equals the total number of SAVING_* defines in spells.h */
 #define NUM_OF_SAVING_THROWS  5

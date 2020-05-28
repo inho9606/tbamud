@@ -232,6 +232,7 @@ static void init_mobile(struct char_data *mob)
 
   mob->real_abils.str = mob->real_abils.intel = mob->real_abils.wis = 11;
   mob->real_abils.dex = mob->real_abils.con = mob->real_abils.cha = 11;
+  mob->real_abils.luck = 11;
   mob->aff_abils = mob->real_abils;
 
   GET_SAVE(mob, SAVING_PARA)   = 0;
@@ -1142,6 +1143,7 @@ void medit_autoroll_stats(struct descriptor_data *d)
     GET_DEX(OLC_MOB(d))     = LIMIT((mob_lev*2)/3, 11, 18);
     GET_CON(OLC_MOB(d))     = LIMIT((mob_lev*2)/3, 11, 18);
     GET_CHA(OLC_MOB(d))     = LIMIT((mob_lev*2)/3, 11, 18);
+    GET_LUCK(OLC_MOB(d))     = LIMIT((mob_lev*2)/3, 11, 18);
 
     GET_SAVE(OLC_MOB(d), SAVING_PARA)   = mob_lev / 4;  /* All Saving throws */
     GET_SAVE(OLC_MOB(d), SAVING_ROD)    = mob_lev / 4;  /* set to a quarter  */

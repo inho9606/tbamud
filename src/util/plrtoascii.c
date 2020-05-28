@@ -291,7 +291,7 @@ void convert(char *filename)
     if (cad->luck != PFDEF_LUCK)
       fprintf(outfile, "Luck : %d\n", cad->luck);
     if (cad->point != PFDEF_POINT)
-      fprintf(outfile, "SPoint : %d\n", cad->point);
+      fprintf(outfile, "PT  : %d\n", cad->point);
 
 /* char_point_data */
     cpd = &(player.points);

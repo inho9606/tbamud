@@ -129,6 +129,12 @@ static void aff_apply_modify(struct char_data *ch, byte loc, sbyte mod, char *ms
   case APPLY_CHA:
     GET_CHA(ch) += mod;
     break;
+  case APPLY_LUCK:
+    GET_LUCK(ch) += mod;
+    break;
+  case APPLY_POINT:
+    GET_POINT(ch) += mod;
+    break;
 
   /* Do Not Use. */
   case APPLY_CLASS:
@@ -257,13 +263,15 @@ void affect_total(struct char_data *ch)
     affect_modify_ar(ch, af->location, af->modifier, af->bitvector, TRUE);
 
   /* Make certain values are between 0..25, not < 0 and not > 25! */
-  i = (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_GRGOD) ? 25 : 18;
+  i = (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_GRGOD) ? 1000 : 100;
 
   GET_DEX(ch) = MAX(0, MIN(GET_DEX(ch), i));
   GET_INT(ch) = MAX(0, MIN(GET_INT(ch), i));
   GET_WIS(ch) = MAX(0, MIN(GET_WIS(ch), i));
   GET_CON(ch) = MAX(0, MIN(GET_CON(ch), i));
   GET_CHA(ch) = MAX(0, MIN(GET_CHA(ch), i));
+  GET_LUCK(ch) = MAX(0, MIN(GET_LUCK(ch), i));
+  GET_POINT(ch) = MAX(0, MIN(GET_POINT(ch), i));
   GET_STR(ch) = MAX(0, GET_STR(ch));
 
   if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_GRGOD) {

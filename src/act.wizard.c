@@ -1609,6 +1609,7 @@ ACMD(do_restore)
 	vict->real_abils.str = 25;
 	vict->real_abils.con = 25;
 	vict->real_abils.cha = 25;
+	vict->real_abils.luck = 25;
       }
     }
     update_pos(vict);
@@ -2325,9 +2326,9 @@ ACMD(do_wizutil)
     //  send_to_char(ch, "Rerolled...\r\n");
       // roll_real_abils(vict);
       log("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
-      send_to_char(ch, "New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
+      send_to_char(ch, "새로운 스탯: 힘 %d/%d, 지식 %d, 지혜 %d, 민첩 %d, 건강 %d, 통솔력 %d, 행운 %d\r\n",
 	      GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
-	      GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
+	      GET_DEX(vict), GET_CON(vict), GET_CHA(vict), GET_LUCK(vict));
       break;
     case SCMD_PARDON:
       if (!PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(vict, PLR_KILLER)) {
@@ -2847,19 +2848,19 @@ static struct set_struct {
    { "invstart",        LVL_BUILDER,	PC, 	BINARY },
    { "killer",		LVL_GOD, 	PC, 	BINARY },
    { "레벨",		LVL_GRGOD, 	BOTH, 	NUMBER },  /* 25 */
-   { "loadroom",	LVL_BUILDER, 	PC, 	MISC },
-   { "mana",		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "시작위치",	LVL_BUILDER, 	PC, 	MISC },
+   { "마법력",		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "최대체력",	        LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "최대마나",       	LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "최대이동",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 30 */
-   { "move",		LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "name",	LVL_IMMORT, 	PC, 	MISC },
+   { "최대마법력",       	LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "최대이동력",		LVL_BUILDER, 	BOTH, 	NUMBER },  /* 30 */
+   { "이동력",		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "이름",	LVL_IMMORT, 	PC, 	MISC },
    { "nodelete",	LVL_GOD, 	PC, 	BINARY },
    { "nohassle",	LVL_GOD, 	PC, 	BINARY },
-   { "nosummon",	LVL_BUILDER,	PC,	BINARY },  /* 35 */
+   { "소환거부",	LVL_BUILDER,	PC,	BINARY },  /* 35 */
    { "nowizlist", 	LVL_GRGOD, 	PC, 	BINARY },
-   { "olc",		LVL_GRGOD,	PC,	MISC },
-   { "password",	LVL_GRGOD,	PC,	MISC },
+   { "편집권한",		LVL_GRGOD,	PC,	MISC },
+   { "패스워드",	LVL_GRGOD,	PC,	MISC },
    { "poofin",		LVL_IMMORT,	PC,	MISC },
    { "poofout",         LVL_IMMORT,	PC,	MISC },   /* 40 */
    { "practices", 	LVL_GOD, 	PC, 	NUMBER },
@@ -2869,17 +2870,19 @@ static struct set_struct {
    { "sex", 		LVL_GOD, 	BOTH, 	MISC },  /* 45 */
    { "showvnums",  LVL_BUILDER,  PC, BINARY },
    { "siteok",   LVL_GOD,  PC,   BINARY },
-   { "str",		LVL_BUILDER, 	BOTH, 	NUMBER },
+   { "힘",		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "stradd",		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "thief",		LVL_GOD, 	PC, 	BINARY }, /* 50 */
-   { "thirst",		LVL_BUILDER, 	BOTH, 	MISC },
-   { "title",		LVL_GOD, 	PC, 	MISC   },
+   { "갈증",		LVL_BUILDER, 	BOTH, 	MISC },
+   { "칭호",		LVL_GOD, 	PC, 	MISC   },
    { "variable",        LVL_GRGOD,	PC,	MISC },
-   { "weight",		LVL_BUILDER,	BOTH,	NUMBER },
-   { "인내", 		LVL_BUILDER, 	BOTH, 	NUMBER }, /* 55 */
-   { "questpoints",     LVL_GOD,        PC,     NUMBER },
+   { "몸무게",		LVL_BUILDER,	BOTH,	NUMBER },
+   { "지혜", 		LVL_BUILDER, 	BOTH, 	NUMBER }, /* 55 */
+   { "임무점수",     LVL_GOD,        PC,     NUMBER },
    { "questhistory",    LVL_GOD,        PC,   NUMBER },
    { "수련치",    LVL_GOD,        PC,   NUMBER },
+   { "행운", LVL_BUILDER, BOTH, NUMBER },
+   { "스탯포인트", LVL_BUILDER, BOTH, NUMBER },
    { "\n", 0, BOTH, MISC }
   };
 
@@ -3293,10 +3296,18 @@ static int perform_set(struct char_data *ch, struct char_data *vict, int mode, c
         }
         break;
       }
-	 case 58: /* 수련치 */
+    case 58: /* 수련치 */
       RANGE(1, 1000);
       GET_PRACTICES(vict) = value;
       break;
+    case 59: // 행운
+        vict->real_abils.luck = value;
+        affect_total(vict);
+    break;
+    case 60: // 남은스탯포인트
+        vict->real_abils.point = value;
+        affect_total(vict);
+        break;
     default:
       send_to_char(ch, "Can't set that!\r\n");
       return (0);
@@ -3535,6 +3546,8 @@ static struct zcheck_affs {
   {APPLY_WIS,         -5,   3, "wisdom"},
   {APPLY_CON,         -5,   3, "constitution"},
   {APPLY_CHA,         -5,   3, "charisma"},
+  {APPLY_LUCK, -5, 3, "luck"},
+  {APPLY_POINT, -5, 3, "point"},
   {APPLY_CLASS,        0,   0, "class"},
   {APPLY_LEVEL,        0,   0, "level"},
   {APPLY_AGE,        -10,  10, "age"},

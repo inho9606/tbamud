@@ -1420,7 +1420,7 @@ void roll_real_abils(struct char_data *ch)
     ch->real_abils.point = 0;
     break;
   }
-//  ch->aff_abils = ch->real_abils;
+  ch->aff_abils = ch->real_abils;
 }
 
 /* Some initializations for characters, including initial skills */
