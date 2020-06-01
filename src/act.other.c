@@ -277,6 +277,10 @@ ACMD(do_stat_plus) {
 		send_to_char(ch, "사용법: <특성치> <값> 올려\r\n");
 		return;
 	}
+	if(atoi(value) == 0) {
+		send_to_char(ch, "값은 0보다 커야 합니다.\r\n");
+		return;
+	}
 	if(atoi(value) > GET_POINT(ch)) {
 		send_to_char(ch, "스탯포인트가 부족합니다.\r\n");
 		return;

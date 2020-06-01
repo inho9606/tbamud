@@ -891,7 +891,7 @@ static void do_stat_character(struct char_data *ch, struct char_data *k)
   send_to_char(ch, "eq: %d\r\n", i2);
 
   if (!IS_NPC(k))
-    send_to_char(ch, "Hunger: %d, Thirst: %d, Drunk: %d\r\n", GET_COND(k, HUNGER), GET_COND(k, THIRST), GET_COND(k, DRUNK));
+    send_to_char(ch, "포만감: %d, 피로도: %d, 취함: %d\r\n", GET_COND(k, HUNGER), GET_COND(k, THIRST), GET_COND(k, DRUNK));
 
   column = send_to_char(ch, "Master is: %s, Followers are:", k->master ? GET_NAME(k->master) : "<none>");
   if (!k->followers)
@@ -2842,7 +2842,7 @@ static struct set_struct {
    { "height",		LVL_BUILDER,	BOTH,	NUMBER },
    { "hitpoints",       LVL_BUILDER, 	BOTH, 	NUMBER },
    { "hitroll",		LVL_BUILDER, 	BOTH, 	NUMBER },
-   { "hunger",		LVL_BUILDER, 	BOTH, 	MISC },    /* 20 */
+   { "포만감",		LVL_BUILDER, 	BOTH, 	MISC },    /* 20 */
    { "지능", 		LVL_BUILDER, 	BOTH, 	NUMBER },
    { "invis",		LVL_GOD, 	PC, 	NUMBER },
    { "invstart",        LVL_BUILDER,	PC, 	BINARY },

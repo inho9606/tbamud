@@ -263,7 +263,7 @@ void affect_total(struct char_data *ch)
     affect_modify_ar(ch, af->location, af->modifier, af->bitvector, TRUE);
 
   /* Make certain values are between 0..25, not < 0 and not > 25! */
-  i = (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_GRGOD) ? 1000 : 100;
+  i = 20000; // (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_GRGOD) ? 1000 : 100;
 
   GET_DEX(ch) = MAX(0, MIN(GET_DEX(ch), i));
   GET_INT(ch) = MAX(0, MIN(GET_INT(ch), i));
@@ -274,6 +274,16 @@ void affect_total(struct char_data *ch)
   GET_POINT(ch) = MAX(0, MIN(GET_POINT(ch), i));
   GET_STR(ch) = MAX(0, GET_STR(ch));
 
+  if(ch->hungry == TRUE) {
+    GET_STR(ch) /= 2;
+    GET_DEX(ch) /= 2;
+  }
+
+  if(ch->thirsty == TRUE) {
+    GET_INT(ch) /= 2;
+    GET_WIS(ch) /= 2;
+  }
+
   if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_GRGOD) {
     GET_STR(ch) = MIN(GET_STR(ch), i);
   } else {
@@ -283,6 +293,7 @@ void affect_total(struct char_data *ch)
       GET_STR(ch) = 18;
     }
   }
+
 }
 
 /* Insert an affect_type in a char_data structure. Automatically sets

@@ -847,15 +847,18 @@ ACMD(do_drink)
       case SECT_WATER_SWIM:
       case SECT_WATER_NOSWIM:
       case SECT_UNDERWATER:
-        if ((GET_COND(ch, HUNGER) > 20) && (GET_COND(ch, THIRST) > 0)) {
-          send_to_char(ch, "배가 너무 불러서 더이상 들어갈 곳이 없습니다!\r\n");
-        }
+//        if ((GET_COND(ch, HUNGER) > 20) && (GET_COND(ch, THIRST) > 0)) {
+//          send_to_char(ch, "배가 너무 불러서 더이상 들어갈 곳이 없습니다!\r\n");
+//        }
         snprintf(buf, sizeof(buf), "$n$j 깨끗한 물을 마십니다.");
         act(buf, TRUE, ch, 0, 0, TO_ROOM);
-        send_to_char(ch, "당신은 깨끗한 물을 마십니다.\r\n");
+        send_to_char(ch, "맑은 물을 마십니다.\r\n");
         gain_condition(ch, THIRST, 1);
-        if (GET_COND(ch, THIRST) > 20)
-          send_to_char(ch, "더이상 갈증을 느끼지 않습니다.\r\n");
+        if (GET_COND(ch, THIRST) > 0) {
+          send_to_char(ch, "찬 기운에 정신이 맑아집니다. 피로도 1-\r\n");
+          ch->thirsty = FALSE;
+          affect_total(ch);
+        }
         return;
       default:
     send_to_char(ch, "무엇을 마실까요?\r\n");
@@ -884,10 +887,10 @@ send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
     act("$n$j 물을 마시지 못하고 쏟아버립니다!", TRUE, ch, 0, 0, TO_ROOM);
     return;
   }
-  if ((GET_COND(ch, HUNGER) > 20) && (GET_COND(ch, THIRST) > 0)) {
-    send_to_char(ch, "배가 너무 불러서 더이상 들어갈 곳이 없습니다!\r\n");
-    return;
-  }
+//  if ((GET_COND(ch, HUNGER) > 20) && (GET_COND(ch, THIRST) > 0)) {
+//    send_to_char(ch, "배가 너무 불러서 더이상 들어갈 곳이 없습니다!\r\n");
+//    return;
+//  }
   if ((GET_OBJ_VAL(temp, 1) == 0) || (!GET_OBJ_VAL(temp, 0) == 1)) {
     send_to_char(ch, "이미 비어있습니다.\r\n");
     return;
@@ -928,15 +931,14 @@ send_to_char(ch, "%s%s 찾을 수 없습니다.\r\n", arg, check_josa(arg, 1));
   gain_condition(ch, DRUNK,  drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK]  * amount / 4);
   gain_condition(ch, HUNGER,   drink_aff[GET_OBJ_VAL(temp, 2)][HUNGER]   * amount / 4);
   gain_condition(ch, THIRST, drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4);
+  if(GET_COND(ch, THIRST) > 0) {
+    send_to_char(ch, "찬 기운에 정신이 맑아집니다. 피로도 %d 회복\r\n", drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4);
+    ch->thirsty = FALSE;
+    affect_total(ch);
+  }
 
 if (GET_COND(ch, DRUNK) > 10)
     send_to_char(ch, "이미 많이 취했습니다.\r\n");
-
-  if (GET_COND(ch, THIRST) > 20)
-    send_to_char(ch, "더이상 갈증을 느끼지 않습니다.\r\n");
-
-  if (GET_COND(ch, HUNGER) > 20)
-    send_to_char(ch, "이미 배가 부릅니다.\r\n");
 
   if (GET_OBJ_VAL(temp, 3)) { /* The crap was poisoned ! */
     send_to_char(ch, "이상한 맛이 납니다!\r\n");
@@ -989,7 +991,7 @@ ACMD(do_eat)
     send_to_char(ch, "먹을수 있는 종류가 아닙니다!\r\n");
     return;
   }
-  if (GET_COND(ch, HUNGER) > 20) { /* Stomach full */
+  if (GET_COND(ch, HUNGER) > 23) { /* Stomach full */
     send_to_char(ch, "이미 배가 부릅니다!\r\n");
     return;
   }
@@ -1008,10 +1010,11 @@ ACMD(do_eat)
   amount = (subcmd == SCMD_EAT ? GET_OBJ_VAL(food, 0) : 1);
 
   gain_condition(ch, HUNGER, amount);
-
-  if (GET_COND(ch, HUNGER) > 20)
-    send_to_char(ch, "당신은 배가 부릅니다.\r\n");
-
+  if (GET_COND(ch, HUNGER) > 0) {
+    send_to_char(ch, "힘이 납니다! 포만감 %d+\r\n", amount);
+    ch->hungry = FALSE;
+    affect_total(ch);
+  }
   if (GET_OBJ_VAL(food, 3) && (GET_LEVEL(ch) < LVL_IMMORT)) {
     /* The crap was poisoned ! */
     send_to_char(ch, "이상한 맛이 납니다!\r\n");

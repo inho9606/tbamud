@@ -225,14 +225,14 @@ static void diag_char_to_char(struct char_data *i, struct char_data *ch)
     byte percent;
     const char *text;
   } diagnosis[] = {
-    { 100, "최상의 상태입니다."			},
-    {  90, "약간 긁힌 자국이 있습니다."	},
-    {  75, "약간의 상처가 있습니다."	},
-    {  50, "꽤 많은 상처가 있습니다."	},
-    {  30, "큰 상처들이 있습니다."		},
-    {  15, "피를 흘리고 있습니다."		},
-    {   0, "곧 죽을 것 같습니다."		},
-    {  -1, "상처에서 계속 피가 납니다."	}
+    { 100, "체력 100%"			},
+    {  90, "체력 90%~99%"	},
+    {  75, "체력 75%~89%"	},
+    {  50, "체력 50%~74%"	},
+    {  30, "체력 30%~49%"		},
+    {  15, "체력 15%~29%"		},
+    {   0, "체력 0%~14%"		},
+    {  -1, "체력 마이나스"	}
   };
   int percent, ar_index;
   const char *pers = PERS(i, ch);
@@ -242,11 +242,11 @@ static void diag_char_to_char(struct char_data *i, struct char_data *ch)
   else
     percent = -1;		/* How could MAX_HIT be < 1?? */
 
-  for (ar_index = 0; diagnosis[ar_index].percent >= 0; ar_index++)
-    if (percent >= diagnosis[ar_index].percent)
-      break;
+//  for (ar_index = 0; diagnosis[ar_index].percent >= 0; ar_index++)
+//    if (percent >= diagnosis[ar_index].percent)
+//      break;
 
-  send_to_char(ch, "%c%s %s\r\n", UPPER(*pers), pers + 1, diagnosis[ar_index].text);
+  send_to_char(ch, "%s 남은 체력: %d%\r\n", pers, percent);
 }
 
 static void look_at_char(struct char_data *i, struct char_data *ch)
@@ -258,8 +258,8 @@ static void look_at_char(struct char_data *i, struct char_data *ch)
 
    if (i->player.description)
     send_to_char(ch, "%s", i->player.description);
-  else
-    act("$m에게서 특별한 점을 찾을 수 없었습니다.", FALSE, i, 0, ch, TO_VICT);
+//  else
+//    act("$m에게서 특별한 점을 찾을 수 없었습니다.", FALSE, i, 0, ch, TO_VICT);
 
   diag_char_to_char(i, ch);
 
@@ -888,10 +888,10 @@ ACMD(do_score)
     send_to_char(ch, "술에 취해있습니다.\r\n");
 
   if (GET_COND(ch, HUNGER) == 0)
-    send_to_char(ch, "배가 고픕니다.\r\n");
+    send_to_char(ch, "배고픔 상태이상: 힘, 민첩 50% 감소\r\n");
 
   if (GET_COND(ch, THIRST) == 0)
-    send_to_char(ch, "목이 마릅니다.\r\n");
+    send_to_char(ch, "목마름 상태이상: 지식, 지혜 50% 감소\r\n");
 
   if (AFF_FLAGGED(ch, AFF_BLIND) && GET_LEVEL(ch) < LVL_IMMORT)
     send_to_char(ch, "눈이 멀어 있습니다!\r\n");

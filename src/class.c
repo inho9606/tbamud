@@ -1511,9 +1511,9 @@ void advance_level(struct char_data *ch)
     break;
 
   case CLASS_UNDECIDED:
-    add_hp = GET_CON(ch) * 10;
-    add_mana = GET_INT(ch) * 10;
-    add_move = GET_DEX(ch) * 10;
+    add_hp = ch->real_abils.con * 10;
+    add_mana = ch->real_abils.intel * 10;
+    add_move = ch->real_abils.dex * 10;
     break;
   }
 

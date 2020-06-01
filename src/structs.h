@@ -1023,7 +1023,7 @@ struct char_data
   room_rnum in_room;     /**< Current location (real room number) */
   room_rnum was_in_room; /**< Previous location for linkdead people  */
   int wait;              /**< wait for how many loops before taking action. */
-
+  bool hungry, thirsty;
   struct char_player_data player;       /**< General PC/NPC data */
   struct char_ability_data real_abils;  /**< Abilities without modifiers */
   struct char_ability_data aff_abils;   /**< Abilities with modifiers */

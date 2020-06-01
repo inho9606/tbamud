@@ -321,14 +321,14 @@ void gain_condition(struct char_data *ch, int condition, int value)
 
   switch (condition) {
   case HUNGER:
-    send_to_char(ch, "You are hungry.\r\n");
+    send_to_char(ch, "극심한 허기로 몸에 기운이 없습니다.\r\n");
     break;
   case THIRST:
-    send_to_char(ch, "You are thirsty.\r\n");
+    send_to_char(ch, "타는듯한 갈증에 현기증이 납니다.\r\n");
     break;
   case DRUNK:
     if (intoxicated)
-      send_to_char(ch, "You are now sober.\r\n");
+      send_to_char(ch, "알딸딸합니다.\r\n");
     break;
   default:
     break;
@@ -393,6 +393,11 @@ void point_update(void)
       GET_HIT(i) = MIN(GET_HIT(i) + hit_gain(i), GET_MAX_HIT(i));
       GET_MANA(i) = MIN(GET_MANA(i) + mana_gain(i), GET_MAX_MANA(i));
       GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_MAX_MOVE(i));
+      if(GET_COND(i, HUNGER) == 0 || GET_COND(i, THIRST) == 0) {
+	if(GET_COND(i, HUNGER) == 0) i->hungry = TRUE;
+	if(GET_COND(i, THIRST) == 0) i->thirsty = TRUE;
+	affect_total(i);
+      }
       if (AFF_FLAGGED(i, AFF_POISON))
 	if (damage(i, i, 2, SPELL_POISON) == -1)
 	  continue;	/* Oops, they died. -gg 6/24/98 */

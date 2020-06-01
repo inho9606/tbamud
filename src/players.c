@@ -375,7 +375,10 @@ int load_char(const char *name, struct char_data *ch)
           GET_HOST(ch) = strdup(line);
         }
         else if (!strcmp(tag, "Hrol"))	GET_HITROLL(ch)		= atoi(line);
-	else if (!strcmp(tag, "Hung"))	GET_COND(ch, HUNGER)	= atoi(line);
+	else if (!strcmp(tag, "Hung")) {
+		GET_COND(ch, HUNGER)	= atoi(line);
+		if(GET_COND(ch, HUNGER) == 0) ch->hungry = TRUE;
+	}
 	break;
 
       case 'I':
