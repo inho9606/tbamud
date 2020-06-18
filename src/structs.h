@@ -887,6 +887,7 @@ struct char_ability_data
   ush_int con;     /**< Constitution */
   ush_int cha;     /**< Charisma */
   ush_int luck;     /**< Fortune */
+  ush_int crime;
   ush_int point;     /**< Stat points */
 };
 
@@ -1404,6 +1405,19 @@ struct config_data
   struct autowiz_data autowiz;
 };
 
+struct baseball_team {
+	char name[MAX_INPUT_LENGTH];
+	struct char_data *members[9];
+	struct char_data *master, *pitcher, *batter, *catcher, *b1, *b2, *b3, *ss, *lf, *cf, *rf;
+	ubyte score, homeruns, hits, bb; // bb = 사사구(base on balls)
+	ubyte strike, ballcount, outcount;
+};
+
+struct baseball_data {
+	struct baseball_team top, bottom;
+	bool playing, bottom_hitting;
+	ubyte innings, cur_inning;
+};
 #ifdef MEMORY_DEBUG
 #include "zmalloc.h"
 #endif

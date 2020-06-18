@@ -116,7 +116,7 @@ void check_killer(struct char_data *ch, struct char_data *vict)
     return;
 
   SET_BIT_AR(PLR_FLAGS(ch), PLR_KILLER);
-  send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
+  send_to_char(ch, "범죄도가 쌓이면 패널티를 받을 수 있습니다.\r\n");
   mudlog(BRF, MAX(LVL_IMMORT, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict))), 
     TRUE, "PC Killer bit set on %s for initiating attack on %s at %s.",
     GET_NAME(ch), GET_NAME(vict), world[IN_ROOM(vict)].name);
@@ -280,7 +280,7 @@ struct char_data *i;
 
   /* Alert Group if Applicable */
   if (GROUP(ch))
-    send_to_group(ch, GROUP(ch), "%s has died.\r\n", GET_NAME(ch));
+    send_to_group(ch, GROUP(ch), "%s님이 죽었습니다.\r\n", GET_NAME(ch));
 
   update_pos(ch);
 

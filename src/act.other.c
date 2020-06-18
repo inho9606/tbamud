@@ -293,11 +293,13 @@ ACMD(do_stat_plus) {
 		}
 		else if(!str_cmp(stat, "민첩")) {
 			ch->real_abils.dex += atoi(value);
+			ch->points.max_move += atoi(value)*5;
 			ch->real_abils.point -= atoi(value);
 			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.dex, ch->real_abils.point);
 		}
 		else if(!str_cmp(stat, "지식")) {
 			ch->real_abils.intel += atoi(value);
+			ch->points.max_mana += atoi(value)*5;
 			ch->real_abils.point -= atoi(value);
 			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.intel, ch->real_abils.point);
 		}
@@ -306,8 +308,9 @@ ACMD(do_stat_plus) {
 			ch->real_abils.point -= atoi(value);
 			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.wis, ch->real_abils.point);
 		}
-		else if(!str_cmp(stat, "건강")) {
+		else if(!str_cmp(stat, "맷집")) {
 			ch->real_abils.con += atoi(value);
+			ch->points.max_hit += atoi(value)*5;
 			ch->real_abils.point -= atoi(value);
 			send_to_char(ch, "기본 %s : %d, 남은 스탯포인트: %d\r\n", stat, ch->real_abils.con, ch->real_abils.point);
 		}

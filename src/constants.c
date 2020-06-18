@@ -170,7 +170,7 @@ const char *position_types[] = {
  * @pre Must be in the same order as the defines.
  * Must end array with a single newline. */
 const char *player_bits[] = {
-  "살인자",
+  "범죄자",
   "도둑",
   "냉동",
   "셋팅금지",
@@ -204,7 +204,7 @@ const char *action_bits[] = {
   "동물",
   "ISNPC",
   "AWARE",
-  "AGGR",
+  "선공격",
   "STAY-ZONE",
   "도망가능",
   "악한",
@@ -277,7 +277,7 @@ const char *affected_bits[] =
   "물위걷기",
   "SANCT",
   "그룹",
-  "CURSE",
+  "저주",
   "INFRA",
   "독",
   "악보호",
@@ -309,11 +309,11 @@ const char *connected_types[] = {
   "공지읽기",
   "메인메뉴",
   "자기소개 입력",
-  "Changing PW 1",
-  "Changing PW 2",
-  "Changing PW 3",
-  "Self-Delete 1",
-  "Self-Delete 2",
+  "암호 변경 1",
+  "암호 변경 2",
+  "암호 변경 3",
+  "캐릭터삭제 1",
+  "캐릭터삭제 2",
   "접속끊김",
   "물건편집",
   "방편집",
@@ -465,7 +465,7 @@ const char *apply_types[] = {
   "민첩",
   "지식",
   "지혜",
-  "건강",
+  "체력",
   "통솔력",
   "행운",
   "스탯포인트",
@@ -829,13 +829,13 @@ int movement_loss[] =
 
 /** The names of the days of the mud week. Not used in sprinttype(). */
 const char *weekdays[] = {
-  "the Day of the Moon",
-  "the Day of the Bull",
-  "the Day of the Deception",
-  "the Day of Thunder",
-  "the Day of Freedom",
-  "the Day of the Great Gods",
-  "the Day of the Sun"
+  "달의 날",
+  "황소의 날",
+  "기만의 날",
+  "번개의 날",
+  "자유의 날",
+  "신의 날",
+  "태양의 날"
 };
 
 /** The names of the mud months. Not used in sprinttype(). */
@@ -862,16 +862,16 @@ const char *month_name[] = {
 /** Names for mob trigger types. */
 const char *trig_types[] = {
   "Global",
-  "Random",
-  "Command",
-  "Speech",
-  "Act",
-  "Death",
-  "Greet",
+  "랜덤",
+  "명령어",
+  "말",
+  "행동",
+  "죽음",
+  "환영",
   "Greet-All",
-  "Entry",
-  "Receive",
-  "Fight",
+  "entry",
+  "물건 받음",
+  "전투중",
   "HitPrcnt",
   "Bribe",
   "Load",
@@ -887,15 +887,15 @@ const char *trig_types[] = {
 /** Names for object trigger types. */
 const char *otrig_types[] = {
   "Global",
-  "Random",
-  "Command",
+  "랜덤",
+  "명령어",
   "UNUSED1",
   "UNUSED2",
-  "Timer",
-  "Get",
-  "Drop",
-  "Give",
-  "Wear",
+  "타이머",
+  "주울 때",
+  "버릴 때",
+  "줄 때",
+  "착용할 때",
   "UNUSED3",
   "Remove",
   "UNUSED4",
@@ -912,12 +912,12 @@ const char *otrig_types[] = {
 /** Names for world (room) trigger types. */
 const char *wtrig_types[] = {
   "Global",
-  "Random",
-  "Command",
-  "Speech",
+  "랜덤",
+  "명령어",
+  "말",
   "UNUSED1",
-  "Zone Reset",
-  "Enter",
+  "존리셋",
+  "입장",
   "Drop",
   "UNUSED2",
   "UNUSED3",
@@ -929,7 +929,7 @@ const char *wtrig_types[] = {
   "Cast",
   "Leave",
   "Door",
-  "Login",
+  "로그인",
   "Time",
   "\n"
 };
@@ -952,9 +952,9 @@ const char *history_types[] = {
 
 /** Flag names for Ideas, Bugs and Typos (defined in ibt.h) */
 const char *ibt_bits[] = {
-  "Resolved",
-  "Important",
-  "InProgress",
+  "처리 완료",
+  "중요",
+  "처리중",
   "\n"
 };
 /* --- End of constants arrays. --- */

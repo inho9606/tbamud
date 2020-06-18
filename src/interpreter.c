@@ -37,6 +37,7 @@
 #include "prefedit.h"
 #include "ibt.h"
 #include "mud_event.h"
+#include "baseball.h"
 
 /* local (file scope) functions */
 static int perform_dupe_check(struct descriptor_data *d);
@@ -247,6 +248,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "칭호고정"  , "notitle" , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_NOTITLE }, // notitle
   { "신채널거부"    , "nowiz"   , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOWIZ },
 
+  { "야구"     , "야"       , POS_STANDING , do_baseball , 0, 0 },
   { "열어"     , "o"       , POS_SITTING , do_gen_door , 0, SCMD_OPEN },
   { "명령"    , "ord"     , POS_RESTING , do_order    , 1, 0 }, // order
   { "offer"    , "off"     , POS_STANDING, do_not_here , 1, 0 },

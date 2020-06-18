@@ -13,8 +13,7 @@ unsigned char *str;
    return 0;
 }
 
-int is_han(str)
-unsigned char *str;
+int is_han(str)char *str;
 {
   int i;
   for (i = 0; i < strlen(str);i += 2) {

@@ -1417,6 +1417,7 @@ void roll_real_abils(struct char_data *ch)
     ch->real_abils.wis = 10;
     ch->real_abils.cha = 10;
     ch->real_abils.luck = 10;
+    ch->real_abils.crime = 0;
     ch->real_abils.point = 0;
     break;
   }
@@ -1432,9 +1433,9 @@ void do_start(struct char_data *ch)
   set_title(ch, NULL);
   roll_real_abils(ch);
 
-  GET_MAX_HIT(ch)  = 0;
-  GET_MAX_MANA(ch) = 0;
-  GET_MAX_MOVE(ch) = 0;
+  GET_MAX_HIT(ch)  = 50;
+  GET_MAX_MANA(ch) = 50;
+  GET_MAX_MOVE(ch) = 50;
 
   switch (GET_CLASS(ch)) {
 
@@ -1517,9 +1518,9 @@ void advance_level(struct char_data *ch)
     break;
   }
 
-  ch->points.max_hit += MAX(1, add_hp);
-  ch->points.max_move += MAX(1, add_move);
-  ch->points.max_mana += add_mana;
+//  ch->points.max_hit += MAX(1, add_hp);
+//  ch->points.max_move += MAX(1, add_move);
+//  ch->points.max_mana += add_mana;
   ch->real_abils.point += 5;
   if (IS_MAGIC_USER(ch) || IS_CLERIC(ch))
     GET_PRACTICES(ch) += MAX(2, wis_app[GET_WIS(ch)].bonus);

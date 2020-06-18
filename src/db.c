@@ -42,7 +42,6 @@
 
 /*  declarations of most of the 'global' variables */
 struct config_data config_info; /* Game configuration list.	 */
-
 struct room_data *world = NULL;	/* array of rooms		 */
 room_rnum top_of_world = 0;	/* ref to top element of world	 */
 

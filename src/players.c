@@ -280,6 +280,7 @@ int load_char(const char *name, struct char_data *ch)
     ch->real_abils.con = PFDEF_CON;
     ch->real_abils.cha = PFDEF_CHA;
     ch->real_abils.luck = PFDEF_LUCK;
+    ch->real_abils.crime = PFDEF_CRIME;
     ch->real_abils.point = PFDEF_POINT;
     GET_HIT(ch) = PFDEF_HIT;
     GET_MAX_HIT(ch) = PFDEF_MAXHIT;
@@ -345,6 +346,7 @@ int load_char(const char *name, struct char_data *ch)
 	     if (!strcmp(tag, "Cha "))	ch->real_abils.cha	= atoi(line);
 	else if (!strcmp(tag, "Clas"))	GET_CLASS(ch)		= atoi(line);
 	else if (!strcmp(tag, "Con "))	ch->real_abils.con	= atoi(line);
+	else if (!strcmp(tag, "Crim"))	ch->real_abils.crime	= atoi(line);
 	break;
 
       case 'D':
@@ -649,6 +651,7 @@ void save_char(struct char_data * ch)
   if (GET_CON(ch)	   != PFDEF_CON)	fprintf(fl, "Con : %d\n", GET_CON(ch));
   if (GET_CHA(ch)	   != PFDEF_CHA)	fprintf(fl, "Cha : %d\n", GET_CHA(ch));
   if (GET_LUCK(ch)	   != PFDEF_LUCK)	fprintf(fl, "Luck : %d\n", GET_LUCK(ch));
+  if (GET_CRIME(ch)	   != PFDEF_CRIME)	fprintf(fl, "Crim : %d\n", GET_CRIME(ch));
   if (GET_POINT(ch)	   != PFDEF_POINT)	fprintf(fl, "PT  : %d\n", GET_POINT(ch));
 
   if (GET_AC(ch)	   != PFDEF_AC)		fprintf(fl, "Ac  : %d\n", GET_AC(ch));

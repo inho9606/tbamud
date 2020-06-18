@@ -508,6 +508,8 @@ do                                                              \
 #define GET_CHA(ch)     ((ch)->aff_abils.cha)
 /** Current fortune of ch. */
 #define GET_LUCK(ch)     ((ch)->aff_abils.luck)
+/** Current criminal of ch. */
+#define GET_CRIME(ch)     ((ch)->aff_abils.crime)
 /** Current available statpoints of ch. */
 #define GET_POINT(ch)     ((ch)->aff_abils.point)
 /** Experience points of ch. */
@@ -1081,7 +1083,7 @@ do                                                              \
 #define isnhspace(ch) (!ishan(ch) && isspace(ch))
 
 int is_hangul(unsigned char *str);
-int is_han(unsigned char *str);
+int is_han(char *str);
 int under_han(unsigned char *str);
 char *first_han(unsigned char *str);
 char *check_josa(char *str, int m);

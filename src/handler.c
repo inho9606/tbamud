@@ -271,6 +271,7 @@ void affect_total(struct char_data *ch)
   GET_CON(ch) = MAX(0, MIN(GET_CON(ch), i));
   GET_CHA(ch) = MAX(0, MIN(GET_CHA(ch), i));
   GET_LUCK(ch) = MAX(0, MIN(GET_LUCK(ch), i));
+  GET_CRIME(ch) = MAX(0, MIN(GET_CRIME(ch), i));
   GET_POINT(ch) = MAX(0, MIN(GET_POINT(ch), i));
   GET_STR(ch) = MAX(0, GET_STR(ch));
 
@@ -284,6 +285,7 @@ void affect_total(struct char_data *ch)
     GET_WIS(ch) /= 2;
   }
 
+/*
   if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_GRGOD) {
     GET_STR(ch) = MIN(GET_STR(ch), i);
   } else {
@@ -293,6 +295,7 @@ void affect_total(struct char_data *ch)
       GET_STR(ch) = 18;
     }
   }
+*/
 
 }
 

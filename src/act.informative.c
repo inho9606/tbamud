@@ -808,10 +808,10 @@ ACMD(do_score)
    send_to_char(ch, "  오늘은 당신이 태어난 날입니다.\r\n");
   else
     send_to_char(ch, "\r\n");
-  send_to_char(ch, "힘: %d  민첩: %d  건강: %d  지식: %d  지혜: %d  통솔력: %d  행운: %d\r\n",
+  send_to_char(ch, "힘: %d  민첩: %d  맷집: %d  지식: %d  지혜: %d  통솔력: %d  행운: %d\r\n",
 	  GET_STR(ch), GET_DEX(ch), GET_CON(ch), GET_INT(ch),
-	  GET_WIS(ch), GET_CON(ch), GET_LUCK(ch));
-  send_to_char(ch, "남은 스탯포인트: %d\r\n", GET_POINT(ch));
+	  GET_WIS(ch), GET_CHA(ch), GET_LUCK(ch));
+  send_to_char(ch, "남은 스탯포인트: %d  범죄도: %d\r\n", GET_POINT(ch), GET_CRIME(ch));
 
   send_to_char(ch, "체력: %d(%d), 마법력: %d(%d), 이동력: %d(%d)\r\n",
 	  GET_HIT(ch), GET_MAX_HIT(ch), GET_MANA(ch), GET_MAX_MANA(ch),

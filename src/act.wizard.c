@@ -35,6 +35,7 @@
 #include "ban.h"
 #include "screen.h"
 
+
 /* local utility functions with file scope */
 static int perform_set(struct char_data *ch, struct char_data *vict, int mode, char *val_arg);
 static void perform_immort_invis(struct char_data *ch, int level);
@@ -817,7 +818,7 @@ static void do_stat_character(struct char_data *ch, struct char_data *k)
     send_to_char(ch, "\r\n");
   }
   send_to_char(ch, "Èû: [%s%d/%d%s]  Áö½Ä: [%s%d%s]  ÁöÇý: [%s%d%s]  "
-	  "¹ÎÃ¸: [%s%d%s]  °Ç°­: [%s%d%s]  Åë¼Ö·Â: [%s%d%s]  Çà¿î: [%s%d%s]  ½ºÅÈÆ÷ÀÎÆ®: [%s%d%s]\r\n",
+	  "¹ÎÃ¸: [%s%d%s]  ¸ËÁý: [%s%d%s]  Åë¼Ö·Â: [%s%d%s]  Çà¿î: [%s%d%s]  ¹üÁËµµ: [%s%d%s]  ½ºÅÈÆ÷ÀÎÆ®: [%s%d%s]\r\n",
 	  CCCYN(ch, C_NRM), GET_STR(k), GET_ADD(k), CCNRM(ch, C_NRM),
 	  CCCYN(ch, C_NRM), GET_INT(k), CCNRM(ch, C_NRM),
 	  CCCYN(ch, C_NRM), GET_WIS(k), CCNRM(ch, C_NRM),
@@ -825,6 +826,7 @@ static void do_stat_character(struct char_data *ch, struct char_data *k)
 	  CCCYN(ch, C_NRM), GET_CON(k), CCNRM(ch, C_NRM),
 	  CCCYN(ch, C_NRM), GET_CHA(k), CCNRM(ch, C_NRM),
 	  CCCYN(ch, C_NRM), GET_LUCK(k), CCNRM(ch, C_NRM),
+	  CCCYN(ch, C_NRM), GET_CRIME(k), CCNRM(ch, C_NRM),
 	  CCCYN(ch, C_NRM), GET_POINT(k), CCNRM(ch, C_NRM));
 
   send_to_char(ch, "Ã¼·Â:[%s%d/%d+%d%s]  ¸¶¹ý·Â:[%s%d/%d+%d%s]  ÀÌµ¿·Â:[%s%d/%d+%d%s]\r\n",
@@ -2326,7 +2328,7 @@ ACMD(do_wizutil)
     //  send_to_char(ch, "Rerolled...\r\n");
       // roll_real_abils(vict);
       log("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
-      send_to_char(ch, "»õ·Î¿î ½ºÅÈ: Èû %d/%d, Áö½Ä %d, ÁöÇý %d, ¹ÎÃ¸ %d, °Ç°­ %d, Åë¼Ö·Â %d, Çà¿î %d\r\n",
+      send_to_char(ch, "»õ·Î¿î ½ºÅÈ: Èû %d/%d, Áö½Ä %d, ÁöÇý %d, ¹ÎÃ¸ %d, ¸ËÁý %d, Åë¼Ö·Â %d, Çà¿î %d\r\n",
 	      GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
 	      GET_DEX(vict), GET_CON(vict), GET_CHA(vict), GET_LUCK(vict));
       break;
@@ -2882,6 +2884,7 @@ static struct set_struct {
    { "questhistory",    LVL_GOD,        PC,   NUMBER },
    { "¼ö·ÃÄ¡",    LVL_GOD,        PC,   NUMBER },
    { "Çà¿î", LVL_BUILDER, BOTH, NUMBER },
+   { "¹üÁËµµ", LVL_BUILDER, BOTH, NUMBER },
    { "½ºÅÈÆ÷ÀÎÆ®", LVL_BUILDER, BOTH, NUMBER },
    { "\n", 0, BOTH, MISC }
   };
@@ -3304,7 +3307,11 @@ static int perform_set(struct char_data *ch, struct char_data *vict, int mode, c
         vict->real_abils.luck = value;
         affect_total(vict);
     break;
-    case 60: // ³²Àº½ºÅÈÆ÷ÀÎÆ®
+    case 60: // ¹üÁËµµ
+        vict->real_abils.crime = value;
+        affect_total(vict);
+        break;
+    case 61: // ³²Àº½ºÅÈÆ÷ÀÎÆ®
         vict->real_abils.point = value;
         affect_total(vict);
         break;

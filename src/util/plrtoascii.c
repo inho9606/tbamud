@@ -33,6 +33,7 @@ struct char_ability_data_plrtoascii {
    ush_int con;
    ush_int cha;
     ush_int luck;
+    ush_int crime;
     ush_int point;
 };
 
@@ -290,6 +291,8 @@ void convert(char *filename)
       fprintf(outfile, "Cha : %d\n", cad->cha);
     if (cad->luck != PFDEF_LUCK)
       fprintf(outfile, "Luck : %d\n", cad->luck);
+    if (cad->crime != PFDEF_CRIME)
+      fprintf(outfile, "Crim : %d\n", cad->luck);
     if (cad->point != PFDEF_POINT)
       fprintf(outfile, "PT  : %d\n", cad->point);
 
