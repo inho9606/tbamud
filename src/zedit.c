@@ -424,7 +424,7 @@ static void zedit_disp_menu(struct descriptor_data *d)
 
   /* Menu header */
   send_to_char(d->character,
-	  "방 번호 : %s%d%s Room zone: %s%d\r\n"
+	  "방 번호 : %s%d%s 존 번호: %s%d\r\n"
 	  "%s1%s) 제작자       : %s%s\r\n"
 	  "%sZ%s) 존 이름      : %s%s\r\n"
 	  "%sL%s) 리젠주기       : %s%d 분\r\n"

@@ -1024,7 +1024,7 @@ struct char_data
   room_rnum in_room;     /**< Current location (real room number) */
   room_rnum was_in_room; /**< Previous location for linkdead people  */
   int wait;              /**< wait for how many loops before taking action. */
-  bool hungry, thirsty;
+  bool hungry, thirsty, baseball_position;
   struct char_player_data player;       /**< General PC/NPC data */
   struct char_ability_data real_abils;  /**< Abilities without modifiers */
   struct char_ability_data aff_abils;   /**< Abilities with modifiers */
@@ -1047,7 +1047,8 @@ struct char_data
   struct char_data *next_in_room;  /**< Next PC in the room */
   struct char_data *next;          /**< Next char_data in the room */
   struct char_data *next_fighting; /**< Next in line to fight */
-
+  struct char_data *next_baseball; /**< Next player in baseball team */
+  struct baseball_team *company;
   struct follow_type *followers; /**< List of characters following */
   struct char_data *master;      /**< List of character being followed */
 
@@ -1407,16 +1408,18 @@ struct config_data
 
 struct baseball_team {
 	char name[MAX_INPUT_LENGTH];
-	struct char_data *members[9];
-	struct char_data *master, *pitcher, *batter, *catcher, *b1, *b2, *b3, *ss, *lf, *cf, *rf;
-	ubyte score, homeruns, hits, bb; // bb = 사사구(base on balls)
+	struct char_data *member, *master;
+	struct char_data *hitters[9], *defense[9];
+	ubyte runs, hits, errors, bb; // bb = 사사구(base on balls)
 	ubyte strike, ballcount, outcount;
+	ubyte inning_score[9], batter;
 };
 
 struct baseball_data {
 	struct baseball_team top, bottom;
 	bool playing, bottom_hitting;
 	ubyte innings, cur_inning;
+	zone_rnum ground;
 };
 #ifdef MEMORY_DEBUG
 #include "zmalloc.h"
