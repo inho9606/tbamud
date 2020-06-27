@@ -559,6 +559,7 @@
  * @see RL_SEC
  */
 #define PASSES_PER_SEC	(1000000 / OPT_USEC)
+#define BASEBALLGAME_PER_SEC	(100000 / OPT_USEC)
 /** Used with other macros to define at how many heartbeats a control loop
  * gets executed. Helps to translate pulse counts to real seconds for
  * human comprehension.
@@ -1415,8 +1416,15 @@ struct baseball_team {
 	ubyte inning_score[9], batter;
 };
 
+struct baseball_ball {
+	ubyte x, y, speed, dir;
+	bool moving;
+	unsigned long clock;
+};
+
 struct baseball_data {
 	struct baseball_team top, bottom;
+	struct baseball_ball ball;
 	bool playing, bottom_hitting;
 	ubyte innings, cur_inning;
 	zone_rnum ground;

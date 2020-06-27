@@ -82,6 +82,7 @@
 #include "quest.h"
 #include "ibt.h" /* for free_ibt_lists */
 #include "mud_event.h"
+#include "baseball.h"
 
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET (-1)
@@ -1027,6 +1028,8 @@ void heartbeat(int heart_pulse)
 
   if (!(heart_pulse % PULSE_TIMESAVE))
   save_mud_time(&time_info);
+
+  if(!(heart_pulse % BASEBALLGAME_PER_SEC)) move_ball(heart_pulse);
 
   /* Every pulse! Don't want them to stink the place up... */
   extract_pending_chars();

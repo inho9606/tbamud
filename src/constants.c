@@ -957,6 +957,20 @@ const char *ibt_bits[] = {
   "처리중",
   "\n"
 };
+
+/** Defense Position for baseball game */
+const char *baseball_position[] = {
+  "투수",
+  "포수",
+  "1루수",
+  "2루수",
+  "3루수",
+  "유격수",
+  "좌익수",
+  "중견수",
+  "우익수",
+  "\n"
+};
 /* --- End of constants arrays. --- */
 
 /* Various arrays we count so we can check the world files.  These
