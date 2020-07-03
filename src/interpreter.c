@@ -249,6 +249,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "신채널거부"    , "nowiz"   , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOWIZ },
   { "야구"     , "야"       , POS_STANDING , do_baseball , 0, 0 },
   { "투구"     , "투"       , POS_STANDING , do_pitch , 0, 0 },
+  { "타격"     , "타"       , POS_STANDING , do_bat , 0, 0 },
 
   { "열어"     , "o"       , POS_SITTING , do_gen_door , 0, SCMD_OPEN },
   { "명령"    , "ord"     , POS_RESTING , do_order    , 1, 0 }, // order

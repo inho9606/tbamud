@@ -1417,9 +1417,9 @@ struct baseball_team {
 };
 
 struct baseball_ball {
-	ubyte x, y, speed, dir;
+	sbyte x, y, z, dir, equation;
+	ubyte speed, dist;
 	bool moving;
-	unsigned long clock;
 };
 
 struct baseball_data {
