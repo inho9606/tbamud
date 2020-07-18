@@ -13,6 +13,7 @@
 #include "baseball.h"
 #include "dg_scripts.h"
 #include "constants.h"
+#include "genzon.h" /* for real_zone_by_thing */
 
 struct baseball_data baseball;
 
@@ -23,8 +24,8 @@ void record_count(int status) {
 	else t = &baseball.top;
 	if(status == 1) // strike
 		t->strike += 1;
-	if(status == 2) t->ballcount += 1;
-	if(status == 3) {
+	else if(status == 2) t->ballcount += 1;
+	else if(status == 3) { // 그냥 장타
 		t->strike = 0;
 		t->ballcount = 0;
 		t->outcount = 0;
@@ -32,24 +33,29 @@ void record_count(int status) {
 		else t->batter = 9;
 		return;
 	}
-	if(status == 4) {
+	else if(status == 4) { // 홈런
 		t->strike = 0;
 		t->ballcount = 0;
-		t->outcount = 0;
 		if(t->batter < 18) t->batter += 1;
 		else t->batter = 9;
 		t->runs += 1;
 		return;
 	}
+	else if(status == 5) { // 그냥 아웃
+		t->strike = 3;
+		t->ballcount = 0;
+		if(t->batter < 18) t->batter += 1;
+		else t->batter = 9;
+	}
 	if(t->ballcount == 4) {
 		t->strike += 1;
-		sprintf(buf, "포볼입니다.\r\n");
+		sprintf(buf, "[문자중계] 포볼!\r\n");
 		t->ballcount = 0;
 		send_to_zone(buf, baseball.ground);
 	}
 	if(t->strike == 3) {
 		t->outcount += 1;
-		sprintf(buf, "%d아웃!\r\n", t->outcount);
+		sprintf(buf, "[문자중계] %d아웃!\r\n", t->outcount);
 		send_to_zone(buf, baseball.ground);
 		t->strike = 0;
 		t->ballcount = 0;
@@ -60,10 +66,18 @@ void record_count(int status) {
 		t->strike = 0;
 		t->ballcount = 0;
 		t->outcount = 0;
-		if(baseball.bottom_hitting == TRUE) baseball.bottom_hitting = FALSE;
+		if(baseball.bottom_hitting == TRUE) {
+			baseball.cur_inning += 1;
+			if(baseball.innings < baseball.cur_inning) {
+				sprintf(buf, "[문자중계] 경기종료!\r\n");
+				send_to_zone(buf, baseball.ground);
+				return;
+			}
+			baseball.bottom_hitting = FALSE;
+		}
 		else baseball.bottom_hitting = TRUE;
 		locate_position();
-		sprintf(buf, "공격전환!");
+		sprintf(buf, "[문자중계] 공수교대!");
 		send_to_zone(buf, baseball.ground);
 	}
 }
@@ -74,10 +88,8 @@ void locate_position() {
 	if(baseball.bottom_hitting == TRUE) t = &baseball.top;
 	else t = &baseball.bottom;
 	for(i=0; i<9; i++) {
-		if(i==0) { // 포지션 별 초기 방번호 배열 만들기
-			char_from_room(t->defense[i]);
-			char_to_room(t->defense[i], find_target_room(t->defense[i], "18882"));
-		}
+		char_from_room(t->defense[i]);
+		char_to_room(t->defense[i], find_target_room(t->defense[i], baseball_defense_room[i]));
 	}
 }
 
@@ -87,15 +99,17 @@ void init_ball(struct baseball_ball *b) {
 	b->z = 0;
 	b->equation = 0;
 	b->moving = FALSE;
+	b->bound = FALSE;
 	b->dist = 0;
 }
 
 void move_ball(int ms) {
 	char buf[MAX_STRING_LENGTH];
-//	sprintf(buf, "%d, %d, %d, %d\r\n", pulse-baseball.ball.clock, ms, ms-baseball.ball.clock);
-//	send_to_zone(buf, baseball.ground);
+//	struct baseball_team *t;
+	struct char_data *catcher = NULL;
 	if(baseball.ball.moving == FALSE) return;
-	baseball.ball.dist += baseball.ball.speed;
+//	if(baseball.bottom_hitting == TRUE) t = &baseball.top;
+//	else t = &baseball.bottom;
 	switch (baseball.ball.dir) {
 		case SOUTH:
 			baseball.ball.y -= baseball.ball.speed;
@@ -113,39 +127,118 @@ void move_ball(int ms) {
 			break;
 	}
 	if(baseball.ball.dir != SOUTH) {
+		baseball.ball.dist += baseball.ball.speed;
 		switch (baseball.ball.equation) {
 			case 1:
-				if(baseball.ball.dist % 60 == 0) baseball.ball.z -= 1;
+				if(baseball.ball.dist % 66 == 0) baseball.ball.z -= 1;
+				break;
+			case 2:
+				if((-2*baseball.ball.dist)+114 >= 0) baseball.ball.z += 1; // z=-x(x+116) 을 미분한 값, 기울기로 증가/감소 판단
+				else if((-2*baseball.ball.dist)+114 < 0) baseball.ball.z -= 1;
+				break;
+			case 3:
+				if((2*baseball.ball.dist)-60 < 0) baseball.ball.z -= 1;
 				break;
 			default:
 				break;
 		}
 	}
-	if(baseball.ball.z <= 0) baseball.ball.equation = 0;
+//	sprintf(buf, "%d, %d, %d, %d\r\n", baseball.ball.x, baseball.ball.y, baseball.ball.z, baseball.ball.dist);
+//	send_to_zone(buf, baseball.ground);
+	if(baseball.ball.z <= 0 && baseball.ball.equation != 0) {
+		baseball.ball.equation = 0;
+		baseball.ball.bound = TRUE;
+		sprintf(buf, "[문자중계] 땅에 맞는 공!\r\n");
+		send_to_zone(buf, baseball.ground);
+	}
 	if(baseball.ball.y <= 0) {
 		baseball.ball.moving = FALSE;
 		if(baseball.ball.x >= 4 && baseball.ball.x <= 6) {
-			sprintf(buf, "스트라이크!\r\n");
+			sprintf(buf, "[문자중계] 스트라이크!\r\n");
+		send_to_zone(buf, baseball.ground);
 			record_count(1);
 		}
 		else {
-			sprintf(buf, "볼!\r\n");
+			sprintf(buf, "[문자중계] 볼!\r\n");
+		send_to_zone(buf, baseball.ground);
 			record_count(2);
 		}
 	}
-		else if(baseball.ball.y >= 125) {
-			baseball.ball.moving = FALSE;
-			if(baseball.ball.z < 5) {
-				sprintf(buf, "담장에 맞는 공!\r\n");
-				record_count(3);
-			}
-			else {
-				sprintf(buf, "호오오옴러어언!\r\n");
-				record_count(4);
-			}
+	else if(baseball.ball.y >= 125) {
+		baseball.ball.moving = FALSE;
+		if(baseball.ball.z <= 2) {
+			sprintf(buf, "[문자중계] 담장에 맞는 공!\r\n");
+	send_to_zone(buf, baseball.ground);
+			record_count(3);
 		}
-		send_to_zone(buf, baseball.ground);
-		return;
+		else {
+			sprintf(buf, "[문자중계] 호오오옴러어언!\r\n");
+			send_to_zone(buf, baseball.ground);
+			record_count(4);
+		}
+	}
+	if(baseball.ball.z <= 3) {
+		if(baseball.ball.y >= 17 && baseball.ball.y <= 19 && baseball.ball.x == 55 && world[real_room(18882)].people != NULL) {
+				catcher = world[real_room(18882)].people;
+			sprintf(buf, "[문자중계] %s님이 마운드 앞에서 잡는 공!\r\n", GET_NAME(catcher));
+		}
+		else if(baseball.ball.y >= 20 && baseball.ball.y <= 30) {
+			if(baseball.ball.x >= 78 && baseball.ball.x <= 80 && world[real_room(18911)].people != NULL)
+				catcher = world[real_room(18911)].people;
+			else if(baseball.ball.x >= 76 && baseball.ball.x <= 79 && world[real_room(18912)].people != NULL)
+				catcher = world[real_room(18912)].people;
+			else if(baseball.ball.x >= 74 && baseball.ball.x <= 77 && world[real_room(18913)].people != NULL)
+				catcher = world[real_room(18913)].people;
+			else if(baseball.ball.x >= 72 && baseball.ball.x <= 75 && world[real_room(18914)].people != NULL)
+				catcher = world[real_room(18914)].people;
+			else if(baseball.ball.x >= 70 && baseball.ball.x <= 73 && world[real_room(18915)].people != NULL)
+				catcher = world[real_room(18915)].people;
+			else if(baseball.ball.x == 70 && world[real_room(18916)].people != NULL)
+				catcher = world[real_room(18916)].people;
+			else if(baseball.ball.x == 69 && world[real_room(18917)].people != NULL)
+				catcher = world[real_room(18917)].people;
+			else if(baseball.ball.x == 68 && world[real_room(18918)].people != NULL)
+				catcher = world[real_room(18918)].people;
+			else if(baseball.ball.x == 67 && world[real_room(18919)].people != NULL)
+				catcher = world[real_room(18919)].people;
+			else if(baseball.ball.x == 66 && world[real_room(18920)].people != NULL)
+				catcher = world[real_room(18920)].people;
+			else if(baseball.ball.x >= 30 && baseball.ball.x <= 33 && world[real_room(18935)].people != NULL)
+				catcher = world[real_room(18935)].people;
+			else if(baseball.ball.x >= 32 && baseball.ball.x <= 35 && world[real_room(18934)].people != NULL)
+				catcher = world[real_room(18934)].people;
+			else if(baseball.ball.x >= 34 && baseball.ball.x <= 37 && world[real_room(18933)].people != NULL)
+				catcher = world[real_room(18933)].people;
+			else if(baseball.ball.x >= 36 && baseball.ball.x <= 39 && world[real_room(18932)].people != NULL)
+				catcher = world[real_room(18932)].people;
+			else if(baseball.ball.x >= 38 && baseball.ball.x <= 41 && world[real_room(18931)].people != NULL)
+				catcher = world[real_room(18931)].people;
+			else if(baseball.ball.x == 41 && world[real_room(18936)].people != NULL)
+				catcher = world[real_room(18936)].people;
+			else if(baseball.ball.x == 42 && world[real_room(18937)].people != NULL)
+				catcher = world[real_room(18937)].people;
+			else if(baseball.ball.x == 43 && world[real_room(18938)].people != NULL)
+				catcher = world[real_room(18938)].people;
+			else if(baseball.ball.x == 44 && world[real_room(18939)].people != NULL)
+				catcher = world[real_room(18939)].people;
+			else if(baseball.ball.x == 45 && world[real_room(18940)].people != NULL)
+				catcher = world[real_room(18940)].people;
+			if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18911 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18920)
+				sprintf(buf, "[문자중계] %s님이 1루 베이스 근처에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18931 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18940)
+				sprintf(buf, "[문자중계] %s님이 3루 베이스 근처에서 잡는 공!\r\n", GET_NAME(catcher));
+
+		}
+		if(catcher != NULL) {
+			baseball.ball.move = FALSE;
+			send_to_char(catcher, "나이스캐치!\r\n");
+			send_to_zone(buf, baseball.ground);
+			struct obj_data *obj = read_object(real_object(18801), REAL); // 18801은 야구공 물건번호
+			obj_to_char(obj, catcher);
+			load_otrigger(obj);
+			record_count(5);
+		}
+	}
 }
 
 bool is_ready() {
@@ -262,7 +355,7 @@ ACMD(do_baseball) {
 				baseball.bottom.master = ch;
 				baseball.bottom.member = ch;
 				ch->company = &baseball.bottom;
-				sprintf(buf, "%s님이 이끄는 임시 야구단 %s이(가) 말 공격으로 경기를 준비합니다.\r\n", GET_NAME(ch), baseball.bottom.name);
+				sprintf(buf, "[팀정보] %s님이 이끄는 임시 야구단 %s이(가) 말 공격으로 경기를 준비합니다.\r\n", GET_NAME(ch), baseball.bottom.name);
 				send_to_zone(buf, baseball.ground);
 				return;
 			}
@@ -272,7 +365,7 @@ ACMD(do_baseball) {
 				baseball.top.member = ch;
 				baseball.ground = real_zone_by_thing(zone);
 				ch->company = &baseball.top;
-				sprintf(buf, "%s님이 이끄는 임시 야구단 %s이(가) 초 공격으로 경기를 준비합니다.\r\n", GET_NAME(ch), baseball.top.name);
+				sprintf(buf, "[팀정보] %s님이 이끄는 임시 야구단 %s이(가) 초 공격으로 경기를 준비합니다.\r\n", GET_NAME(ch), baseball.top.name);
 				send_to_zone(buf, baseball.ground);
 				return;
 			}
@@ -292,7 +385,7 @@ ACMD(do_baseball) {
 			}
 			for(temp = ch->company->member; temp->next_baseball != NULL; temp = temp->next_baseball) ;
 			temp->next_baseball = ch;
-			sprintf(buf, "%s님이 %s 팀에 입단합니다.\r\n", GET_NAME(ch), ch->company->name);
+			sprintf(buf, "[팀정보] %s님이 %s 팀에 입단합니다.\r\n", GET_NAME(ch), ch->company->name);
 			send_to_zone(buf, baseball.ground);
 			return;
 		}
@@ -320,7 +413,7 @@ ACMD(do_baseball) {
 					return;
 				}
 			}
-			sprintf(buf, "%s님이 %s 팀에서 방출되었습니다.\r\n", GET_NAME(temp), temp->company->name);
+			sprintf(buf, "[팀정보] %s님이 %s 팀에서 방출되었습니다.\r\n", GET_NAME(temp), temp->company->name);
 			send_to_zone(buf, baseball.ground);
 			leave_team(temp);
 		}
@@ -366,7 +459,7 @@ ACMD(do_baseball) {
 					return;
 				}
 			}
-			sprintf(buf, "%s 팀의 %d번 타자, %s님을 소개합니다.\r\n", team->name, i+1, GET_NAME(temp));
+			sprintf(buf, "[문자중계] %s 팀의 %d번 타자, %s님을 소개합니다.\r\n", team->name, i+1, GET_NAME(temp));
 			send_to_zone(buf, baseball.ground);
 			team->hitters[i] = temp;
 			team->batter += 1;
@@ -399,7 +492,7 @@ ACMD(do_baseball) {
 			}
 			team->defense[i] = temp;
 			temp->baseball_position = TRUE;
-			sprintf(buf, "%s 팀의 %s, %s님을 소개합니다.\r\n", team->name, baseball_position[i], GET_NAME(temp));
+			sprintf(buf, "[문자중계] %s 팀의 %s, %s님을 소개합니다.\r\n", team->name, baseball_position[i], GET_NAME(temp));
 			send_to_zone(buf, baseball.ground);
 			return;
 		}
@@ -420,7 +513,7 @@ ACMD(do_baseball) {
 			baseball.cur_inning = 1;
 			baseball.bottom_hitting = FALSE;
 			baseball.playing = TRUE;
-			sprintf(buf, "지금부터 %s팀 대 %s팀, %s팀 대 %s팀의 %d이닝 경기를 %s 팀의 초 공격으로 시작하겠습니다.\r\n", baseball.top.name, baseball.bottom.name, baseball.bottom.name, baseball.top.name, baseball.innings, baseball.top.name);
+			sprintf(buf, "[문자중계] 지금부터 %s팀 대 %s팀, %s팀 대 %s팀의 %d이닝 경기를 %s 팀의 초 공격으로 시작하겠습니다.\r\n", baseball.top.name, baseball.bottom.name, baseball.bottom.name, baseball.top.name, baseball.innings, baseball.top.name);
 			send_to_zone(buf, baseball.ground);
 			locate_position();
 			return;
@@ -443,7 +536,7 @@ ACMD(do_baseball) {
 					if(baseball.bottom_hitting == FALSE) send_to_char(ch, "초 공격, 아웃카운트 %d\r\n", baseball.top.outcount);
 					else send_to_char(ch, "말 공격, 아웃카운트 %d\r\n", baseball.bottom.outcount);
 					if(baseball.bottom_hitting == FALSE) send_to_char(ch, "타자: %s, 스트라이크: %d, 볼: %d\r\n", GET_NAME(baseball.top.hitters[baseball.top.batter-9]), baseball.top.strike, baseball.top.ballcount);
-					else send_to_char(ch, "타자: %s, 스트라이크: %d, 볼: %d\r\n", GET_NAME(baseball.bottom.hitters[baseball.bottom.batter-1]), baseball.bottom.strike, baseball.bottom.ballcount);
+					else send_to_char(ch, "타자: %s, 스트라이크: %d, 볼: %d\r\n", GET_NAME(baseball.bottom.hitters[baseball.bottom.batter-9]), baseball.bottom.strike, baseball.bottom.ballcount);
 				}
 				else
 					send_to_char(ch, "경기 준비 중\r\n");
@@ -485,7 +578,7 @@ ACMD(do_baseball) {
 					temp->baseball_position = FALSE;
 				}
 				baseball.top.batter = 0;
-				sprintf(buf, "%s님이 %s 팀을 해체했습니다.\r\n", GET_NAME(ch), baseball.top.name);
+				sprintf(buf, "[팀정보] %s님이 %s 팀을 해체했습니다.\r\n", GET_NAME(ch), baseball.top.name);
 				send_to_zone(buf, baseball.ground);
 				strcpy(baseball.top.name, "");
 			}
@@ -503,7 +596,7 @@ ACMD(do_baseball) {
 					temp->baseball_position = FALSE;
 				}
 				baseball.bottom.batter = 0;
-				sprintf(buf, "%s님이 %s 팀을 해체했습니다.\r\n", GET_NAME(ch), baseball.bottom.name);
+				sprintf(buf, "[팀정보] %s님이 %s 팀을 해체했습니다.\r\n", GET_NAME(ch), baseball.bottom.name);
 				send_to_zone(buf, baseball.ground);
 				strcpy(baseball.bottom.name, "");
 			}
@@ -527,7 +620,7 @@ ACMD(do_baseball) {
 					return;
 				}
 			}
-			sprintf(buf, "%s님이 %s 팀을 탈퇴했습니다.\r\n", GET_NAME(ch), ch->company->name);
+			sprintf(buf, "[팀정보] %s님이 %s 팀을 탈퇴했습니다.\r\n", GET_NAME(ch), ch->company->name);
 			send_to_zone(buf, baseball.ground);
 			leave_team(ch);
 		}
@@ -551,8 +644,8 @@ ACMD(do_pitch) {
 		send_to_char(ch, "사용법: <투구지점> <높이> 투구\r\n");
 		return;
 	}
-	if(!is_number(buf) || !is_number(buf2) || atoi(buf) < 5 || atoi(buf) > 5 || atoi(buf2) < 2 || atoi(buf2) > 5) {
-		send_to_char(ch, "좌표는 5에서 5, 높이는 2에서 5 사이의 값이어야 합니다.\r\n");
+	if(!is_number(buf) || !is_number(buf2) || atoi(buf) < 3 || atoi(buf) > 7 || atoi(buf2) < 2 || atoi(buf2) > 5) {
+		send_to_char(ch, "좌표는 3에서 7, 높이는 2에서 5 사이의 값이어야 합니다.\r\n");
 		return;
 	}
 	if(baseball.bottom_hitting == TRUE)
@@ -569,7 +662,7 @@ ACMD(do_pitch) {
 	baseball.ball.dir = SOUTH;
 	baseball.ball.speed = 3;
 	baseball.ball.moving = TRUE;
-	sprintf(buf1, "%s님 투구\r\n", GET_NAME(ch));
+	sprintf(buf1, "%s님 투구 좌표: %d\r\n", GET_NAME(ch), atoi(buf));
 	send_to_zone(buf1, baseball.ground);
 	return;
 }
@@ -587,7 +680,7 @@ ACMD(do_bat) {
 		send_to_char(ch, "사용법: <타격지점> <높이> 타격\r\n");
 		return;
 	}
-	if(!is_number(arg1) || !is_number(arg2) || atoi(arg1) < 5 || atoi(arg1) > 5 || atoi(arg2) < 1 || atoi(arg2) > 6) {
+	if(!is_number(arg1) || !is_number(arg2) || atoi(arg1) < 3 || atoi(arg1) > 7 || atoi(arg2) < 1 || atoi(arg2) > 6) {
 		send_to_char(ch, "좌표는 5에서 5, 높이는 1에서 6 사이의 값이어야 합니다.\r\n");
 		return;
 	}
@@ -596,28 +689,29 @@ ACMD(do_bat) {
 		return;
 	}
 	if(baseball.ball.y > 5) {
-		sprintf(buf, "헛스윙!\r\n");
+		sprintf(buf, "[문자중계] 헛스윙!\r\n");
 		send_to_zone(buf, baseball.ground);
 		baseball.ball.moving == FALSE;
 		record_count(1);
 		return;
 	}
-	if(baseball.ball.y <= 5) {
-		if(atoi(arg1) && baseball.ball.x) {
-			if(atoi(arg2) && baseball.ball.z) {
-				sprintf(buf, "쳤습니다!\r\n");
-				ch->company->hits += 1;
-				baseball.ball.dir = NORTH;
-				baseball.ball.equation = 1;
-				baseball.ball.z *= 2;
-			}
-			else if(atoi(arg2) - baseball.ball.z >= 2 || atoi(arg2) - baseball.ball.z <= -2) {
-				sprintf(buf, "헛스윙!\r\n");
-				baseball.ball.moving = FALSE;
-				record_count(1);
-			}
-			send_to_zone(buf, baseball.ground);
-			return;
+	else {
+		if(atoi(arg1) == baseball.ball.x) baseball.ball.dir = NORTH;
+		if(atoi(arg2)-baseball.ball.z >= -1 && atoi(arg2)-baseball.ball.z <= 1) {
+			sprintf(buf, "[문자중계] 쳤습니다!\r\n");
+			ch->company->hits += 1;
+			ch->company->inning_score[baseball.cur_inning-1] += 1;
+			if(atoi(arg2) == baseball.ball.z) baseball.ball.equation = 1;
+			else if(baseball.ball.z - atoi(arg2) == 1) baseball.ball.equation = 2;
+			else if(atoi(arg2) - baseball.ball.z == 1) baseball.ball.equation = 3;
+			baseball.ball.x = (baseball.ball.x *10) + 5; // 55가 중앙, 2루 베이스 기준
 		}
+		else if(atoi(arg2) - baseball.ball.z >= 2 || atoi(arg2) - baseball.ball.z <= -2) {
+			sprintf(buf, "[문자중계] 헛스윙!\r\n");
+			baseball.ball.moving = FALSE;
+			record_count(1);
+		}
+		send_to_zone(buf, baseball.ground);
+		return;
 	}
 }

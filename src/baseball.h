@@ -10,7 +10,7 @@
 void record_count(int status);
 void locate_position();
 void init_ball(struct baseball_ball *b);
-void move_ball(int ms);
+void move_ball();
 
 struct char_data * find_player(struct char_data *ch, char *sub);
 bool is_ready();

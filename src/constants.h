@@ -55,6 +55,8 @@ extern const char *wtrig_types[];
 extern const char *history_types[];
 extern const char *ibt_bits[];
 extern const char *baseball_position[];
+extern const char *baseball_defense_room[];
+
 extern size_t room_bits_count;
 extern size_t action_bits_count;
 extern size_t affected_bits_count;

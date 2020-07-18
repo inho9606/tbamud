@@ -621,6 +621,17 @@
  * 16k should be plenty and then some. */
 #define MAX_CMD_LENGTH 16384
 
+/** Baseball Position for Defense **/
+#define PITCHER 0
+#define CATCHER 1
+#define FIRST_BASEMAN 2
+#define SECOND_BASEMAN 3
+#define THIRD_BASEMAN 4
+#define SHORT_STOP 5
+#define LEFT_FIELDER 6
+#define CENTER_FIELDER 7
+#define RIGHT_FIELDER 8
+
 /* Type Definitions */
 typedef signed char sbyte;          /**< 1 byte; vals = -127 to 127 */
 typedef unsigned char ubyte;        /**< 1 byte; vals = 0 to 255 */
@@ -1414,12 +1425,13 @@ struct baseball_team {
 	ubyte runs, hits, errors, bb; // bb = 사사구(base on balls)
 	ubyte strike, ballcount, outcount;
 	ubyte inning_score[9], batter;
+	bool b1, b2, b3; // 1루수,2루수,3루수
 };
 
 struct baseball_ball {
 	sbyte x, y, z, dir, equation;
 	ubyte speed, dist;
-	bool moving;
+	bool moving, bound;
 };
 
 struct baseball_data {

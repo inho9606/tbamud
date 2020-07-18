@@ -971,6 +971,19 @@ const char *baseball_position[] = {
   "¿ìÀÍ¼ö",
   "\n"
 };
+/** Room numbers for each position **/
+const char *baseball_defense_room[] = {
+  "18882",
+  "18800",
+  "18913",
+  "18923",
+  "18933",
+  "18943",
+  "18973",
+  "18963",
+  "18953",
+  "\n"
+};
 /* --- End of constants arrays. --- */
 
 /* Various arrays we count so we can check the world files.  These
