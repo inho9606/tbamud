@@ -26,6 +26,7 @@
 #include "quest.h"
 #include "act.h"
 #include "genobj.h"
+#include "baseball.h"
 
 /* Utility functions */
 
@@ -346,6 +347,10 @@ void find_replacement(void *go, struct script_data *sc, trig_data *trig,
         snprintf(str, slen, "%s", omove[type]);
       else if (!str_cmp(var, "log"))
         snprintf(str, slen, "%s", log_cmd[type]);
+      else if (!str_cmp(var, "base")) {
+        baseball_base();
+        return;
+      }
       else
         *str = '\0';
     }

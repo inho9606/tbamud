@@ -14,7 +14,6 @@
 #include "dg_scripts.h"
 #include "constants.h"
 #include "genzon.h" /* for real_zone_by_thing */
-
 struct baseball_data baseball;
 
 void record_count(int status) {
@@ -28,7 +27,6 @@ void record_count(int status) {
 	else if(status == 3) { // 그냥 장타
 		t->strike = 0;
 		t->ballcount = 0;
-		t->outcount = 0;
 		if(t->batter < 18) t->batter += 1;
 		else t->batter = 9;
 		return;
@@ -66,6 +64,9 @@ void record_count(int status) {
 		t->strike = 0;
 		t->ballcount = 0;
 		t->outcount = 0;
+		t->b1 = FALSE;
+		t->b2 = FALSE;
+		t->b3 = FALSE;
 		if(baseball.bottom_hitting == TRUE) {
 			baseball.cur_inning += 1;
 			if(baseball.innings < baseball.cur_inning) {
@@ -79,6 +80,36 @@ void record_count(int status) {
 		locate_position();
 		sprintf(buf, "[문자중계] 공수교대!");
 		send_to_zone(buf, baseball.ground);
+	}
+}
+
+void baseball_base() {
+	if(baseball.playing == TRUE) {
+		struct baseball_team *t = NULL;
+		struct char_data *runner = NULL;
+		struct obj_data *obj = NULL;
+		int i;
+		char buf[MAX_STRING_LENGTH];
+		if(baseball.bottom_hitting == TRUE) t = &baseball.bottom;
+		else t = &baseball.top;
+		runner = t->hitters[t->batter-9];
+		if(GET_ROOM_VNUM(IN_ROOM(runner)) != 18800 && GET_ROOM_VNUM(IN_ROOM(runner)) != 18820 && GET_ROOM_VNUM(IN_ROOM(runner)) != 18840 && GET_ROOM_VNUM(IN_ROOM(runner)) != 18860) {
+			char_from_room(runner);
+			char_to_room(runner, find_target_room(runner, "18800"));
+			act("방금 아웃된 $n님이 숨을 헐떡이며 나타납니다.", FALSE, runner, 0, 0, TO_ROOM);
+			send_to_char(runner, "아웃되어 그라운드 밖으로 이동합니다.\r\n");
+			look_at_room(runner, 0);
+			record_count(5);
+		}
+		else if(GET_ROOM_VNUM(IN_ROOM(runner)) == 18820)
+			t->b1 = TRUE;
+		if(baseball.bottom_hitting == TRUE) t = &baseball.top;
+		else t = &baseball.bottom;
+		for(i=0; i<9; i++) {
+			obj = get_obj_in_list_vis(t->defense[i], "야구공", NULL, t->defense[i]->carrying);
+			if(obj != NULL)
+				obj_from_char(obj);
+		}
 	}
 }
 
@@ -103,13 +134,10 @@ void init_ball(struct baseball_ball *b) {
 	b->dist = 0;
 }
 
-void move_ball(int ms) {
+void move_ball() {
 	char buf[MAX_STRING_LENGTH];
-//	struct baseball_team *t;
 	struct char_data *catcher = NULL;
 	if(baseball.ball.moving == FALSE) return;
-//	if(baseball.bottom_hitting == TRUE) t = &baseball.top;
-//	else t = &baseball.bottom;
 	switch (baseball.ball.dir) {
 		case SOUTH:
 			baseball.ball.y -= baseball.ball.speed;
@@ -129,6 +157,8 @@ void move_ball(int ms) {
 	if(baseball.ball.dir != SOUTH) {
 		baseball.ball.dist += baseball.ball.speed;
 		switch (baseball.ball.equation) {
+			case 0:
+				break;
 			case 1:
 				if(baseball.ball.dist % 66 == 0) baseball.ball.z -= 1;
 				break;
@@ -163,6 +193,7 @@ void move_ball(int ms) {
 		send_to_zone(buf, baseball.ground);
 			record_count(2);
 		}
+		return;
 	}
 	else if(baseball.ball.y >= 125) {
 		baseball.ball.moving = FALSE;
@@ -176,11 +207,11 @@ void move_ball(int ms) {
 			send_to_zone(buf, baseball.ground);
 			record_count(4);
 		}
+		return;
 	}
 	if(baseball.ball.z <= 3) {
 		if(baseball.ball.y >= 17 && baseball.ball.y <= 19 && baseball.ball.x == 55 && world[real_room(18882)].people != NULL) {
-				catcher = world[real_room(18882)].people;
-			sprintf(buf, "[문자중계] %s님이 마운드 앞에서 잡는 공!\r\n", GET_NAME(catcher));
+			catcher = world[real_room(18882)].people;
 		}
 		else if(baseball.ball.y >= 20 && baseball.ball.y <= 30) {
 			if(baseball.ball.x >= 78 && baseball.ball.x <= 80 && world[real_room(18911)].people != NULL)
@@ -223,20 +254,146 @@ void move_ball(int ms) {
 				catcher = world[real_room(18939)].people;
 			else if(baseball.ball.x == 45 && world[real_room(18940)].people != NULL)
 				catcher = world[real_room(18940)].people;
-			if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18911 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18920)
-				sprintf(buf, "[문자중계] %s님이 1루 베이스 근처에서 잡는 공!\r\n", GET_NAME(catcher));
-			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18931 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18940)
-				sprintf(buf, "[문자중계] %s님이 3루 베이스 근처에서 잡는 공!\r\n", GET_NAME(catcher));
-
+		}
+		else if(baseball.ball.y >= 31 && baseball.ball.y <= 40) {
+			if(baseball.ball.x == 70 && world[real_room(18916)].people != NULL)
+				catcher = world[real_room(18916)].people;
+			else if(baseball.ball.x == 69 && world[real_room(18917)].people != NULL)
+				catcher = world[real_room(18917)].people;
+			else if(baseball.ball.x == 68 && world[real_room(18918)].people != NULL)
+				catcher = world[real_room(18918)].people;
+			else if(baseball.ball.x == 67 && world[real_room(18919)].people != NULL)
+				catcher = world[real_room(18919)].people;
+			else if(baseball.ball.x == 66 && world[real_room(18920)].people != NULL)
+				catcher = world[real_room(18920)].people;
+			else if(baseball.ball.x >= 63 && baseball.ball.x <= 66 && world[real_room(18921)].people != NULL)
+				catcher = world[real_room(18921)].people;
+			else if(baseball.ball.x >= 61 && baseball.ball.x <= 64 && world[real_room(18922)].people != NULL)
+				catcher = world[real_room(18922)].people;
+			else if(baseball.ball.x >= 59 && baseball.ball.x <= 62 && world[real_room(18923)].people != NULL)
+				catcher = world[real_room(18923)].people;
+			else if(baseball.ball.x >= 57 && baseball.ball.x <= 60 && world[real_room(18924)].people != NULL)
+				catcher = world[real_room(18924)].people;
+			else if(baseball.ball.x >= 55 && baseball.ball.x <= 58 && world[real_room(18925)].people != NULL)
+				catcher = world[real_room(18925)].people;
+			else if(baseball.ball.x >= 53 && baseball.ball.x <= 56 && world[real_room(18941)].people != NULL)
+				catcher = world[real_room(18941)].people;
+			else if(baseball.ball.x >= 51 && baseball.ball.x <= 54 && world[real_room(18942)].people != NULL)
+				catcher = world[real_room(18942)].people;
+			else if(baseball.ball.x >= 49 && baseball.ball.x <= 52 && world[real_room(18943)].people != NULL)
+				catcher = world[real_room(18943)].people;
+			else if(baseball.ball.x >= 47 && baseball.ball.x <= 50 && world[real_room(18944)].people != NULL)
+				catcher = world[real_room(18944)].people;
+			else if(baseball.ball.x >= 45 && baseball.ball.x <= 48 && world[real_room(18945)].people != NULL)
+				catcher = world[real_room(18945)].people;
+			else if(baseball.ball.x == 41 && world[real_room(18936)].people != NULL)
+				catcher = world[real_room(18936)].people;
+			else if(baseball.ball.x == 42 && world[real_room(18937)].people != NULL)
+				catcher = world[real_room(18937)].people;
+			else if(baseball.ball.x == 43 && world[real_room(18938)].people != NULL)
+				catcher = world[real_room(18938)].people;
+			else if(baseball.ball.x == 44 && world[real_room(18939)].people != NULL)
+				catcher = world[real_room(18939)].people;
+			else if(baseball.ball.x == 45 && world[real_room(18940)].people != NULL)
+				catcher = world[real_room(18940)].people;
+		}
+		else if(baseball.ball.y >= 61 && baseball.ball.y <= 80) {
+			if(baseball.ball.x >= 40 && baseball.ball.x <= 43 && world[real_room(18976)].people != NULL)
+				catcher = world[real_room(18976)].people;
+			else if(baseball.ball.x >= 42 && baseball.ball.x <= 45 && world[real_room(18977)].people != NULL)
+				catcher = world[real_room(18977)].people;
+			else if(baseball.ball.x >= 44 && baseball.ball.x <= 47 && world[real_room(18978)].people != NULL)
+				catcher = world[real_room(18978)].people;
+			else if(baseball.ball.x >= 46 && baseball.ball.x <= 49 && world[real_room(18979)].people != NULL)
+				catcher = world[real_room(18979)].people;
+			else if(baseball.ball.x >= 48 && baseball.ball.x <= 51 && world[real_room(18980)].people != NULL)
+				catcher = world[real_room(18980)].people;
+			else if(baseball.ball.x >= 50 && baseball.ball.x <= 53 && world[real_room(18965)].people != NULL)
+				catcher = world[real_room(18965)].people;
+			else if(baseball.ball.x >= 52 && baseball.ball.x <= 55 && world[real_room(18964)].people != NULL)
+				catcher = world[real_room(18964)].people;
+			else if(baseball.ball.x >= 54 && baseball.ball.x <= 57 && world[real_room(18963)].people != NULL)
+				catcher = world[real_room(18963)].people;
+			else if(baseball.ball.x >= 56 && baseball.ball.x <= 59 && world[real_room(18962)].people != NULL)
+				catcher = world[real_room(18962)].people;
+			else if(baseball.ball.x >= 58 && baseball.ball.x <= 61 && world[real_room(18961)].people != NULL)
+				catcher = world[real_room(18961)].people;
+			else if(baseball.ball.x >= 60 && baseball.ball.x <= 63 && world[real_room(18960)].people != NULL)
+				catcher = world[real_room(18960)].people;
+			else if(baseball.ball.x >= 62 && baseball.ball.x <= 65 && world[real_room(18959)].people != NULL)
+				catcher = world[real_room(18959)].people;
+			else if(baseball.ball.x >= 64 && baseball.ball.x <= 67 && world[real_room(18958)].people != NULL)
+				catcher = world[real_room(18958)].people;
+			else if(baseball.ball.x >= 66 && baseball.ball.x <= 69 && world[real_room(18957)].people != NULL)
+				catcher = world[real_room(18957)].people;
+			else if(baseball.ball.x >= 68 && baseball.ball.x <= 71 && world[real_room(18956)].people != NULL)
+				catcher = world[real_room(18956)].people;
+		}
+		else if(baseball.ball.y >= 81 && baseball.ball.y <= 100) {
+			if(baseball.ball.x >= 30 && baseball.ball.x <= 33 && world[real_room(18971)].people != NULL)
+				catcher = world[real_room(18971)].people;
+			else if(baseball.ball.x >= 32 && baseball.ball.x <= 35 && world[real_room(18972)].people != NULL)
+				catcher = world[real_room(18972)].people;
+			else if(baseball.ball.x >= 34 && baseball.ball.x <= 37 && world[real_room(18973)].people != NULL)
+				catcher = world[real_room(18973)].people;
+			else if(baseball.ball.x >= 36 && baseball.ball.x <= 39 && world[real_room(18974)].people != NULL)
+				catcher = world[real_room(18974)].people;
+			else if(baseball.ball.x >= 38 && baseball.ball.x <= 41 && world[real_room(18975)].people != NULL)
+				catcher = world[real_room(18975)].people;
+			else if(baseball.ball.x >= 40 && baseball.ball.x <= 43 && world[real_room(18976)].people != NULL)
+				catcher = world[real_room(18976)].people;
+			else if(baseball.ball.x >= 42 && baseball.ball.x <= 45 && world[real_room(18977)].people != NULL)
+				catcher = world[real_room(18977)].people;
+			else if(baseball.ball.x >= 44 && baseball.ball.x <= 47 && world[real_room(18978)].people != NULL)
+				catcher = world[real_room(18978)].people;
+			else if(baseball.ball.x >= 46 && baseball.ball.x <= 49 && world[real_room(18979)].people != NULL)
+				catcher = world[real_room(18979)].people;
+			else if(baseball.ball.x >= 48 && baseball.ball.x <= 51 && world[real_room(18980)].people != NULL)
+				catcher = world[real_room(18980)].people;
+			else if(baseball.ball.x >= 60 && baseball.ball.x <= 63 && world[real_room(18960)].people != NULL)
+				catcher = world[real_room(18960)].people;
+			else if(baseball.ball.x >= 62 && baseball.ball.x <= 65 && world[real_room(18959)].people != NULL)
+				catcher = world[real_room(18959)].people;
+			else if(baseball.ball.x >= 64 && baseball.ball.x <= 67 && world[real_room(18958)].people != NULL)
+				catcher = world[real_room(18958)].people;
+			else if(baseball.ball.x >= 66 && baseball.ball.x <= 69 && world[real_room(18957)].people != NULL)
+				catcher = world[real_room(18957)].people;
+			else if(baseball.ball.x >= 68 && baseball.ball.x <= 71 && world[real_room(18956)].people != NULL)
+				catcher = world[real_room(18956)].people;
+			else if(baseball.ball.x >= 70 && baseball.ball.x <= 73 && world[real_room(18955)].people != NULL)
+				catcher = world[real_room(18955)].people;
+			else if(baseball.ball.x >= 72 && baseball.ball.x <= 75 && world[real_room(18954)].people != NULL)
+				catcher = world[real_room(18954)].people;
+			else if(baseball.ball.x >= 74 && baseball.ball.x <= 77 && world[real_room(18953)].people != NULL)
+				catcher = world[real_room(18953)].people;
+			else if(baseball.ball.x >= 76 && baseball.ball.x <= 79 && world[real_room(18952)].people != NULL)
+				catcher = world[real_room(18952)].people;
+			else if(baseball.ball.x >= 78 && baseball.ball.x <= 80 && world[real_room(18951)].people != NULL)
+				catcher = world[real_room(18951)].people;
 		}
 		if(catcher != NULL) {
-			baseball.ball.move = FALSE;
+			baseball.ball.moving = FALSE;
 			send_to_char(catcher, "나이스캐치!\r\n");
+			if(GET_ROOM_VNUM(IN_ROOM(catcher)) == 18882)
+				sprintf(buf, "[문자중계] %s님이 마운드 앞에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18911 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18920)
+				sprintf(buf, "[문자중계] %s님이 1루 베이스 근처에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18921 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18925)
+				sprintf(buf, "[문자중계] %s님이 2루 베이스 우측에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18931 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18940)
+				sprintf(buf, "[문자중계] %s님이 3루 베이스 근처에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18941 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18945)
+				sprintf(buf, "[문자중계] %s님이 2루 베이스 좌측에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18961 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18965)
+				sprintf(buf, "[문자중계] %s님이 중견수 라인에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18951 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18960)
+				sprintf(buf, "[문자중계] %s님이 우익수 라인에서 잡는 공!\r\n", GET_NAME(catcher));
+			else if(GET_ROOM_VNUM(IN_ROOM(catcher)) >= 18971 && GET_ROOM_VNUM(IN_ROOM(catcher)) <= 18980)
+				sprintf(buf, "[문자중계] %s님이 좌익수 라인에서 잡는 공!\r\n", GET_NAME(catcher));
 			send_to_zone(buf, baseball.ground);
 			struct obj_data *obj = read_object(real_object(18801), REAL); // 18801은 야구공 물건번호
 			obj_to_char(obj, catcher);
 			load_otrigger(obj);
-			record_count(5);
 		}
 	}
 }
@@ -250,6 +407,7 @@ bool is_ready() {
 		return 1;
 	}
 }
+
 struct char_data * find_player(struct char_data *ch, char *sub) {
 	struct char_data *temp;
 	for(temp = ch->company->member; temp != NULL && str_cmp(sub, GET_NAME(temp)); temp = temp->next_baseball) ;
@@ -699,6 +857,8 @@ ACMD(do_bat) {
 		if(atoi(arg1) == baseball.ball.x) baseball.ball.dir = NORTH;
 		if(atoi(arg2)-baseball.ball.z >= -1 && atoi(arg2)-baseball.ball.z <= 1) {
 			sprintf(buf, "[문자중계] 쳤습니다!\r\n");
+			char_from_room(ch);
+			char_to_room(ch, find_target_room(ch, "18801"));
 			ch->company->hits += 1;
 			ch->company->inning_score[baseball.cur_inning-1] += 1;
 			if(atoi(arg2) == baseball.ball.z) baseball.ball.equation = 1;
