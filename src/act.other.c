@@ -47,7 +47,9 @@ ACMD(do_quit)
   else if (GET_POS(ch) < POS_STUNNED) {
     send_to_char(ch, "당신은 죽었습니다.\r\n");
     die(ch, NULL);
-  } else {
+  } else if(ch->company != NULL)
+    send_to_char(ch, "야구 선수는 게임을 종료할 수 없습니다.\r\n");
+  else {
  act("$n님이 게임을 종료합니다.", TRUE, ch, 0, 0, TO_ROOM);
     mudlog(NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE, "%s님이 게임에서 나갔습니다.", GET_NAME(ch));
 

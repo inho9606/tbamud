@@ -250,6 +250,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "야구"     , "야"       , POS_STANDING , do_baseball , 0, 0 },
   { "투구"     , "투"       , POS_STANDING , do_pitch , 0, 0 },
   { "타격"     , "타"       , POS_STANDING , do_bat , 0, 0 },
+  { "송구"     , "송"       , POS_STANDING , do_pass , 0, 0 },
 
   { "열어"     , "o"       , POS_SITTING , do_gen_door , 0, SCMD_OPEN },
   { "명령"    , "ord"     , POS_RESTING , do_order    , 1, 0 }, // order
@@ -339,7 +340,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "시간"     , "time"    , POS_DEAD    , do_time     , 0, 0 }, // time
   { "설정"   , "toggle"  , POS_DEAD    , do_toggle   , 0, 0 }, // toggle
   { "track"    , "track"   , POS_STANDING, do_track    , 0, 0 },
-  { "transfer" , "transfer", POS_SLEEPING, do_trans    , LVL_GOD, 0 },
+  { "불러" , "transfer", POS_SLEEPING, do_trans    , LVL_GOD, 0 },
   { "trigedit" , "trigedit", POS_DEAD    , do_oasis_trigedit, LVL_BUILDER, 0 },
   { "typo"     , "typo"    , POS_DEAD    , do_ibt      , 0, SCMD_TYPO },
   { "tlist"    , "tlist"   , POS_DEAD    , do_oasis_list, LVL_BUILDER, SCMD_OASIS_TLIST },

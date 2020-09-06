@@ -1421,11 +1421,10 @@ struct config_data
 struct baseball_team {
 	char name[MAX_INPUT_LENGTH];
 	struct char_data *member, *master;
-	struct char_data *hitters[9], *defense[9];
+	struct char_data *hitters[9], *defense[9], *basements[4];
 	ubyte runs, hits, errors, bb; // bb = 사사구(base on balls)
 	ubyte strike, ballcount, outcount;
 	ubyte inning_score[9], batter;
-	bool b1, b2, b3; // 1루수,2루수,3루수
 };
 
 struct baseball_ball {

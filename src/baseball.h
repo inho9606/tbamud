@@ -19,4 +19,5 @@ void leave_team(struct char_data *ch);
 ACMD(do_baseball);
 ACMD(do_pitch);
 ACMD(do_bat);
+ACMD(do_pass);
 #endif
